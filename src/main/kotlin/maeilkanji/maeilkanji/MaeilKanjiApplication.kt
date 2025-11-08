@@ -1,11 +1,11 @@
-package mailnews.maeilnews
+package maeilkanji.maeilkanji
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class MaeilNewsApplication
+class MaeilKanjiApplication
 
 fun main(args: Array<String>) {
-    runApplication<MaeilNewsApplication>(*args)
+    runApplication<MaeilKanjiApplication>(*args)
 }

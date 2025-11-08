@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 칸지 소개 | 3분 일본어 학습 루틴</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <style>
+        /* (스타일 시트 내용은 이전과 동일합니다. 생략) */
+        :root {
+            --maeil-blue: #2563EB;
+            --maeil-light-blue: #F0F5FF;
+            --maeil-success: #198754;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif !important;
+        }
+
+        .text-maeil {
+            color: var(--maeil-blue) !important;
+        }
+
+        .bg-maeil {
+            background-color: var(--maeil-blue) !important;
+        }
+
+        .btn-maeil {
+            background-color: var(--maeil-blue);
+            border-color: var(--maeil-blue);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .btn-maeil:hover {
+            background-color: #1E4DBC;
+            border-color: #1E4DBC;
+            color: white;
+        }
+
+        .section-divider {
+            height: 3px;
+            width: 60px;
+            background-color: var(--maeil-blue);
+            margin: 20px auto 30px auto;
+            border-radius: 2px;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--maeil-blue);
+        }
+
+        .content-card-preview {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: white;
+        }
+
+        .quiz-section {
+            background-color: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .answer-reveal {
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-weight: bold;
+            border-radius: 6px;
+        }
+
+        /* --------------------- 모달 버튼 스타일 추가 --------------------- */
+        .btn-modal-action {
+            background-color: var(--maeil-blue);
+            color: white;
+            border: none;
+            border-radius: 0.375rem; /* Bootstrap 기본 border-radius */
+            padding: 0.375rem 0.75rem; /* Bootstrap 기본 padding */
+            font-size: 0.875rem; /* Bootstrap 기본 font-size */
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .btn-modal-action:hover {
+            background-color: #1E4DBC; /* 더 진한 파랑 */
+            color: white;
+        }
+
+        .btn-modal-action:disabled {
+            background-color: #adb5bd; /* 비활성화 색상 */
+            border-color: #adb5bd;
+        }
+
+        /* 레벨 선택 라디오 버튼 스타일 */
+        .level-option {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .level-option input[type="radio"] {
+            display: none; /* 기본 라디오 버튼 숨기기 */
+        }
+
+        .level-option label {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: #fff;
+            color: #495057;
+        }
+
+        .level-option label:hover {
+            border-color: var(--maeil-blue);
+            color: var(--maeil-blue);
+        }
+
+        .level-option input[type="radio"]:checked + label {
+            background-color: var(--maeil-blue);
+            color: white;
+            border-color: var(--maeil-blue);
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25); /* Bootstrap focus-ring 느낌 */
+        }
+
+        .level-option label .check-icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+            color: #ccc; /* 체크 안 됐을 때 아이콘 색상 */
+        }
+
+        .level-option input[type="radio"]:checked + label .check-icon {
+            color: white; /* 체크 됐을 때 아이콘 색상 */
+        }
+
+        #levelOptions {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-white border-bottom">
+    <div class="container px-4">
+        <a class="navbar-brand fw-bold fs-4 text-maeil" href="#">매일 칸지 🇯🇵</a>
+        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal"
+                data-bs-target="#subscribeModal">무료 구독
+        </button>
+    </div>
+</nav>
+
+<header id="hero" class="text-center py-5" style="background-color: var(--maeil-light-blue);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="display-5 fw-bold text-dark mb-3">
+                    작심삼일 없이, <span class="text-maeil">매일 3분</span>으로 끝내는 일본어 한자 루틴
+                </h1>
+                <p class="lead text-muted mb-4">
+                    매일 칸지는 <strong>레벨별 2개의 핵심 한자</strong>와 실용 예문을 이메일로 보내드려, 부담 없이 <strong>꾸준히</strong> 일본어 실력을 쌓게 돕는
+                    데일리 학습 서비스입니다.
+                </p>
+                <button type="button" class="btn btn-maeil btn-lg fw-semibold" data-bs-toggle="modal"
+                        data-bs-target="#subscribeModal">
+                    🚀 지금 바로 무료 구독 시작하기
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<section id="concept" class="py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-2">매일 칸지가 제공하는 3가지 핵심 가치</h2>
+        <div class="section-divider"></div>
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-icon mb-3">🎯</div>
+                <h5 class="fw-bold">개인 맞춤형 난이도</h5>
+                <p class="text-muted">가입 시 <strong>초급, 중급, 고급</strong> 중 선택! 매일 자신의 레벨에 맞는 2개의 한자만 받습니다.</p>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="feature-icon mb-3">🔗</div>
+                <h5 class="fw-bold">이해가 쉬운 연관 학습</h5>
+                <p class="text-muted">서로 연관되거나 반의어인 한자를 묶어 보내 <strong>연상 암기 효과</strong>를 극대화합니다.</p>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="feature-icon mb-3">✅</div>
+                <h5 class="fw-bold">최적화된 콘텐츠 밀도</h5>
+                <p class="text-muted">핵심 2한자, 단어 4개, 예문 1개만으로 <strong>3분 안에</strong> 오늘 학습을 완료합니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-2">메일과 사이트, 이렇게 작동합니다</h2>
+        <div class="section-divider"></div>
+
+        <div class="row mt-5">
+            <div class="col-lg-10 mx-auto">
+                <div class="row align-items-center">
+                    <div class="col-md-5 text-start mb-4 mb-md-0">
+                        <h4 class="fw-bold text-maeil">STEP 1. 이메일 (퀴즈 & 유도)</h4>
+                        <p class="lead">메일에는 <strong>핵심 퀴즈</strong>만 노출하여 궁금증을 유발합니다.</p>
+                        <div class="p-3 bg-white border rounded shadow-sm">
+                            <p class="fw-bold text-center mb-0"><strong>[퀴즈]</strong> '겉옷'의 일본어 읽는 방법은 무엇일까요?</p>
+                            <button class="btn btn-maeil btn-sm w-100 mt-3">정답 및 학습 완성하러 가기</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 text-center d-none d-md-block">
+                        <span class="feature-icon">➡️</span>
+                    </div>
+
+                    <div class="col-md-5 text-start">
+                        <h4 class="fw-bold text-maeil">STEP 2. 웹사이트 (답변 & 완성)</h4>
+                        <p class="lead">사이트 접속 후 <strong>정답을 확인하고</strong> 오늘 학습을 최종 완료합니다.</p>
+                        <div class="p-3 bg-white border rounded shadow-sm">
+                            <h5 class="fw-bold text-maeil">✅ 퀴즈 정답 공개!</h5>
+                            <p class="mb-1 small fw-bold">정답: うわぎ (上着)</p>
+                            <hr class="my-2">
+                            <h6 class="fw-bold">⭐ 학습 내용</h6>
+                            <p class="small text-muted mb-0">핵심 단어 4개와 실용 예문까지 모두 확인하여 학습을 완성하세요.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="content-preview" class="py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-2">사이트에서 제공되는 최종 콘텐츠 미리보기</h2>
+        <p class="lead text-muted">메일 버튼을 누르면 이처럼 깔끔하게 정리된 오늘의 학습 내용을 보게 됩니다.</p>
+        <div class="section-divider"></div>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10">
+                <div class="content-card-preview p-4">
+
+                    <p class="fw-bold text-maeil mb-1">
+                        [매일 칸지] 🇯🇵 초급자를 위한 오늘의 한자 (上 vs 下)
+                    </p>
+                    <hr class="my-3">
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 text-start">
+                            <h6 class="fw-bold text-maeil mb-3">오늘의 한자 2개!</h6>
+                            <p class="mb-1">
+                                <span class="fs-5 fw-bold me-2">上 (うえ, うわ)</span> : 위, 오르다
+                            </p>
+                            <p class="mb-3">
+                                <span class="fs-5 fw-bold me-2">下 (した, しも)</span> : 아래, 내리다
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <h6 class="fw-bold text-maeil mb-3">핵심 단어 4개!</h6>
+                            <ul class="list-unstyled small">
+                                <li><strong>上着(うわぎ)</strong>: 겉옷</li>
+                                <li><strong>上手(じょうず)</strong>: 능숙함</li>
+                                <li><strong>下着(したぎ)</strong>: 속옷</li>
+                                <li><strong>下手(へた)</strong>: 서투름</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-maeil mt-3 text-start">실용 예문 1개!</h6>
+                    <p class="alert alert-secondary p-2 small text-start">
+                        その
+                        <ruby>服
+                            <rt>ふく</rt>
+                        </ruby>
+                        は<strong>
+                        <ruby>上着
+                            <rt>うわぎ</rt>
+                        </ruby>
+                    </strong>も<strong>
+                        <ruby>下着
+                            <rt>したぎ</rt>
+                        </ruby>
+                    </strong>も<strong>
+                        <ruby>下手
+                            <rt>へた</rt>
+                        </ruby>
+                    </strong>な
+                        <ruby>私
+                            <rt>わたし</rt>
+                        </ruby>
+                        にピッタリでした。
+                        <span class="d-block mt-1 text-muted">(그 옷은 겉옷도 속옷도 서투른 나에게 딱 맞았습니다.)</span>
+                    </p>
+
+                    <div class="quiz-section p-3 mt-3">
+                        <h6 class="fw-bold text-maeil mt-1 text-start">✅ 미니 퀴즈 정답 확인!</h6>
+                        <p class="small text-start">Q. 위의 예문에서 <strong>'겉옷'</strong>의 일본어 읽는 방법은 무엇일까요?</p>
+
+                        <div class="answer-reveal p-2 small text-start">
+                            정답: <span class="fw-bold text-dark">うわぎ (上着)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="cta" class="py-5 bg-maeil text-white text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">당신의 일본어 실력, 오늘부터 달라집니다.</h2>
+        <p class="lead mb-4">지금 바로 무료로 시작하고 매일 꾸준함의 힘을 경험하세요.</p>
+        <button type="button" class="btn btn-light btn-lg fw-semibold text-maeil" data-bs-toggle="modal"
+                data-bs-target="#subscribeModal">
+            🚀 매일 칸지 무료 구독 시작하기
+        </button>
+    </div>
+</section>
+
+<footer class="bg-dark py-4">
+    <div class="container text-center">
+        <p class="text-white-50 small mb-0">© 2025 매일 칸지. All rights reserved.</p>
+    </div>
+</footer>
+
+<div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold text-dark" id="subscribeModalLabel">
+                매일 칸지 구독</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div id="signupFormContent">
+                    <form id="subscribeForm" th:action="@{/api/v1/members/signup}" method="post">
+
+                        <!--                        <p class="text-center text-muted small mb-3">간편 인증 후, 레벨을 선택해 주세요.</p>-->
+                        <br>
+                        <div class="mb-3">
+                            <label for="email" class="form-label small fw-bold">이메일 주소</label>
+                            <div class="input-group">
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="example@email.com" required>
+                                <button class="btn btn-modal-action btn-sm" type="button" id="sendCodeBtn"
+                                        onclick="sendVerificationCode()">인증 코드 발송
+                                </button>
+                            </div>
+                            <div id="emailHelp" class="form-text text-danger" style="display: none;"></div>
+                        </div>
+
+                        <div id="verificationSection" style="display: none;">
+                            <div class="mb-3">
+                                <label for="code" class="form-label small fw-bold">인증 코드 (4자리 숫자)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="code" name="code"
+                                           placeholder="메일로 받은 4자리 숫자 입력" maxlength="4">
+                                    <button class="btn btn-modal-action btn-sm" type="button" id="verifyCodeBtn"
+                                            onclick="verifyCode()">코드 확인
+                                    </button>
+                                </div>
+                                <div id="codeHelp" class="form-text text-danger" style="display: none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold d-block">학습 레벨 선택</label>
+                            <div id="levelOptions">
+                                <div class="level-option">
+                                    <input type="radio" id="levelBeginner" name="level" value="BEGINNER" required
+                                           disabled>
+                                    <label for="levelBeginner">
+                                        <i class="fa-solid fa-circle check-icon"></i> 초급 ➡️ 여행지 간판 읽기에 도전합니다!
+                                    </label>
+                                </div>
+                                <div class="level-option">
+                                    <input type="radio" id="levelIntermediate" name="level" value="INTERMEDIATE"
+                                           disabled>
+                                    <label for="levelIntermediate">
+                                        <i class="fa-solid fa-circle check-icon"></i> 중급 ➡️ 일본 뉴스 기사 제목을 해석합니다!
+                                    </label>
+                                </div>
+                                <div class="level-option">
+                                    <input type="radio" id="levelAdvanced" name="level" value="ADVANCED" disabled>
+                                    <label for="levelAdvanced">
+                                        <i class="fa-solid fa-circle check-icon"></i> 고급 ➡️ 전문가 리포트의 핵심 개념을 파악합니다!
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-maeil btn-lg fw-bold" id="finalSignupBtn" disabled>
+                                    구독 완료 및 시작하기
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="successMessageContent" class="text-center py-4" style="display: none;">
+                    <h4 class="text-maeil fw-bold mb-3">🎉 구독을 환영합니다! 🎉</h4>
+                    <p class="lead"><strong>매일 칸지</strong> 구독이 성공적으로 완료되었습니다.</p>
+                    <p class="text-muted small">첫 번째 학습 메일은 내일 아침 선택하신 레벨로 발송됩니다. 감사합니다!</p>
+                    <button type="button" class="btn btn-outline-secondary mt-3" data-bs-dismiss="modal">창 닫기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --------------------------------------------------------
+    // API 엔드포인트 경로 정의
+    const BASE_API_URL = '/api/v1/members';
+
+    // 이메일 입력 시 유효성 검사 헬퍼
+    function validateEmail(email) {
+        if (!email || !email.includes('@') || !email.includes('.')) {
+            return "올바른 이메일 형식을 입력해 주세요.";
+        }
+        return null;
+    }
+
+    // Helper: 성공/실패 메시지 UI 업데이트
+    function updateHelpText(elementId, message, isSuccess) {
+        const helpText = document.getElementById(elementId);
+        helpText.textContent = message;
+        helpText.classList.remove('text-danger', 'text-success');
+        helpText.classList.add(isSuccess ? 'text-success' : 'text-danger');
+        helpText.style.display = 'block';
+    }
+
+    // 1. 인증 코드 발송 요청 (Controller의 /api/v1/members/send-verification-code 호출)
+    async function sendVerificationCode() {
+        const emailInput = document.getElementById('email');
+        const email = emailInput.value;
+        const btn = document.getElementById('sendCodeBtn');
+        const helpTextId = 'emailHelp';
+
+        const validationError = validateEmail(email);
+        if (validationError) {
+            updateHelpText(helpTextId, validationError, false);
+            return;
+        }
+
+        btn.textContent = '발송 중...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}/send-verification-code`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email})
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                updateHelpText(helpTextId, `✅ ${data.message} (유효시간 3분)`, true);
+                document.getElementById('verificationSection').style.display = 'block';
+                btn.textContent = '코드 재발송';
+                btn.disabled = false;
+
+            } else {
+                const errorMessage = data.message || "메일 발송에 실패했습니다.";
+                updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
+                btn.textContent = '인증 코드 발송';
+                btn.disabled = false;
+            }
+
+        } catch (error) {
+            updateHelpText(helpTextId, '❌ 서버 통신 오류가 발생했습니다.', false);
+            btn.textContent = '인증 코드 발송';
+            btn.disabled = false;
+        }
+    }
+
+    // 2. 인증 코드 확인 요청 (Controller의 /api/v1/members/verify-verification-code 호출)
+    async function verifyCode() {
+        const email = document.getElementById('email').value;
+        const code = document.getElementById('code').value;
+        const btn = document.getElementById('verifyCodeBtn');
+        const helpTextId = 'codeHelp';
+
+        if (code.length !== 4) {
+            updateHelpText(helpTextId, '4자리 숫자를 정확히 입력해 주세요.', false);
+            return;
+        }
+
+        btn.textContent = '확인 중...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}/verify-verification-code`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email, code: code})
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.verified === true) {
+                // 성공: 인증 플래그가 Redis에 저장됨
+
+                document.getElementById('finalSignupBtn').disabled = false;
+
+                // 레벨 선택 라디오 버튼 활성화
+                document.querySelectorAll('#levelOptions input[type="radio"]').forEach(radio => {
+                    radio.disabled = false;
+                });
+
+                document.getElementById('email').disabled = true;
+                btn.textContent = '✅ 확인 완료';
+                btn.disabled = true;
+                document.getElementById('sendCodeBtn').disabled = true;
+
+                updateHelpText(helpTextId, '✅ 인증이 완료되었습니다. 레벨을 선택해 주세요.', true);
+
+            } else {
+                const errorMessage = "인증 코드가 일치하지 않거나 만료되었습니다.";
+                updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
+                btn.textContent = '코드 확인';
+                btn.disabled = false;
+            }
+        } catch (error) {
+            updateHelpText(helpTextId, '❌ 서버 통신 오류가 발생했습니다.', false);
+            btn.textContent = '코드 확인';
+            btn.disabled = false;
+        }
+    }
+
+    // 3. 최종 가입 폼 제출 로직 (Controller의 /api/v1/members/signup 호출)
+    document.getElementById('subscribeForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const finalSignupBtn = document.getElementById('finalSignupBtn');
+        const selectedLevel = document.querySelector('#levelOptions input[name="level"]:checked');
+        const email = document.getElementById('email').value;
+
+        // 최종 프론트엔드 검증 (레벨 선택 여부 포함)
+        if (finalSignupBtn.disabled || !selectedLevel) {
+            alert('❌ 인증을 완료하고 레벨을 선택해 주세요.');
+            return;
+        }
+
+        finalSignupBtn.textContent = '가입 진행 중...';
+        finalSignupBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${BASE_API_URL}/signup`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email, level: selectedLevel.value}) // 선택된 레벨 값 전송
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('signupFormContent').style.display = 'none';
+                document.getElementById('successMessageContent').style.display = 'block';
+                document.getElementById('subscribeModalLabel').textContent = '구독 완료!';
+
+            } else {
+                const errorMessage = data.message || "가입 중 알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.";
+                alert(`❌ 가입 실패: ${errorMessage}`);
+                finalSignupBtn.textContent = '구독 완료 및 시작하기';
+                finalSignupBtn.disabled = false;
+            }
+        } catch (error) {
+            alert('❌ 서버 통신 오류가 발생했습니다.');
+            finalSignupBtn.textContent = '구독 완료 및 시작하기';
+            finalSignupBtn.disabled = false;
+        }
+    });
+
+</script>
+</body>
+</html>
