@@ -8,7 +8,13 @@ import org.springframework.stereotype.Component
 class MemberMapper {
 
     fun convert(memberEntity: MemberEntity): MemberDto {
-        return MemberDto(memberEntity.id!!, memberEntity.email, memberEntity.memberStatus, memberEntity.level)
+        return MemberDto(
+            memberEntity.id!!,
+            memberEntity.email,
+            memberEntity.memberStatus,
+            memberEntity.level,
+            memberEntity.contentIndex
+        )
     }
 
 }

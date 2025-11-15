@@ -1,5 +1,6 @@
 package maeilkanji.maeilkanji.business.repository
 
+import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.service.dto.MemberDto
 import maeilkanji.maeilkanji.business.service.dto.MemberSignupDto
@@ -14,5 +15,6 @@ interface MemberRepository {
     fun update(memberId: UUID, findMember: MemberDto)
     fun save(memberSignupDto: MemberSignupDto)
     fun findById(memberId: UUID): MemberDto
+    fun findAllByMemberStatusAndLevel(memberStatus: MemberStatus, level: KanjiLevel): List<MemberDto>
 
 }

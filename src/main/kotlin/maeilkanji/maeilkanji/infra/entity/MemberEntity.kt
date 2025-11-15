@@ -13,4 +13,9 @@ class MemberEntity(
     var memberStatus: MemberStatus,
     @Enumerated(EnumType.STRING)
     var level: KanjiLevel,
-) : BaseEntity()
+    var contentIndex: Long = 1L,
+) : BaseEntity() {
+    fun increaseContextIndex() {
+        this.contentIndex++
+    }
+}

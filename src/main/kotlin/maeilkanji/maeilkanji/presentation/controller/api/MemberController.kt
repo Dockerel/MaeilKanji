@@ -2,17 +2,13 @@ package maeilkanji.maeilkanji.presentation.controller.api
 
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.service.MemberService
-import maeilkanji.maeilkanji.business.service.response.*
-import maeilkanji.maeilkanji.presentation.controller.api.request.ChangeLevelRequest
-import maeilkanji.maeilkanji.presentation.controller.api.request.SendVerificationCodeRequest
-import maeilkanji.maeilkanji.presentation.controller.api.request.SignupRequest
-import maeilkanji.maeilkanji.presentation.controller.api.request.StopMailRequest
-import maeilkanji.maeilkanji.presentation.controller.api.request.VerifyVerificationCodeRequest
+import maeilkanji.maeilkanji.business.service.response.ChangeLevelResponse
+import maeilkanji.maeilkanji.business.service.response.SendVerificationCodeResponse
+import maeilkanji.maeilkanji.business.service.response.SignupResponse
+import maeilkanji.maeilkanji.business.service.response.VerifyEmailVerificationCodeResponse
+import maeilkanji.maeilkanji.presentation.controller.api.request.*
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -41,12 +37,6 @@ class MemberController(
     @PostMapping("/change-level")
     fun changeLevel(@Valid @RequestBody request: ChangeLevelRequest): ResponseEntity<ChangeLevelResponse> {
         val response = memberService.changeLevel(request.toServiceRequest())
-        return ResponseEntity.ok(response)
-    }
-
-    @PostMapping("/stop-mail")
-    fun stopMail(@Valid @RequestBody request: StopMailRequest): ResponseEntity<StopMailResponse> {
-        val response = memberService.stopMail(request.toServiceRequest())
         return ResponseEntity.ok(response)
     }
 

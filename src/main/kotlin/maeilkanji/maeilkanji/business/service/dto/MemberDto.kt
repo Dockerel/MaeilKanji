@@ -9,4 +9,5 @@ data class MemberDto(
     val email: String,
     var memberStatus: MemberStatus = MemberStatus.ACTIVE,
     var level: KanjiLevel,
+    var contentIndex: Long = 1L,
 )

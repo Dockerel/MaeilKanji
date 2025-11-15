@@ -3,6 +3,7 @@ package maeilkanji.maeilkanji.business.service
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
+import maeilkanji.maeilkanji.business.repository.FeedbackRepository
 import maeilkanji.maeilkanji.business.repository.MemberRepository
 import maeilkanji.maeilkanji.business.service.dto.MemberSignupDto
 import maeilkanji.maeilkanji.business.service.request.*
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit
 
 private const val VALID_MINUTE: Long = 3
 
+private const val emailVerificationCodeTitle = "MaeilKanji Email Verification Code"
+
 @Service
 @Transactional(readOnly = true)
 class MemberService(
@@ -25,6 +28,8 @@ class MemberService(
     private val emailTemplateService: EmailTemplateService,
 
     private val memberRepository: MemberRepository,
+    private val feedbackRepository: FeedbackRepository,
+    repository: MemberRepository,
 ) {
 
     fun sendVerificationCode(request: SendVerificationCodeServiceRequest): SendVerificationCodeResponse {
@@ -47,7 +52,7 @@ class MemberService(
 
         // 5. 확인 코드 메일 발송
         val content = emailTemplateService.generateEmailVerificationTemplate(randomCode)
-        mailService.send(email, content)
+        mailService.send(email, emailVerificationCodeTitle, content)
 
         return SendVerificationCodeResponse("확인 코드가 전송되었습니다.")
     }
@@ -113,9 +118,7 @@ class MemberService(
     }
 
     @Transactional
-    fun stopMail(request: StopMailServiceRequest): StopMailResponse {
-        val memberIdString = request.memberId
-
+    fun stopMail(memberIdString: String): StopMailResponse {
         val memberId = UUID.fromString(memberIdString)
         val findMember = memberRepository.findById(memberId)
 
@@ -125,8 +128,26 @@ class MemberService(
         return StopMailResponse("Successfully stopped mail.")
     }
 
-    private fun createEmailVerificationCodeKey(email: String): String = "verify_code:$email"
+    @Transactional
+    fun feedback(request: FeedbackServiceRequest): FeedbackResponse {
+        feedbackRepository.save(request.memberId, request.reason, request.comment)
+        return FeedbackResponse("Successfully feedback.")
+    }
 
+    @Transactional
+    fun updateMemberContentIndex(memberId: UUID) {
+        val memberDto = memberRepository.findById(memberId)
+        memberDto.contentIndex++;
+        memberRepository.update(memberId, memberDto)
+    }
+
+    fun updateMemberToBounced(memberId: UUID) {
+        val memberDto = memberRepository.findById(memberId)
+        memberDto.memberStatus=MemberStatus.BOUNCED
+        memberRepository.update(memberId, memberDto)
+    }
+
+    private fun createEmailVerificationCodeKey(email: String): String = "verify_code:$email"
     private fun createVerifiedEmailKey(email: String): String = "verified_email:$email"
 
 }

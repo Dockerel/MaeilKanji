@@ -1,5 +1,6 @@
 package maeilkanji.maeilkanji.infra.repository
 
+import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.infra.entity.MemberEntity
 import org.springframework.data.jpa.repository.JpaRepository
@@ -14,5 +15,7 @@ interface MemberJpaRepository : JpaRepository<MemberEntity, UUID> {
     fun existsByEmail(email: String): Boolean
 
     fun findByEmail(email: String): Optional<MemberEntity>
+
+    fun findAllByMemberStatusAndLevel(memberStatus: MemberStatus, level: KanjiLevel): List<MemberEntity>
 
 }

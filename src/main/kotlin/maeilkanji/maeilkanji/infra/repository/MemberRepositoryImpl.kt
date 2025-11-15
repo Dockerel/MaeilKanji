@@ -1,5 +1,6 @@
 package maeilkanji.maeilkanji.infra.repository
 
+import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.MemberRepository
@@ -40,6 +41,7 @@ class MemberRepositoryImpl(
         val memberEntity = findMemberEntityByIdOptional(memberId)!!
         memberEntity.memberStatus = findMember.memberStatus
         memberEntity.level = findMember.level
+        memberEntity.contentIndex = findMember.contentIndex
     }
 
     override fun save(memberSignupDto: MemberSignupDto) {
@@ -51,6 +53,13 @@ class MemberRepositoryImpl(
         val memberEntity = memberJpaRepository.findById(memberId)
             .orElseThrow { MaeilKanjiException("Can't find user with memberId: $memberId", HttpStatus.NOT_FOUND) }
         return memberMapper.convert(memberEntity)
+    }
+
+    override fun findAllByMemberStatusAndLevel(
+        memberStatus: MemberStatus,
+        level: KanjiLevel
+    ): List<MemberDto> {
+        return memberJpaRepository.findAllByMemberStatusAndLevel(memberStatus, level).map { memberMapper.convert(it) }
     }
 
     private fun findMemberEntityByIdOptional(memberId: UUID): MemberEntity? {
