@@ -7,6 +7,7 @@ import maeilkanji.maeilkanji.infra.entity.IntermediateDailyContentEntity
 import maeilkanji.maeilkanji.infra.repository.AdvancedDailyContentJpaRepository
 import maeilkanji.maeilkanji.infra.repository.BeginnerDailyContentJpaRepository
 import maeilkanji.maeilkanji.infra.repository.IntermediateDailyContentJpaRepository
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -31,7 +32,7 @@ class Study() {
     @Test
     @Transactional
     @Commit
-//    @Disabled
+    @Disabled
     fun SaveDailyContentsByLevel() {
         val contents = listOf(
             "./src/main/resources/static/beginner_daily_contents.csv",
