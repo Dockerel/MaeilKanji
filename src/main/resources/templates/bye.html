@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>매일 칸지 | 구독 해지 완료</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style> :root {
+        --maeil-blue: #2563EB;
+        --maeil-light-blue: #F0F5FF;
+        --maeil-green: #16a34a;
+    }
+
+    body {
+        font-family: 'Noto Sans KR', sans-serif !important;
+        background: var(--maeil-light-blue);
+    }
+
+    .text-maeil {
+        color: var(--maeil-blue) !important;
+    }
+
+    .content-card {
+        border: 1px solid #dee2e6;
+        border-left: 5px solid var(--maeil-blue);
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .check-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: #ecfdf5;
+        color: var(--maeil-green);
+        border: 1px solid #dcfce7;
+        border-radius: 999px;
+        padding: .5rem .9rem;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+
+    .notice {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    } </style>
+</head>
+<body>
+<nav class="navbar navbar-light bg-white border-bottom">
+    <div class="container px-4"><a class="navbar-brand fw-bold fs-4 text-maeil" th:href="@{/}">매일 칸지 🇯🇵</a> <a
+            th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold">홈으로</a></div>
+</nav>
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="content-card p-4 text-center">
+                <div class="mb-3">
+      <span class="check-badge">
+        <!-- 간단한 체크 아이콘 -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M20 6L9 17L4 12" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        구독 해지 완료
+      </span>
+                </div>
+
+                <h3 class="fw-bold text-maeil mb-2">이용해 주셔서 감사합니다</h3>
+                <p class="text-muted mb-4">
+                    구독 해지가 정상적으로 처리되었습니다. 그동안 함께해 주셔서 진심으로 감사드려요. <br/>
+                    언제든 돌아오실 수 있어요. 다음에 또 만나요!
+                </p>
+
+                <div class="notice p-3 text-start mb-4">
+                    <h6 class="fw-bold mb-2">안내</h6>
+                    <ul class="mb-0 small text-muted">
+                        <li>앞으로 마케팅/학습 안내 메일이 발송되지 않습니다.</li>
+                        <li>실수로 해지하셨다면 아래 버튼으로 언제든 다시 구독하실 수 있어요.</li>
+                    </ul>
+                </div>
+
+                <!-- 선택: 간단 피드백 폼 -->
+                <div class="mt-4">
+                    <details>
+                        <summary class="text-muted small">구독을 해지하신 이유를 알려주실 수 있을까요?</summary>
+                        <form class="mt-3" th:action="@{/feedback}" method="post">
+                            <input type="hidden" name="memberId" th:value="${memberId}"/>
+                            <div class="mb-2">
+                                <select class="form-select" name="reason">
+                                    <option value="frequency">메일이 너무 자주 와요</option>
+                                    <option value="content">콘텐츠가 기대와 달라요</option>
+                                    <option value="difficulty">난이도가 맞지 않아요</option>
+                                    <option value="other">기타</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <textarea name="comment" class="form-control" rows="3"
+                                          placeholder="자세한 의견을 적어주세요 (선택)"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">피드백 보내기</button>
+                        </form>
+                    </details>
+                </div>
+
+                <br>
+
+                <div class="d-flex gap-2 justify-content-center">
+                    <!-- 홈으로 이동 -->
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        홈으로 돌아가기
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+<footer class="text-center py-4 text-muted small"> © <span>2025</span>
+    매일 칸지. 모두의 한자 학습을 응원합니다.
+</footer>
+</body>
+</html>

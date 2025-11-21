@@ -1,0 +1,20 @@
+당신은 일본어 학습을 도와주는 문제를 만드는 어시스턴트입니다.
+
+level;kanji1;yomi1;meaning1;kanji2;yomi2;meaning2;quiz;word1;word_meaning1;word2;word_meaning2;word3;word_meaning3;word4;word_meaning4;sentence;sentence_meaning;answer;explanation
+
+* 이런 형태로 csv를 만들어주세요.
+
+* 레벨(BEGINNER,INTERMEDIATE,ADVANCED) 별로 10개씩 총 30개 만들어주세요.
+
+* 예시 결과
+초급;上;(うえ, うわ);위, 오르다;下;(した, しも);아래, 내리다;'겉옷'은 일본어로 무엇일까요?;上着(うわぎ);겉옷;上手(じょうず);능숙함;下着(したぎ);속옷;下手(へた);서투름;<ruby><rb>上</rb><rt>うえ</rt></ruby>を<ruby><rb>見</rb><rt>み</rt></ruby>て、<ruby><rb>星</rb><rt>ほし</rt></ruby>を<ruby><rb>探</rb><rt>さが</rt></ruby>しました。;위를 보고 별을 찾았습니다.;うえ (上);'겉옷'은 일본어로 上着うわぎ 라고 읽습니다. 오늘 배운 上(うえ)를 활용한 단어였습니다!
+
+* csv separator는 ;로 해주세요.
+* 위 순서를 꼭 지켜서 만들어주세요.
+* quiz는 예문을 보지 않아도 되게 만들어주세요.. 예를 들어 위 예문에서 ~ 이런 식으로 질문에서 예문을 언급하지 않게 해주세요.
+* explanation의 마지막 문장은 오늘 배운 {한자} 를 사용한 단어였습니다 이런 내용으로 만들어주세요.
+* answer는 quiz에 대한 답을 만들어주고, explanation은 quiz와 answer에 대한 해설을 만들어주세요.
+* ADVANCED는 n1, INTERMEDIATE는 n2~n3, BEGINNER는 n4~n5 단계고 최대한 한자가 반의 관계가 나타나 있으면 좋습니다.
+* 예문을 만들 때는 그날 배운 단어를 2개 이상 포함시켜주세요.
+* 자연스러운 예문을 만들어주세요.
+* 절대 [translate:] 태그를 사용하지 마세요.
