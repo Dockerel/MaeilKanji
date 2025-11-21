@@ -63,8 +63,7 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <a th:href="@{http://localhost:8080/unsubscribe(memberId=${memberId})}">
-<!--                    <a th:href="@{https://998a2c91822b.ngrok-free.app/unsubscribe(memberId=${memberId})}">-->
+                    <a th:href="@{${baseUrl}/unsubscribe(memberId=${memberId})}">
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                 data-bs-target="#immediateCancelModal">
                             구독 해지하기

@@ -34,10 +34,4 @@ class MemberController(
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/change-level")
-    fun changeLevel(@Valid @RequestBody request: ChangeLevelRequest): ResponseEntity<ChangeLevelResponse> {
-        val response = memberService.changeLevel(request.toServiceRequest())
-        return ResponseEntity.ok(response)
-    }
-
 }

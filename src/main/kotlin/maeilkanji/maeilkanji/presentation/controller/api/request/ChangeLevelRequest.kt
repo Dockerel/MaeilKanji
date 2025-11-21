@@ -12,7 +12,7 @@ data class ChangeLevelRequest(
         regexp = "BEGINNER|INTERMEDIATE|ADVANCED",
         message = "레벨은 BEGINNER, INTERMEDIATE, ADVANCED 중 하나여야 합니다."
     )
-    val level: String,
+    val newLevel: String,
 ) {
-    fun toServiceRequest(): ChangeLevelServiceRequest = ChangeLevelServiceRequest(this.memberId, this.level)
+    fun toServiceRequest(): ChangeLevelServiceRequest = ChangeLevelServiceRequest(this.memberId, this.newLevel)
 }

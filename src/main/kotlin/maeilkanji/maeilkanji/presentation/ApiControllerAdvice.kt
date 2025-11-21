@@ -1,6 +1,7 @@
 package maeilkanji.maeilkanji.presentation
 
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -9,6 +10,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class ApiControllerAdvice {
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(ApiControllerAdvice::class.java)
+    }
 
     @ExceptionHandler(MaeilKanjiException::class)
     fun handleMaeilKanjiException(e: MaeilKanjiException): ResponseEntity<String> {
@@ -22,7 +27,7 @@ class ApiControllerAdvice {
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<String> {
-        e.printStackTrace()
+        logger.error("Unhandled exception occurred", e)
         return ResponseEntity(e.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 

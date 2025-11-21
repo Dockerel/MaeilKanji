@@ -37,7 +37,6 @@ class DailyContentService(
         for (member in members) {
             dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
                 KanjiLevel.BEGINNER,
-                member.contentIndex,
                 member.id,
                 member.email
             )
@@ -50,7 +49,6 @@ class DailyContentService(
         for (member in members) {
             dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
                 KanjiLevel.INTERMEDIATE,
-                member.contentIndex,
                 member.id,
                 member.email
             )
@@ -63,7 +61,6 @@ class DailyContentService(
         for (member in members) {
             dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
                 KanjiLevel.ADVANCED,
-                member.contentIndex,
                 member.id,
                 member.email
             )

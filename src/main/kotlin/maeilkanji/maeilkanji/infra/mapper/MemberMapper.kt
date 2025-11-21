@@ -13,7 +13,6 @@ class MemberMapper {
             memberEntity.email,
             memberEntity.memberStatus,
             memberEntity.level,
-            memberEntity.contentIndex
         )
     }
 

@@ -29,7 +29,6 @@ class MemberService(
 
     private val memberRepository: MemberRepository,
     private val feedbackRepository: FeedbackRepository,
-    repository: MemberRepository,
 ) {
 
     fun sendVerificationCode(request: SendVerificationCodeServiceRequest): SendVerificationCodeResponse {
@@ -135,12 +134,6 @@ class MemberService(
     }
 
     @Transactional
-    fun updateMemberContentIndex(memberId: UUID) {
-        val memberDto = memberRepository.findById(memberId)
-        memberDto.contentIndex++;
-        memberRepository.update(memberId, memberDto)
-    }
-
     fun updateMemberToBounced(memberId: UUID) {
         val memberDto = memberRepository.findById(memberId)
         memberDto.memberStatus=MemberStatus.BOUNCED

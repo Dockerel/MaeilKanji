@@ -6,6 +6,7 @@ import maeilkanji.maeilkanji.business.service.EmailTemplateService
 import maeilkanji.maeilkanji.business.service.MailService
 import maeilkanji.maeilkanji.business.service.MemberService
 import org.springframework.amqp.rabbit.annotation.RabbitListener
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 
 @Component
@@ -24,7 +25,6 @@ class DailyContentEmailConsumer(
                 message.memberId
             )
         mailService.send(message.email, "[매일 칸지] ${content["quiz"]!!}", content["template"]!!)
-        memberService.updateMemberContentIndex(message.memberId)
     }
 
     @RabbitListener(queues = [RabbitMQConfig.DEAD_LETTER_QUEUE])

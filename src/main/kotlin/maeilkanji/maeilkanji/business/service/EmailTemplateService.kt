@@ -1,5 +1,6 @@
 package maeilkanji.maeilkanji.business.service
 
+import jakarta.annotation.PostConstruct
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
 import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
@@ -8,36 +9,43 @@ import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
 import java.util.*
 
-private const val BASE_URL = "http://localhost:8080"
-//private const val BASE_URL = "https://998a2c91822b.ngrok-free.app"
 
 @Service
 class EmailTemplateService(
     private val dailyContentRepository: DailyContentRepository,
 
+    @Value("\${service.base-url}")
+    private val baseUrl: String,
+
     @Value("classpath:templates/email/verification.html")
     private val emailVerificationTemplateResource: Resource,
     @Value("classpath:templates/email/daily-content-email.html")
-    private val beginnerDailyContentTemplateResource: Resource,
+    private val dailyContentTemplateResource: Resource,
 ) {
 
+    private lateinit var emailVerificationTemplate:String
+    private lateinit var dailyContentTemplate:String
+
+    @PostConstruct
+    fun init() {
+        emailVerificationTemplate=emailVerificationTemplateResource.inputStream.bufferedReader().use { it.readText() }
+        dailyContentTemplate=dailyContentTemplateResource.inputStream.bufferedReader().use { it.readText() }
+    }
+
     fun generateEmailVerificationTemplate(randomCode: String): String {
-        val template = emailVerificationTemplateResource.inputStream.bufferedReader().use { it.readText() }
-        return template.replace("{{CODE}}", randomCode)
+        return emailVerificationTemplate.replace("{{CODE}}", randomCode)
     }
 
     fun generateDailyContentEmailTemplate(level: KanjiLevel, contentIndex: Long, memberId: UUID): Map<String, String> {
         val content = getContentByLevelAndContentIndex(level, contentIndex)
 
-        val template = beginnerDailyContentTemplateResource.inputStream.bufferedReader().use { it.readText() }
-
         val siteUrl = when (content.level) {
-            KanjiLevel.BEGINNER -> "$BASE_URL/daily-content/beginner/$contentIndex"
-            KanjiLevel.INTERMEDIATE -> "$BASE_URL/daily-content/intermediate/$contentIndex"
-            KanjiLevel.ADVANCED -> "$BASE_URL/daily-content/advanced/$contentIndex"
+            KanjiLevel.BEGINNER -> "$baseUrl/daily-content/beginner/$contentIndex"
+            KanjiLevel.INTERMEDIATE -> "$baseUrl/daily-content/intermediate/$contentIndex"
+            KanjiLevel.ADVANCED -> "$baseUrl/daily-content/advanced/$contentIndex"
         }
 
-        val fullTemplate = template
+        val fullTemplate = dailyContentTemplate
             .replace("{{level}}", content.level.korean)
             .replace("{{kanji1}}", content.kanji1)
             .replace("{{yomi1}}", content.yomi1)
@@ -47,7 +55,8 @@ class EmailTemplateService(
             .replace("{{meaning2}}", content.meaning2)
             .replace("{{quiz}}", content.quiz)
             .replace("{{SITE_ACCESS_URL}}", siteUrl)
-            .replace("{{UNSUBSCRIBE_URL}}", "$BASE_URL/unsubscribe-confirm?memberId=$memberId")
+            .replace("{{UNSUBSCRIBE_URL}}", "$baseUrl/unsubscribe-confirm?memberId=$memberId")
+            .replace("{{LEVEL_CHANGE_URL}}", "$baseUrl/change-level-confirm?memberId=$memberId")
 
 
         return mapOf("quiz" to content.quiz, "template" to fullTemplate)

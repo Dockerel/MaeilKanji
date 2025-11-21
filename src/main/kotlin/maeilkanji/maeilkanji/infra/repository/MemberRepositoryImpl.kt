@@ -41,7 +41,6 @@ class MemberRepositoryImpl(
         val memberEntity = findMemberEntityByIdOptional(memberId)!!
         memberEntity.memberStatus = findMember.memberStatus
         memberEntity.level = findMember.level
-        memberEntity.contentIndex = findMember.contentIndex
     }
 
     override fun save(memberSignupDto: MemberSignupDto) {
@@ -62,13 +61,13 @@ class MemberRepositoryImpl(
         return memberJpaRepository.findAllByMemberStatusAndLevel(memberStatus, level).map { memberMapper.convert(it) }
     }
 
-    private fun findMemberEntityByIdOptional(memberId: UUID): MemberEntity? {
+    private fun findMemberEntityByIdOptional(memberId: UUID): MemberEntity {
         val memberEntity = memberJpaRepository.findById(memberId)
             .orElseThrow { MaeilKanjiException("Can't find user with memberId: $memberId", HttpStatus.NOT_FOUND) }
         return memberEntity
     }
 
-    private fun findMemberEntityByEmailOptional(email: String): MemberEntity? {
+    private fun findMemberEntityByEmailOptional(email: String): MemberEntity {
         val memberEntity = memberJpaRepository.findByEmail(email)
             .orElseThrow { MaeilKanjiException("Can't find user with email: $email", HttpStatus.NOT_FOUND) }
         return memberEntity
