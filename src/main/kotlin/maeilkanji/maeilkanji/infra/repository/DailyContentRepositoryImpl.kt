@@ -33,4 +33,19 @@ class DailyContentRepositoryImpl(
         return dailyContentMapper.convert(dailyContent)
     }
 
+    override fun saveBeginner(content: DailyContentDto): Long {
+        val entity = dailyContentMapper.toBeginnerEntity(content)
+        return beginnerDailyContentJpaRepository.save(entity).id!!
+    }
+
+    override fun saveIntermediate(content: DailyContentDto): Long {
+        val entity = dailyContentMapper.toIntermediateEntity(content)
+        return intermediateDailyContentJpaRepository.save(entity).id!!
+    }
+
+    override fun saveAdvanced(content: DailyContentDto): Long {
+        val entity = dailyContentMapper.toAdvancedEntity(content)
+        return advancedDailyContentJpaRepository.save(entity).id!!
+    }
+
 }

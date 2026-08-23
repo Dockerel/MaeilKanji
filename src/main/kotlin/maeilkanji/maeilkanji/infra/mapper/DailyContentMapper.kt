@@ -85,4 +85,79 @@ class DailyContentMapper{
         )
     }
 
+    fun toBeginnerEntity(dto: DailyContentDto): BeginnerDailyContentEntity {
+        return BeginnerDailyContentEntity(
+            level = dto.level,
+            kanji1 = dto.kanji1,
+            yomi1 = dto.yomi1,
+            meaning1 = dto.meaning1,
+            kanji2 = dto.kanji2,
+            yomi2 = dto.yomi2,
+            meaning2 = dto.meaning2,
+            word1 = dto.word1,
+            wordMeaning1 = dto.wordMeaning1,
+            word2 = dto.word2,
+            wordMeaning2 = dto.wordMeaning2,
+            word3 = dto.word3,
+            wordMeaning3 = dto.wordMeaning3,
+            word4 = dto.word4,
+            wordMeaning4 = dto.wordMeaning4,
+            sentence = dto.sentence,
+            sentenceMeaning = dto.sentenceMeaning,
+            quiz = dto.quiz,
+            answer = dto.answer,
+            explanation = dto.explanation,
+        )
+    }
+
+    fun toIntermediateEntity(dto: DailyContentDto): IntermediateDailyContentEntity {
+        return IntermediateDailyContentEntity(
+            level = dto.level,
+            kanji1 = dto.kanji1,
+            yomi1 = dto.yomi1,
+            meaning1 = dto.meaning1,
+            kanji2 = dto.kanji2,
+            yomi2 = dto.yomi2,
+            meaning2 = dto.meaning2,
+            word1 = dto.word1,
+            wordMeaning1 = dto.wordMeaning1,
+            word2 = dto.word2,
+            wordMeaning2 = dto.wordMeaning2,
+            word3 = dto.word3,
+            wordMeaning3 = dto.wordMeaning3,
+            word4 = dto.word4,
+            wordMeaning4 = dto.wordMeaning4,
+            sentence = dto.sentence,
+            sentenceMeaning = dto.sentenceMeaning,
+            quiz = dto.quiz,
+            answer = dto.answer,
+            explanation = dto.explanation,
+        )
+    }
+
+    fun toAdvancedEntity(dto: DailyContentDto): AdvancedDailyContentEntity {
+        return AdvancedDailyContentEntity(
+            level = dto.level,
+            kanji1 = dto.kanji1,
+            yomi1 = dto.yomi1,
+            meaning1 = dto.meaning1,
+            kanji2 = dto.kanji2,
+            yomi2 = dto.yomi2,
+            meaning2 = dto.meaning2,
+            word1 = dto.word1,
+            wordMeaning1 = dto.wordMeaning1,
+            word2 = dto.word2,
+            wordMeaning2 = dto.wordMeaning2,
+            word3 = dto.word3,
+            wordMeaning3 = dto.wordMeaning3,
+            word4 = dto.word4,
+            wordMeaning4 = dto.wordMeaning4,
+            sentence = dto.sentence,
+            sentenceMeaning = dto.sentenceMeaning,
+            quiz = dto.quiz,
+            answer = dto.answer,
+            explanation = dto.explanation,
+        )
+    }
+
 }

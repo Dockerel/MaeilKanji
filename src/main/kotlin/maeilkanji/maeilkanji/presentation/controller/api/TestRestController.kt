@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/tests")
-class TestController(
+class TestRestController(
     private val dailyContentService: DailyContentService
 ) {
 

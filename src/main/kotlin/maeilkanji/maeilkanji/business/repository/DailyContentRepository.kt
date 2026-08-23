@@ -8,4 +8,8 @@ interface DailyContentRepository {
     fun getIntermediateDailyContentById(contentId: Long): DailyContentDto
     fun getAdvancedDailyContentById(contentId: Long): DailyContentDto
 
+    fun saveBeginner(content: DailyContentDto): Long
+    fun saveIntermediate(content: DailyContentDto): Long
+    fun saveAdvanced(content: DailyContentDto): Long
+
 }

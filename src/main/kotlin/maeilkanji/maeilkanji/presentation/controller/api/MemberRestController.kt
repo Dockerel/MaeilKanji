@@ -2,7 +2,6 @@ package maeilkanji.maeilkanji.presentation.controller.api
 
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.service.MemberService
-import maeilkanji.maeilkanji.business.service.response.ChangeLevelResponse
 import maeilkanji.maeilkanji.business.service.response.SendVerificationCodeResponse
 import maeilkanji.maeilkanji.business.service.response.SignupResponse
 import maeilkanji.maeilkanji.business.service.response.VerifyEmailVerificationCodeResponse
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/members")
-class MemberController(
+class MemberRestController(
     private val memberService: MemberService,
 ) {
 
