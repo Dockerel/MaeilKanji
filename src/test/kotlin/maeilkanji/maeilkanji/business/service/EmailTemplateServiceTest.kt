@@ -1,0 +1,99 @@
+package maeilkanji.maeilkanji.business.service
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.repository.DailyContentRepository
+import maeilkanji.maeilkanji.fixture.dailyContentDto
+import org.springframework.core.io.ByteArrayResource
+import java.util.UUID
+
+private const val BASE_URL = "https://maeilkanji.test"
+
+private const val DAILY_TEMPLATE =
+    "{{level}}|{{kanji1}}|{{yomi1}}|{{meaning1}}|{{kanji2}}|{{yomi2}}|{{meaning2}}|{{quiz}}|" +
+        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}"
+
+class EmailTemplateServiceTest : BehaviorSpec({
+    isolationMode = IsolationMode.InstancePerLeaf
+
+    val dailyContentRepository = mockk<DailyContentRepository>()
+    val emailTemplateService = EmailTemplateService(
+        dailyContentRepository,
+        BASE_URL,
+        ByteArrayResource("인증 코드: {{CODE}}".toByteArray()),
+        ByteArrayResource(DAILY_TEMPLATE.toByteArray()),
+    ).apply { init() }
+
+    val memberId = UUID.fromString("11111111-2222-3333-4444-555555555555")
+
+    Given("인증 메일 템플릿이 로드되어 있을 때") {
+        When("코드 1234 로 템플릿을 생성하면") {
+            val result = emailTemplateService.generateEmailVerificationTemplate("1234")
+
+            Then("{{CODE}} 를 코드로 치환한다") {
+                result shouldBe "인증 코드: 1234"
+            }
+        }
+    }
+
+    Given("초급 3번 콘텐츠가 있을 때") {
+        every { dailyContentRepository.getBeginnerDailyContentById(3L) } returns dailyContentDto(KanjiLevel.BEGINNER, id = 3L, quiz = "Q3")
+
+        When("초급 데일리 메일 템플릿을 생성하면") {
+            val result = emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.BEGINNER, 3L, memberId)
+
+            Then("모든 플레이스홀더를 치환하고 quiz 를 함께 반환한다") {
+                result["quiz"] shouldBe "Q3"
+                result["template"] shouldBe listOf(
+                    "초급", "日", "にち", "날 일", "月", "げつ", "달 월", "Q3",
+                    "$BASE_URL/daily-content/beginner/3",
+                    "$BASE_URL/unsubscribe-confirm?memberId=$memberId",
+                    "$BASE_URL/change-level-confirm?memberId=$memberId",
+                ).joinToString("|")
+                result["template"]!! shouldNotContain "{{"
+            }
+        }
+    }
+
+    Given("중급/고급 콘텐츠가 있을 때") {
+        every { dailyContentRepository.getIntermediateDailyContentById(1L) } returns dailyContentDto(KanjiLevel.INTERMEDIATE, id = 1L)
+        every { dailyContentRepository.getAdvancedDailyContentById(1L) } returns dailyContentDto(KanjiLevel.ADVANCED, id = 1L)
+
+        When("중급 템플릿을 생성하면") {
+            val template = emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.INTERMEDIATE, 1L, memberId)["template"]!!
+
+            Then("중급 접근 URL 과 레벨명을 사용한다") {
+                template.split("|")[0] shouldBe "중급"
+                template.split("|")[8] shouldBe "$BASE_URL/daily-content/intermediate/1"
+            }
+        }
+
+        When("고급 템플릿을 생성하면") {
+            val template = emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.ADVANCED, 1L, memberId)["template"]!!
+
+            Then("고급 저장소를 조회하고 고급 접근 URL 을 사용한다") {
+                template.split("|")[8] shouldBe "$BASE_URL/daily-content/advanced/1"
+                verify(exactly = 1) { dailyContentRepository.getAdvancedDailyContentById(1L) }
+            }
+        }
+    }
+
+    Given("콘텐츠가 존재하지 않을 때") {
+        every { dailyContentRepository.getBeginnerDailyContentById(any()) } throws NoSuchElementException("not found")
+
+        When("템플릿을 생성하면") {
+            Then("저장소 예외를 그대로 전파한다") {
+                shouldThrow<NoSuchElementException> {
+                    emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.BEGINNER, 0L, memberId)
+                }
+            }
+        }
+    }
+})

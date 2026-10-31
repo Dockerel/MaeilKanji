@@ -40,6 +40,10 @@ All connection params are environment variables (see `application.properties`). 
 - Integration tests use Testcontainers (MySQL). Base support class: `IntegrationTestSupport`.
 - Study tests in `src/test/kotlin/maeilkanji/maeilkanji/study/Study.kt` are disabled (marked `@Disabled` per commit `b44b452`).
 - `MaeilKanjiApplicationTests` — context load test.
+- Service unit tests (`business/service/*Test.kt`): Kotest `BehaviorSpec` + MockK, `IsolationMode.InstancePerLeaf` so each leaf gets fresh mocks.
+- REST controller slice tests (`presentation/controller/api/*Test.kt`): `@WebMvcTest` + Kotest Spring extension. Service mock beans come from a nested `@TestConfiguration` (no springmockk). Constructor injection is enabled by `io.kotest.provided.ProjectConfig`.
+- Kotest is pinned to 5.9.x because Kotest 6 requires Kotlin 2.x.
+- Shared test data lives in `src/test/kotlin/maeilkanji/maeilkanji/fixture/Fixtures.kt`.
 
 ## Env vars required to run
 
