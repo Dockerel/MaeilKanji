@@ -2,9 +2,7 @@ package maeilkanji.maeilkanji.presentation.controller.api
 
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.service.MemberService
-import maeilkanji.maeilkanji.business.service.response.SendVerificationCodeResponse
-import maeilkanji.maeilkanji.business.service.response.SignupResponse
-import maeilkanji.maeilkanji.business.service.response.VerifyEmailVerificationCodeResponse
+import maeilkanji.maeilkanji.business.service.response.*
 import maeilkanji.maeilkanji.presentation.controller.api.request.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -30,6 +28,24 @@ class MemberRestController(
     @PostMapping("/signup")
     fun signup(@Valid @RequestBody request: SignupRequest): ResponseEntity<SignupResponse> {
         val response = memberService.signup(request.toServiceRequest())
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/change-level")
+    fun changeLevel(@Valid @RequestBody request: ChangeLevelRequest): ResponseEntity<ChangeLevelResponse> {
+        val response = memberService.changeLevel(request.toServiceRequest())
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/unsubscribe")
+    fun unsubscribe(@Valid @RequestBody request: StopMailRequest): ResponseEntity<StopMailResponse> {
+        val response = memberService.stopMail(request.memberId)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping("/feedback")
+    fun feedback(@RequestBody request: FeedbackRequest): ResponseEntity<FeedbackResponse> {
+        val response = memberService.feedback(request.toServiceRequest())
         return ResponseEntity.ok(response)
     }
 

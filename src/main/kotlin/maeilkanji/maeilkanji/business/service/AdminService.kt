@@ -1,9 +1,14 @@
 package maeilkanji.maeilkanji.business.service
 
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
+import maeilkanji.maeilkanji.business.repository.FeedbackRepository
+import maeilkanji.maeilkanji.business.repository.MemberRepository
 import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
+import maeilkanji.maeilkanji.business.service.dto.FeedbackDto
+import maeilkanji.maeilkanji.business.service.dto.MemberDto
 import maeilkanji.maeilkanji.business.service.request.SendAdminLoginCodeServiceRequest
 import maeilkanji.maeilkanji.business.service.request.VerifyAdminLoginCodeServiceRequest
 import org.springframework.beans.factory.annotation.Value
@@ -11,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 private const val ADMIN_CODE_LENGTH: Int = 10
@@ -24,6 +30,8 @@ class AdminService(
     private val redisTemplate: RedisTemplate<String, String>,
 
     private val dailyContentRepository: DailyContentRepository,
+    private val memberRepository: MemberRepository,
+    private val feedbackRepository: FeedbackRepository,
 ) {
 
     fun sendAdminLoginCode(request: SendAdminLoginCodeServiceRequest): SendAdminLoginCodeResponse {
@@ -64,6 +72,38 @@ class AdminService(
             KanjiLevel.INTERMEDIATE -> dailyContentRepository.saveIntermediate(content)
             KanjiLevel.ADVANCED -> dailyContentRepository.saveAdvanced(content)
         }
+    }
+
+    fun getDailyContents(level: KanjiLevel): List<DailyContentDto> {
+        return when (level) {
+            KanjiLevel.BEGINNER -> dailyContentRepository.findAllBeginner()
+            KanjiLevel.INTERMEDIATE -> dailyContentRepository.findAllIntermediate()
+            KanjiLevel.ADVANCED -> dailyContentRepository.findAllAdvanced()
+        }
+    }
+
+    @Transactional
+    fun deleteDailyContent(level: KanjiLevel, id: Long) {
+        when (level) {
+            KanjiLevel.BEGINNER -> dailyContentRepository.deleteBeginner(id)
+            KanjiLevel.INTERMEDIATE -> dailyContentRepository.deleteIntermediate(id)
+            KanjiLevel.ADVANCED -> dailyContentRepository.deleteAdvanced(id)
+        }
+    }
+
+    fun getMembers(): List<MemberDto> {
+        return memberRepository.findAll()
+    }
+
+    @Transactional
+    fun reactivateMember(memberId: UUID) {
+        val member = memberRepository.findById(memberId)
+        member.memberStatus = MemberStatus.ACTIVE
+        memberRepository.update(memberId, member)
+    }
+
+    fun getFeedbacks(): List<FeedbackDto> {
+        return feedbackRepository.findAll()
     }
 
     fun generateRandomAlphaNumericCode(length: Int): String {

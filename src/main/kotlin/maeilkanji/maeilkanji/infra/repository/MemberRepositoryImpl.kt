@@ -54,6 +54,10 @@ class MemberRepositoryImpl(
         return memberMapper.convert(memberEntity)
     }
 
+    override fun findAll(): List<MemberDto> {
+        return memberJpaRepository.findAll().map { memberMapper.convert(it) }
+    }
+
     override fun findAllByMemberStatusAndLevel(
         memberStatus: MemberStatus,
         level: KanjiLevel

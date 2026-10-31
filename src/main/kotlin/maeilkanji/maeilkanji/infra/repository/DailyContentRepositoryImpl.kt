@@ -33,6 +33,18 @@ class DailyContentRepositoryImpl(
         return dailyContentMapper.convert(dailyContent)
     }
 
+    override fun findAllBeginner(): List<DailyContentDto> {
+        return beginnerDailyContentJpaRepository.findAll().map { dailyContentMapper.convert(it) }
+    }
+
+    override fun findAllIntermediate(): List<DailyContentDto> {
+        return intermediateDailyContentJpaRepository.findAll().map { dailyContentMapper.convert(it) }
+    }
+
+    override fun findAllAdvanced(): List<DailyContentDto> {
+        return advancedDailyContentJpaRepository.findAll().map { dailyContentMapper.convert(it) }
+    }
+
     override fun saveBeginner(content: DailyContentDto): Long {
         val entity = dailyContentMapper.toBeginnerEntity(content)
         return beginnerDailyContentJpaRepository.save(entity).id!!
@@ -46,6 +58,18 @@ class DailyContentRepositoryImpl(
     override fun saveAdvanced(content: DailyContentDto): Long {
         val entity = dailyContentMapper.toAdvancedEntity(content)
         return advancedDailyContentJpaRepository.save(entity).id!!
+    }
+
+    override fun deleteBeginner(id: Long) {
+        beginnerDailyContentJpaRepository.deleteById(id)
+    }
+
+    override fun deleteIntermediate(id: Long) {
+        intermediateDailyContentJpaRepository.deleteById(id)
+    }
+
+    override fun deleteAdvanced(id: Long) {
+        advancedDailyContentJpaRepository.deleteById(id)
     }
 
 }

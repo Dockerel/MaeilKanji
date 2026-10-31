@@ -4,6 +4,7 @@ import maeilkanji.maeilkanji.business.domain.KanjiLevel
 
 data class DailyContentDto(
     val level: KanjiLevel,
+    val id: Long? = null,
     val kanji1: String,
     val yomi1: String,
     val meaning1: String,

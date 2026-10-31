@@ -13,6 +13,7 @@ class DailyContentMapper{
     fun convert(dailyContentEntity: BeginnerDailyContentEntity): DailyContentDto {
         return DailyContentDto(
             dailyContentEntity.level,
+            dailyContentEntity.id,
             dailyContentEntity.kanji1,
             dailyContentEntity.yomi1,
             dailyContentEntity.meaning1,
@@ -38,6 +39,7 @@ class DailyContentMapper{
     fun convert(dailyContentEntity: IntermediateDailyContentEntity): DailyContentDto {
         return DailyContentDto(
             dailyContentEntity.level,
+            dailyContentEntity.id,
             dailyContentEntity.kanji1,
             dailyContentEntity.yomi1,
             dailyContentEntity.meaning1,
@@ -63,6 +65,7 @@ class DailyContentMapper{
     fun convert(dailyContentEntity: AdvancedDailyContentEntity): DailyContentDto {
         return DailyContentDto(
             dailyContentEntity.level,
+            dailyContentEntity.id,
             dailyContentEntity.kanji1,
             dailyContentEntity.yomi1,
             dailyContentEntity.meaning1,
