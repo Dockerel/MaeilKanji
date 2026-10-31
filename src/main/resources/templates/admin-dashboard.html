@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 칸지 Admin 대시보드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --maeil-blue: #2563EB;
+            --maeil-light-blue: #F0F5FF;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif !important;
+            background-color: var(--maeil-light-blue);
+        }
+        .text-maeil { color: var(--maeil-blue) !important; }
+        .bg-maeil { background-color: var(--maeil-blue) !important; }
+        .btn-maeil {
+            background-color: var(--maeil-blue);
+            border-color: var(--maeil-blue);
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-maeil:hover {
+            background-color: #1E4DBC;
+            border-color: #1E4DBC;
+            color: white;
+        }
+        .card-maeil {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        .form-label { font-weight: 700; font-size: 0.85rem; }
+        .nav-tabs .nav-link.active {
+            color: var(--maeil-blue);
+            font-weight: 700;
+            border-bottom: 2px solid var(--maeil-blue);
+        }
+        .nav-tabs .nav-link { color: #666; }
+        .table th { font-weight: 700; font-size: 0.85rem; }
+        .badge-active { background-color: #198754; }
+        .badge-inactive { background-color: #6c757d; }
+        .badge-bounced { background-color: #dc3545; }
+        .level-filter-btn.active { background-color: var(--maeil-blue); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-maeil mb-1"><i class="fas fa-server me-2"></i>관리자 대시보드</h3>
+            <p class="text-muted mb-0">매일 칸지 관리 패널</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt me-1"></i>로그아웃
+            </button>
+        </div>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <ul class="nav nav-tabs mb-4" id="adminTabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" onclick="showTab('tab-add-content')">
+                <i class="fas fa-plus-circle me-1"></i>콘텐츠 추가
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showTab('tab-manage-content')">
+                <i class="fas fa-list me-1"></i>콘텐츠 관리
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showTab('tab-members')">
+                <i class="fas fa-users me-1"></i>회원 관리
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showTab('tab-feedbacks')">
+                <i class="fas fa-comments me-1"></i>피드백
+            </a>
+        </li>
+    </ul>
+
+    <!-- 탭 1: 콘텐츠 추가 -->
+    <div id="tab-add-content" class="tab-panel">
+        <div class="row g-4">
+            <div class="col-lg-4" th:each="level : ${levels}">
+                <div class="card card-maeil p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-book-open me-2 text-maeil"></i>
+                            [[${level.korean}]]
+                        </h5>
+                        <span class="badge bg-maeil text-white">[[${level.level}]]</span>
+                    </div>
+
+                    <form id="contentForm-[[${level.level}]]" class="content-form" data-level="[[${level.level}]]">
+                        <div class="mb-2">
+                            <label class="form-label">한자 1</label>
+                            <input type="text" class="form-control" name="kanji1" placeholder="예: 日" required>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label">読み方 1</label>
+                                <input type="text" class="form-control" name="yomi1" placeholder="예: にち" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">뜻 1</label>
+                                <input type="text" class="form-control" name="meaning1" placeholder="예: 하루, 날" required>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">한자 2</label>
+                            <input type="text" class="form-control" name="kanji2" placeholder="예: 本" required>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label class="form-label">読み方 2</label>
+                                <input type="text" class="form-control" name="yomi2" placeholder="예: ほん" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">뜻 2</label>
+                                <input type="text" class="form-control" name="meaning2" placeholder="예: 근본, 책" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">단어 (4개)</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="word1" placeholder="단어1" required>
+                                    <input type="text" class="form-control mt-1" name="wordMeaning1" placeholder="뜻" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="word2" placeholder="단어2" required>
+                                    <input type="text" class="form-control mt-1" name="wordMeaning2" placeholder="뜻" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="word3" placeholder="단어3" required>
+                                    <input type="text" class="form-control mt-1" name="wordMeaning3" placeholder="뜻" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="word4" placeholder="단어4" required>
+                                    <input type="text" class="form-control mt-1" name="wordMeaning4" placeholder="뜻" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">예문</label>
+                            <input type="text" class="form-control" name="sentence" placeholder="예문" required>
+                            <input type="text" class="form-control mt-1" name="sentenceMeaning" placeholder="예문 뜻" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">퀴즈</label>
+                            <input type="text" class="form-control" name="quiz" placeholder="퀴즈 질문" required>
+                            <input type="text" class="form-control mt-1" name="answer" placeholder="정답" required>
+                            <input type="text" class="form-control mt-1" name="explanation" placeholder="설명" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-maeil w-100">
+                            <i class="fas fa-save me-1"></i> 저장
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 2: 콘텐츠 관리 -->
+    <div id="tab-manage-content" class="tab-panel d-none">
+        <div class="card card-maeil p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-list me-2 text-maeil"></i>콘텐츠 목록</h5>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-outline-primary level-filter-btn active" onclick="loadContents('BEGINNER', this)">초급</button>
+                    <button class="btn btn-sm btn-outline-primary level-filter-btn" onclick="loadContents('INTERMEDIATE', this)">중급</button>
+                    <button class="btn btn-sm btn-outline-primary level-filter-btn" onclick="loadContents('ADVANCED', this)">고급</button>
+                </div>
+            </div>
+            <div id="content-table-wrapper">
+                <div class="text-center text-muted py-4">레벨을 선택하면 콘텐츠 목록이 표시됩니다.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 3: 회원 관리 -->
+    <div id="tab-members" class="tab-panel d-none">
+        <div class="card card-maeil p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-users me-2 text-maeil"></i>전체 회원</h5>
+                <button class="btn btn-sm btn-maeil" onclick="loadMembers()">
+                    <i class="fas fa-sync me-1"></i>새로고침
+                </button>
+            </div>
+            <div id="member-table-wrapper">
+                <div class="text-center text-muted py-4">새로고침 버튼을 눌러 회원 목록을 불러오세요.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 탭 4: 피드백 -->
+    <div id="tab-feedbacks" class="tab-panel d-none">
+        <div class="card card-maeil p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-comments me-2 text-maeil"></i>피드백 목록</h5>
+                <button class="btn btn-sm btn-maeil" onclick="loadFeedbacks()">
+                    <i class="fas fa-sync me-1"></i>새로고침
+                </button>
+            </div>
+            <div id="feedback-table-wrapper">
+                <div class="text-center text-muted py-4">새로고침 버튼을 눌러 피드백 목록을 불러오세요.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const ADMIN_API_URL = '/api/v1/admin';
+
+    // 탭 전환
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
+        document.getElementById(tabId).classList.remove('d-none');
+        document.querySelectorAll('#adminTabs .nav-link').forEach(l => l.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    // 콘텐츠 추가 폼
+    document.querySelectorAll('.content-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            const level = form.dataset.level;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> 저장 중...';
+
+            const formData = new FormData(form);
+            const payload = {};
+            for (const [key, value] of formData.entries()) payload[key] = value;
+            payload.level = level;
+
+            try {
+                const response = await fetch(`${ADMIN_API_URL}/content`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`저장 완료 (ID: ${data.id})`);
+                    form.reset();
+                } else {
+                    alert('저장 실패: ' + await response.text());
+                }
+            } catch (e) {
+                alert('서버 통신 오류');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1"></i> 저장';
+            }
+        });
+    });
+
+    // 콘텐츠 목록 로드
+    let currentContentLevel = 'BEGINNER';
+
+    async function loadContents(level, btn) {
+        currentContentLevel = level;
+        document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const wrapper = document.getElementById('content-table-wrapper');
+        wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
+
+        try {
+            const res = await fetch(`${ADMIN_API_URL}/content/${level}`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                wrapper.innerHTML = '<div class="text-center text-muted py-4">등록된 콘텐츠가 없습니다.</div>';
+                return;
+            }
+
+            const levelLabel = { BEGINNER: '초급', INTERMEDIATE: '중급', ADVANCED: '고급' };
+            let html = `<div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>레벨</th>
+                            <th>한자 1</th>
+                            <th>한자 2</th>
+                            <th>예문</th>
+                            <th>퀴즈</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.forEach(c => {
+                html += `<tr>
+                    <td><small class="text-muted">${c.id}</small></td>
+                    <td><span class="badge bg-maeil">${levelLabel[c.level] || c.level}</span></td>
+                    <td><strong>${c.kanji1}</strong> <small class="text-muted">${c.yomi1} / ${c.meaning1}</small></td>
+                    <td><strong>${c.kanji2}</strong> <small class="text-muted">${c.yomi2} / ${c.meaning2}</small></td>
+                    <td><small>${c.sentence}</small></td>
+                    <td><small>${c.quiz}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteContent('${level}', ${c.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            wrapper.innerHTML = html;
+        } catch (e) {
+            wrapper.innerHTML = '<div class="text-center text-danger py-4">오류가 발생했습니다.</div>';
+        }
+    }
+
+    async function deleteContent(level, id) {
+        if (!confirm(`ID ${id} 콘텐츠를 삭제하시겠습니까?`)) return;
+        try {
+            const res = await fetch(`${ADMIN_API_URL}/content/${level}/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadContents(level, null);
+            } else {
+                alert('삭제 실패');
+            }
+        } catch (e) {
+            alert('서버 통신 오류');
+        }
+    }
+
+    // 회원 목록 로드
+    async function loadMembers() {
+        const wrapper = document.getElementById('member-table-wrapper');
+        wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
+
+        try {
+            const res = await fetch(`${ADMIN_API_URL}/members`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                wrapper.innerHTML = '<div class="text-center text-muted py-4">회원이 없습니다.</div>';
+                return;
+            }
+
+            const statusBadge = {
+                ACTIVE: '<span class="badge badge-active bg-success">ACTIVE</span>',
+                INACTIVE: '<span class="badge badge-inactive bg-secondary">INACTIVE</span>',
+                BOUNCED: '<span class="badge badge-bounced bg-danger">BOUNCED</span>',
+            };
+            const levelLabel = { BEGINNER: '초급', INTERMEDIATE: '중급', ADVANCED: '고급' };
+
+            let html = `<div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>이메일</th>
+                            <th>상태</th>
+                            <th>레벨</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.forEach(m => {
+                html += `<tr>
+                    <td>${m.email}</td>
+                    <td>${statusBadge[m.memberStatus] || m.memberStatus}</td>
+                    <td>${levelLabel[m.level] || m.level}</td>
+                    <td>`;
+                if (m.memberStatus === 'BOUNCED') {
+                    html += `<button class="btn btn-sm btn-outline-success" onclick="reactivateMember('${m.id}')">
+                        <i class="fas fa-redo me-1"></i>복구
+                    </button>`;
+                }
+                html += `</td></tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            wrapper.innerHTML = html;
+        } catch (e) {
+            wrapper.innerHTML = '<div class="text-center text-danger py-4">오류가 발생했습니다.</div>';
+        }
+    }
+
+    async function reactivateMember(memberId) {
+        if (!confirm('이 회원을 ACTIVE 상태로 복구하시겠습니까?')) return;
+        try {
+            const res = await fetch(`${ADMIN_API_URL}/members/${memberId}/reactivate`, { method: 'POST' });
+            if (res.ok) {
+                loadMembers();
+            } else {
+                alert('복구 실패');
+            }
+        } catch (e) {
+            alert('서버 통신 오류');
+        }
+    }
+
+    // 피드백 로드
+    async function loadFeedbacks() {
+        const wrapper = document.getElementById('feedback-table-wrapper');
+        wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
+
+        try {
+            const res = await fetch(`${ADMIN_API_URL}/feedbacks`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                wrapper.innerHTML = '<div class="text-center text-muted py-4">피드백이 없습니다.</div>';
+                return;
+            }
+
+            let html = `<div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>회원 ID</th>
+                            <th>이유</th>
+                            <th>코멘트</th>
+                            <th>등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            data.forEach(f => {
+                const date = f.createdAt ? f.createdAt.substring(0, 10) : '-';
+                html += `<tr>
+                    <td><small class="text-muted">${f.memberId}</small></td>
+                    <td>${f.reason}</td>
+                    <td>${f.comment || '-'}</td>
+                    <td><small>${date}</small></td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            wrapper.innerHTML = html;
+        } catch (e) {
+            wrapper.innerHTML = '<div class="text-center text-danger py-4">오류가 발생했습니다.</div>';
+        }
+    }
+
+    function logout() {
+        window.location.href = '/admin/login';
+    }
+
+    // 콘텐츠 관리 탭 진입 시 자동 로드
+    document.querySelectorAll('#adminTabs .nav-link').forEach((link, idx) => {
+        link.addEventListener('click', () => {
+            if (idx === 1) loadContents('BEGINNER', document.querySelector('.level-filter-btn'));
+            if (idx === 2) loadMembers();
+            if (idx === 3) loadFeedbacks();
+        });
+    });
+</script>
+</body>
+</html>
