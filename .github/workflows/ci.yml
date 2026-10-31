@@ -1,6 +1,12 @@
 name: ci pipeline
 
 on:
+  push:
+    branches:
+      - dev
+      - main
+    paths-ignore:
+      - 'README.md'
   pull_request:
     branches:
       - dev
@@ -29,9 +35,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: test for dev
-        if: github.event.pull_request.base.ref == 'dev'
+        if: (github.base_ref || github.ref_name) == 'dev'
         run: ./gradlew test
 
       - name: test for main
-        if: github.event.pull_request.base.ref == 'main'
+        if: (github.base_ref || github.ref_name) == 'main'
         run: ./gradlew clean build
