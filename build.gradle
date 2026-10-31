@@ -26,6 +26,9 @@ repositories {
     mavenCentral()
 }
 
+// Boot BOM 기본값(1.21.3)은 Docker Engine 29+ 의 최소 API 버전 요구를 지원하지 않음
+ext['testcontainers.version'] = '1.21.4'
+
 dependencies {
     // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -52,9 +55,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.testcontainers:testcontainers:1.19.3'
-    testImplementation 'org.testcontainers:junit-jupiter:1.19.3'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:mysql'
+    testImplementation 'org.testcontainers:rabbitmq'
 
     // Mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
