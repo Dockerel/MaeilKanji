@@ -1,0 +1,88 @@
+# Deployed by .github/workflows/cd.yml, which replaces IMAGE_PLACEHOLDER with the built image.
+# Needs Secrets maeilkanji-infra (secret.yaml) and maeilkanji-app (app-secret.yaml).
+apiVersion: v1
+kind: Service
+metadata:
+  name: maeilkanji
+  namespace: maeilkanji
+  labels:
+    app: maeilkanji
+spec:
+  selector:
+    app: maeilkanji
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maeilkanji
+  namespace: maeilkanji
+spec:
+  # Keep 1 replica: the @Scheduled jobs would run once per pod.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: maeilkanji
+  template:
+    metadata:
+      labels:
+        app: maeilkanji
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: app
+          image: IMAGE_PLACEHOLDER
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: TZ
+              value: Asia/Seoul
+            - name: MYSQL_HOST
+              value: mysql
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: MYSQL_DATABASE
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: MYSQL_DATABASE } }
+            - name: MYSQL_USER
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: MYSQL_USER } }
+            - name: MYSQL_PASSWORD
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: MYSQL_PASSWORD } }
+            - name: REDIS_PASSWORD
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: REDIS_PASSWORD } }
+            - name: RABBITMQ_USERNAME
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: RABBITMQ_USERNAME } }
+            - name: RABBITMQ_PASSWORD
+              valueFrom: { secretKeyRef: { name: maeilkanji-infra, key: RABBITMQ_PASSWORD } }
+          envFrom:
+            - secretRef:
+                name: maeilkanji-app
+          startupProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 200m, memory: 512Mi }
+            limits: { memory: 768Mi }
