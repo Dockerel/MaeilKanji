@@ -1,0 +1,49 @@
+# Public entrypoint via k3s traefik. TLS cert issued by cert-manager (see cluster-issuer.yaml).
+# DNS (Gabia): A @ -> public IP, CNAME www -> maeilkanji.com. Router must forward 80/443 to traefik.
+# Redirect HTTP -> HTTPS (no-op for requests already on https).
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+  namespace: maeilkanji
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: maeilkanji
+  namespace: maeilkanji
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: maeilkanji-redirect-https@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - maeilkanji.com
+        - www.maeilkanji.com
+      secretName: maeilkanji-tls
+  rules:
+    - host: maeilkanji.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maeilkanji
+                port:
+                  number: 80
+    - host: www.maeilkanji.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maeilkanji
+                port:
+                  number: 80

@@ -6,3 +6,5 @@ resources:
   - mysql.yaml
   - redis.yaml
   - rabbitmq.yaml
+  - cluster-issuer.yaml
+  - ingress.yaml
