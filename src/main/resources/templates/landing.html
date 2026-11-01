@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매일 칸지 | 매일 3분 일본어 한자 루틴</title>
+    <th:block th:replace="~{fragments/analytics :: ga}"></th:block>
     <meta name="description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로. 3분이면 끝나는 일본어 한자 학습 서비스, 매일 칸지.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -1141,6 +1142,9 @@
                 document.getElementById('signupFormContent').style.display = 'none';
                 document.getElementById('successMessageContent').style.display = 'block';
                 document.getElementById('subscribeModalLabel').textContent = '구독 완료!';
+                if (typeof gtag === 'function') {
+                    gtag('event', 'sign_up', {method: 'email', level: selectedLevel.value});
+                }
 
             } else {
                 const errorMessage = data.message || "가입 중 알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.";

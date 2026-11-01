@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<!-- Google Analytics 4. analytics.ga-id(GA_ID) 가 비어 있으면 아무것도 출력하지 않는다.
+     사용: <th:block th:replace="~{fragments/analytics :: ga}"></th:block> (공개 페이지만, admin 제외) -->
+<th:block th:fragment="ga"
+          th:with="gaId=${@environment.getProperty('analytics.ga-id')}">
+    <th:block th:if="${!#strings.isEmpty(gaId)}">
+        <script async th:src="|https://www.googletagmanager.com/gtag/js?id=${gaId}|"></script>
+        <script th:inline="javascript">
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', /*[[${gaId}]]*/ '');
+        </script>
+    </th:block>
+</th:block>
+</head>
+</html>

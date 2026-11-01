@@ -32,6 +32,11 @@ spec:
     metadata:
       labels:
         app: maeilkanji
+      annotations:
+        # Prometheus pod auto-discovery (prometheus-community/prometheus chart 기본 scrape 규칙)
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: /actuator/prometheus
     spec:
       securityContext:
         runAsNonRoot: true
@@ -43,6 +48,9 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            # Actuator (health, prometheus). Service/Ingress 에 연결하지 않아 외부 비공개.
+            - name: management
+              containerPort: 8081
           env:
             - name: TZ
               value: Asia/Seoul
@@ -74,14 +82,14 @@ spec:
             - secretRef:
                 name: maeilkanji-app
           startupProbe:
-            tcpSocket: { port: http }
+            httpGet: { path: /actuator/health/liveness, port: management }
             periodSeconds: 5
             failureThreshold: 36
           readinessProbe:
-            tcpSocket: { port: http }
+            httpGet: { path: /actuator/health/readiness, port: management }
             periodSeconds: 10
           livenessProbe:
-            tcpSocket: { port: http }
+            httpGet: { path: /actuator/health/liveness, port: management }
             periodSeconds: 20
           resources:
             requests: { cpu: 200m, memory: 512Mi }
