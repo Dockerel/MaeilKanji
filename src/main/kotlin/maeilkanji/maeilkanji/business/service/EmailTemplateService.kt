@@ -21,19 +21,27 @@ class EmailTemplateService(
     private val emailVerificationTemplateResource: Resource,
     @Value("classpath:templates/email/daily-content-email.html")
     private val dailyContentTemplateResource: Resource,
+    @Value("classpath:templates/email/admin-login-code.html")
+    private val adminLoginCodeTemplateResource: Resource,
 ) {
 
     private lateinit var emailVerificationTemplate:String
     private lateinit var dailyContentTemplate:String
+    private lateinit var adminLoginCodeTemplate:String
 
     @PostConstruct
     fun init() {
         emailVerificationTemplate=emailVerificationTemplateResource.inputStream.bufferedReader().use { it.readText() }
         dailyContentTemplate=dailyContentTemplateResource.inputStream.bufferedReader().use { it.readText() }
+        adminLoginCodeTemplate=adminLoginCodeTemplateResource.inputStream.bufferedReader().use { it.readText() }
     }
 
     fun generateEmailVerificationTemplate(randomCode: String): String {
         return emailVerificationTemplate.replace("{{CODE}}", randomCode)
+    }
+
+    fun generateAdminLoginCodeTemplate(code: String): String {
+        return adminLoginCodeTemplate.replace("{{CODE}}", code)
     }
 
     fun generateDailyContentEmailTemplate(level: KanjiLevel, contentIndex: Long, memberId: UUID): Map<String, String> {

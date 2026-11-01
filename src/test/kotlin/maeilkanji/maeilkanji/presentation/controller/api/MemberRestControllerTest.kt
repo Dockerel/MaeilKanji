@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.service.MemberService
+import maeilkanji.maeilkanji.business.service.AdminService
 import maeilkanji.maeilkanji.business.service.request.ChangeLevelServiceRequest
 import maeilkanji.maeilkanji.business.service.request.FeedbackServiceRequest
 import maeilkanji.maeilkanji.business.service.request.SendVerificationCodeServiceRequest
@@ -288,5 +289,9 @@ class MemberRestControllerTest(
     class MockConfig {
         @Bean
         fun memberService(): MemberService = mockk()
+
+        // WebMvcConfig(관리자 인증 인터셉터)가 슬라이스에 포함되므로 필요
+        @Bean
+        fun adminService(): AdminService = mockk()
     }
 }

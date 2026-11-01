@@ -10,6 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.Runs
 import io.mockk.verify
+import jakarta.servlet.http.Cookie
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
@@ -21,6 +22,8 @@ import maeilkanji.maeilkanji.business.service.request.VerifyAdminLoginCodeServic
 import maeilkanji.maeilkanji.fixture.contentRequest
 import maeilkanji.maeilkanji.fixture.dailyContentDto
 import maeilkanji.maeilkanji.fixture.memberDto
+import maeilkanji.maeilkanji.presentation.auth.AdminSessionCookie
+import maeilkanji.maeilkanji.presentation.controller.api.request.BulkContentRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.SendAdminLoginCodeRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.VerifyAdminLoginCodeRequest
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -50,6 +53,8 @@ class AdminRestControllerTest(
 
     // 컨텍스트 캐시로 mock 빈이 공유되므로 leaf 마다 초기화
     clearMocks(adminService)
+    // 기본은 로그인된 관리자. 인증 실패 케이스는 leaf 에서 덮어쓴다
+    every { adminService.isValidAdminSession(any()) } returns true
 
     fun postJson(path: String, body: Any) = mockMvc.post("$BASE$path") {
         contentType = MediaType.APPLICATION_JSON
@@ -87,26 +92,42 @@ class AdminRestControllerTest(
 
     Given("로그인 코드 검증 요청에서") {
         When("코드가 일치하면") {
-            every { adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "Ab3dE5gH9k")) } returns true
+            every { adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "Ab3dE5gH9k")) } returns "token-123"
             val result = postJson("/verify-login", VerifyAdminLoginCodeRequest(adminEmail, "Ab3dE5gH9k"))
 
-            Then("200 과 success=true 를 반환한다") {
+            Then("200 과 success=true, HttpOnly 세션 쿠키를 반환한다") {
                 result.andExpect {
                     status { isOk() }
                     jsonPath("\$.success") { value(true) }
+                    cookie {
+                        value(AdminSessionCookie.NAME, "token-123")
+                        httpOnly(AdminSessionCookie.NAME, true)
+                        maxAge(AdminSessionCookie.NAME, 8 * 60 * 60)
+                    }
                 }
             }
         }
 
         When("코드가 일치하지 않으면") {
-            every { adminService.verifyAdminLoginCode(any()) } returns false
+            every { adminService.verifyAdminLoginCode(any()) } returns null
             val result = postJson("/verify-login", VerifyAdminLoginCodeRequest(adminEmail, "wrong"))
 
-            Then("200 과 success=false 를 반환한다") {
+            Then("200 과 success=false 를 반환하고 쿠키를 발급하지 않는다") {
                 result.andExpect {
                     status { isOk() }
                     jsonPath("\$.success") { value(false) }
+                    cookie { doesNotExist(AdminSessionCookie.NAME) }
                 }
+            }
+        }
+
+        When("시도 횟수를 초과했으면") {
+            every { adminService.verifyAdminLoginCode(any()) } throws
+                MaeilKanjiException("Too many attempts. Request a new code.", HttpStatus.TOO_MANY_REQUESTS)
+            val result = postJson("/verify-login", VerifyAdminLoginCodeRequest(adminEmail, "Ab3dE5gH9k"))
+
+            Then("429 를 반환한다") {
+                result.andExpect { status { isTooManyRequests() } }
             }
         }
 
@@ -120,6 +141,57 @@ class AdminRestControllerTest(
                     status { isBadRequest() }
                     content { string("Code expired or not found") }
                 }
+            }
+        }
+    }
+
+    Given("관리자 세션이 없을 때") {
+        every { adminService.isValidAdminSession(any()) } returns false
+
+        When("관리자 API 를 호출하면") {
+            val result = mockMvc.get("$BASE/members")
+
+            Then("401 을 반환하고 서비스를 호출하지 않는다") {
+                result.andExpect {
+                    status { isUnauthorized() }
+                    content { string("Unauthorized") }
+                }
+                verify(exactly = 0) { adminService.getMembers() }
+            }
+        }
+
+        When("로그인 코드 전송 API 를 호출하면") {
+            every { adminService.sendAdminLoginCode(any()) } returns SendAdminLoginCodeResponse("ok")
+            val result = postJson("/send-login-code", SendAdminLoginCodeRequest(adminEmail))
+
+            Then("인증 없이 통과한다") {
+                result.andExpect { status { isOk() } }
+            }
+        }
+    }
+
+    Given("세션 쿠키가 있을 때") {
+        When("관리자 API 를 호출하면") {
+            every { adminService.isValidAdminSession("tok") } returns true
+            every { adminService.getMembers() } returns emptyList()
+            val result = mockMvc.get("$BASE/members") { cookies = arrayOf(Cookie(AdminSessionCookie.NAME, "tok")) }
+
+            Then("쿠키의 토큰으로 세션을 확인한다") {
+                result.andExpect { status { isOk() } }
+                verify(exactly = 1) { adminService.isValidAdminSession("tok") }
+            }
+        }
+
+        When("로그아웃하면") {
+            every { adminService.logoutAdmin("tok") } just Runs
+            val result = mockMvc.post("$BASE/logout") { cookies = arrayOf(Cookie(AdminSessionCookie.NAME, "tok")) }
+
+            Then("204 와 만료된 쿠키를 반환하고 세션을 삭제한다") {
+                result.andExpect {
+                    status { isNoContent() }
+                    cookie { maxAge(AdminSessionCookie.NAME, 0) }
+                }
+                verify(exactly = 1) { adminService.logoutAdmin("tok") }
             }
         }
     }
@@ -156,6 +228,53 @@ class AdminRestControllerTest(
             Then("500 을 반환한다") {
                 result.andExpect { status { isInternalServerError() } }
                 verify(exactly = 0) { adminService.saveDailyContent(any(), any()) }
+            }
+        }
+    }
+
+    Given("콘텐츠 일괄 저장 요청에서") {
+        When("모든 행이 유효하면") {
+            every { adminService.saveDailyContents(any()) } returns listOf(1L, 2L)
+            val result = postJson(
+                "/content/bulk",
+                BulkContentRequest(listOf(contentRequest(level = "BEGINNER"), contentRequest(level = "ADVANCED"))),
+            )
+
+            Then("200 과 저장 개수, id 목록을 반환한다") {
+                result.andExpect {
+                    status { isOk() }
+                    jsonPath("\$.count") { value(2) }
+                    jsonPath("\$.ids[1]") { value(2) }
+                }
+                verify(exactly = 1) {
+                    adminService.saveDailyContents(match {
+                        it.map { c -> c.level } == listOf(KanjiLevel.BEGINNER, KanjiLevel.ADVANCED)
+                    })
+                }
+            }
+        }
+
+        When("목록이 비어 있으면 (경계값)") {
+            val result = postJson("/content/bulk", BulkContentRequest(emptyList()))
+
+            Then("400 을 반환하고 서비스를 호출하지 않는다") {
+                result.andExpect {
+                    status { isBadRequest() }
+                    content { string("등록할 콘텐츠가 없습니다.") }
+                }
+                verify(exactly = 0) { adminService.saveDailyContents(any()) }
+            }
+        }
+
+        When("한 행이라도 필수 필드가 공백이면") {
+            val result = postJson(
+                "/content/bulk",
+                BulkContentRequest(listOf(contentRequest(), contentRequest(kanji1 = ""))),
+            )
+
+            Then("400 을 반환하고 아무것도 저장하지 않는다") {
+                result.andExpect { status { isBadRequest() } }
+                verify(exactly = 0) { adminService.saveDailyContents(any()) }
             }
         }
     }

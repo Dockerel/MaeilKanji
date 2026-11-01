@@ -29,6 +29,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
         BASE_URL,
         ByteArrayResource("인증 코드: {{CODE}}".toByteArray()),
         ByteArrayResource(DAILY_TEMPLATE.toByteArray()),
+        ByteArrayResource("관리자 코드: {{CODE}}".toByteArray()),
     ).apply { init() }
 
     val memberId = UUID.fromString("11111111-2222-3333-4444-555555555555")
@@ -39,6 +40,16 @@ class EmailTemplateServiceTest : BehaviorSpec({
 
             Then("{{CODE}} 를 코드로 치환한다") {
                 result shouldBe "인증 코드: 1234"
+            }
+        }
+    }
+
+    Given("관리자 로그인 메일 템플릿이 로드되어 있을 때") {
+        When("코드로 템플릿을 생성하면") {
+            val result = emailTemplateService.generateAdminLoginCodeTemplate("Ab3dE5gH9k")
+
+            Then("{{CODE}} 를 코드로 치환한다") {
+                result shouldBe "관리자 코드: Ab3dE5gH9k"
             }
         }
     }

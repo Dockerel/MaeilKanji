@@ -1,5 +1,6 @@
 package maeilkanji.maeilkanji.presentation.controller.api
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.service.AdminService
@@ -7,9 +8,12 @@ import maeilkanji.maeilkanji.business.service.SendAdminLoginCodeResponse
 import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
 import maeilkanji.maeilkanji.business.service.dto.FeedbackDto
 import maeilkanji.maeilkanji.business.service.dto.MemberDto
+import maeilkanji.maeilkanji.presentation.auth.AdminSessionCookie
+import maeilkanji.maeilkanji.presentation.controller.api.request.BulkContentRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.ContentRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.SendAdminLoginCodeRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.VerifyAdminLoginCodeRequest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
@@ -27,15 +31,35 @@ class AdminRestController(
     }
 
     @PostMapping("/verify-login")
-    fun verifyAdminLoginCode(@Valid @RequestBody request: VerifyAdminLoginCodeRequest): ResponseEntity<Map<String, Boolean>> {
-        val success = adminService.verifyAdminLoginCode(request.toServiceRequest())
-        return ResponseEntity.ok(mapOf("success" to success))
+    fun verifyAdminLoginCode(
+        @Valid @RequestBody request: VerifyAdminLoginCodeRequest,
+        httpRequest: HttpServletRequest,
+    ): ResponseEntity<Map<String, Boolean>> {
+        val token = adminService.verifyAdminLoginCode(request.toServiceRequest())
+            ?: return ResponseEntity.ok(mapOf("success" to false))
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, AdminSessionCookie.issue(token, httpRequest).toString())
+            .body(mapOf("success" to true))
+    }
+
+    @PostMapping("/logout")
+    fun logout(httpRequest: HttpServletRequest): ResponseEntity<Void> {
+        adminService.logoutAdmin(AdminSessionCookie.read(httpRequest))
+        return ResponseEntity.noContent()
+            .header(HttpHeaders.SET_COOKIE, AdminSessionCookie.expire(httpRequest).toString())
+            .build()
     }
 
     @PostMapping("/content")
     fun saveDailyContent(@Valid @RequestBody request: ContentRequest): ResponseEntity<Map<String, Long>> {
         val id = adminService.saveDailyContent(request.toDailyContentDto().level, request.toDailyContentDto())
         return ResponseEntity.ok(mapOf("id" to id))
+    }
+
+    @PostMapping("/content/bulk")
+    fun saveDailyContents(@Valid @RequestBody request: BulkContentRequest): ResponseEntity<Map<String, Any>> {
+        val ids = adminService.saveDailyContents(request.toDailyContentDtos())
+        return ResponseEntity.ok(mapOf("count" to ids.size, "ids" to ids))
     }
 
     @GetMapping("/content/{level}")

@@ -86,6 +86,11 @@
                 <i class="fas fa-comments me-1"></i>피드백
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" onclick="showTab('tab-bulk-upload')">
+                <i class="fas fa-file-csv me-1"></i>CSV 일괄 등록
+            </a>
+        </li>
     </ul>
 
     <!-- 탭 1: 콘텐츠 추가 -->
@@ -220,11 +225,51 @@
             </div>
         </div>
     </div>
+
+    <!-- 탭 5: CSV 일괄 등록 -->
+    <div id="tab-bulk-upload" class="tab-panel d-none">
+        <div class="card card-maeil p-4">
+            <h5 class="fw-bold mb-1"><i class="fas fa-file-csv me-2 text-maeil"></i>CSV 일괄 등록</h5>
+            <p class="text-muted small mb-3">
+                <code>/create_question</code> 으로 생성한 행을 붙여넣거나 CSV 파일을 선택하세요.
+                구분자는 <code>;</code>, 한 줄에 20개 컬럼, 헤더 행은 자동으로 건너뜁니다. 레벨이 섞여 있어도 됩니다.
+            </p>
+
+            <div class="mb-2">
+                <input type="file" class="form-control" id="bulk-file" accept=".csv,.txt,text/csv,text/plain">
+            </div>
+            <textarea class="form-control font-monospace small mb-3" id="bulk-text" rows="8"
+                      placeholder="BEGINNER;上;(じょう, うえ);위, 오르다;下;(か, した);아래, 내리다;..."></textarea>
+
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-outline-primary" id="bulk-preview-btn" onclick="previewBulk()">
+                    <i class="fas fa-search me-1"></i>검증 / 미리보기
+                </button>
+                <button class="btn btn-maeil" id="bulk-submit-btn" onclick="submitBulk()" disabled>
+                    <i class="fas fa-upload me-1"></i>일괄 등록
+                </button>
+            </div>
+
+            <div id="bulk-summary"></div>
+            <div id="bulk-preview-wrapper"></div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const ADMIN_API_URL = '/api/v1/admin';
+
+    // 세션 만료(401) 시 로그인 화면으로 이동
+    async function adminFetch(url, options) {
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+            alert('로그인이 만료되었습니다. 다시 로그인해 주세요.');
+            window.location.href = '/admin/login';
+            throw new Error('Unauthorized');
+        }
+        return res;
+    }
 
     // 탭 전환
     function showTab(tabId) {
@@ -249,7 +294,7 @@
             payload.level = level;
 
             try {
-                const response = await fetch(`${ADMIN_API_URL}/content`, {
+                const response = await adminFetch(`${ADMIN_API_URL}/content`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -282,7 +327,7 @@
         wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
 
         try {
-            const res = await fetch(`${ADMIN_API_URL}/content/${level}`);
+            const res = await adminFetch(`${ADMIN_API_URL}/content/${level}`);
             const data = await res.json();
 
             if (data.length === 0) {
@@ -332,7 +377,7 @@
     async function deleteContent(level, id) {
         if (!confirm(`ID ${id} 콘텐츠를 삭제하시겠습니까?`)) return;
         try {
-            const res = await fetch(`${ADMIN_API_URL}/content/${level}/${id}`, { method: 'DELETE' });
+            const res = await adminFetch(`${ADMIN_API_URL}/content/${level}/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 loadContents(level, null);
             } else {
@@ -349,7 +394,7 @@
         wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
 
         try {
-            const res = await fetch(`${ADMIN_API_URL}/members`);
+            const res = await adminFetch(`${ADMIN_API_URL}/members`);
             const data = await res.json();
 
             if (data.length === 0) {
@@ -400,7 +445,7 @@
     async function reactivateMember(memberId) {
         if (!confirm('이 회원을 ACTIVE 상태로 복구하시겠습니까?')) return;
         try {
-            const res = await fetch(`${ADMIN_API_URL}/members/${memberId}/reactivate`, { method: 'POST' });
+            const res = await adminFetch(`${ADMIN_API_URL}/members/${memberId}/reactivate`, { method: 'POST' });
             if (res.ok) {
                 loadMembers();
             } else {
@@ -417,7 +462,7 @@
         wrapper.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> 로딩 중...</div>';
 
         try {
-            const res = await fetch(`${ADMIN_API_URL}/feedbacks`);
+            const res = await adminFetch(`${ADMIN_API_URL}/feedbacks`);
             const data = await res.json();
 
             if (data.length === 0) {
@@ -454,8 +499,187 @@
         }
     }
 
-    function logout() {
-        window.location.href = '/admin/login';
+    // CSV 일괄 등록
+    const BULK_COLUMNS = ['level', 'kanji1', 'yomi1', 'meaning1', 'kanji2', 'yomi2', 'meaning2', 'quiz',
+        'word1', 'wordMeaning1', 'word2', 'wordMeaning2', 'word3', 'wordMeaning3', 'word4', 'wordMeaning4',
+        'sentence', 'sentenceMeaning', 'answer', 'explanation'];
+    const BULK_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+    const BULK_MAX_FIELD_LENGTH = 255; // JPA String 기본 컬럼 길이 (varchar(255))
+    let bulkRows = [];
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function bulkInvalidate() {
+        bulkRows = [];
+        document.getElementById('bulk-submit-btn').disabled = true;
+        document.getElementById('bulk-summary').innerHTML = '';
+        document.getElementById('bulk-preview-wrapper').innerHTML = '';
+    }
+
+    document.getElementById('bulk-text').addEventListener('input', bulkInvalidate);
+    document.getElementById('bulk-file').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        document.getElementById('bulk-text').value = await file.text();
+        bulkInvalidate();
+        previewBulk();
+    });
+
+    function parseBulkText(text) {
+        return text.replace(/^﻿/, '')
+            .split(/\r?\n/)
+            .map((line, idx) => ({ line, lineNo: idx + 1 }))
+            .filter(({ line }) => line.trim() !== '' && !line.trim().startsWith('```'))
+            .filter(({ line }) => !line.trim().toLowerCase().startsWith('level;'))
+            .map(({ line, lineNo }) => {
+                const fields = line.split(';').map(f => f.trim());
+                const errors = [];
+                const content = {};
+                if (fields.length !== BULK_COLUMNS.length) {
+                    errors.push(`컬럼 수 ${fields.length}개 (20개 필요)`);
+                } else {
+                    BULK_COLUMNS.forEach((col, i) => { content[col] = fields[i]; });
+                    if (!BULK_LEVELS.includes(content.level)) errors.push(`잘못된 레벨: ${content.level}`);
+                    BULK_COLUMNS.forEach(col => {
+                        if (!content[col]) errors.push(`${col} 비어 있음`);
+                        else if (content[col].length > BULK_MAX_FIELD_LENGTH) errors.push(`${col} ${content[col].length}자 (최대 ${BULK_MAX_FIELD_LENGTH}자)`);
+                    });
+                }
+                return { lineNo, content, errors, warnings: [] };
+            });
+    }
+
+    async function fetchExistingContents() {
+        const results = await Promise.all(BULK_LEVELS.map(async level => {
+            const res = await adminFetch(`${ADMIN_API_URL}/content/${level}`);
+            if (!res.ok) throw new Error(`${level} 조회 실패`);
+            return res.json();
+        }));
+        return results.flat();
+    }
+
+    // create_question 규칙: 같은 레벨의 kanji1 재사용 금지, 같은 한자 쌍은 레벨 무관 재사용 금지
+    function markDuplicates(rows, existing) {
+        const pairKey = c => `${c.kanji1}|${c.kanji2}`;
+        const levelKanjiKey = c => `${c.level}|${c.kanji1}`;
+        const existingPairs = new Set(existing.map(pairKey));
+        const existingLevelKanji = new Set(existing.map(levelKanjiKey));
+        const seenPairs = new Map();
+        const seenLevelKanji = new Map();
+
+        rows.filter(r => r.errors.length === 0).forEach(r => {
+            const c = r.content;
+            if (existingPairs.has(pairKey(c))) r.warnings.push(`이미 등록된 한자 쌍 ${c.kanji1}/${c.kanji2}`);
+            else if (existingLevelKanji.has(levelKanjiKey(c))) r.warnings.push(`${c.level}에 이미 등록된 kanji1 ${c.kanji1}`);
+            if (seenPairs.has(pairKey(c))) r.warnings.push(`${seenPairs.get(pairKey(c))}행과 한자 쌍 중복`);
+            else if (seenLevelKanji.has(levelKanjiKey(c))) r.warnings.push(`${seenLevelKanji.get(levelKanjiKey(c))}행과 kanji1 중복`);
+            seenPairs.set(pairKey(c), r.lineNo);
+            seenLevelKanji.set(levelKanjiKey(c), r.lineNo);
+        });
+    }
+
+    async function previewBulk() {
+        const summary = document.getElementById('bulk-summary');
+        const wrapper = document.getElementById('bulk-preview-wrapper');
+        const submitBtn = document.getElementById('bulk-submit-btn');
+        bulkInvalidate();
+
+        const rows = parseBulkText(document.getElementById('bulk-text').value);
+        if (rows.length === 0) {
+            summary.innerHTML = '<div class="alert alert-secondary py-2">등록할 행이 없습니다.</div>';
+            return;
+        }
+
+        try {
+            markDuplicates(rows, await fetchExistingContents());
+        } catch (e) {
+            summary.innerHTML = '<div class="alert alert-danger py-2">기존 콘텐츠 조회 실패로 중복 검사를 하지 못했습니다.</div>';
+            return;
+        }
+
+        const errorCount = rows.filter(r => r.errors.length > 0).length;
+        const warningCount = rows.filter(r => r.warnings.length > 0).length;
+        const levelLabel = { BEGINNER: '초급', INTERMEDIATE: '중급', ADVANCED: '고급' };
+        const perLevel = BULK_LEVELS
+            .map(l => `${levelLabel[l]} ${rows.filter(r => r.content.level === l).length}`)
+            .join(' · ');
+
+        summary.innerHTML = `<div class="alert ${errorCount ? 'alert-danger' : warningCount ? 'alert-warning' : 'alert-success'} py-2">
+            총 <strong>${rows.length}</strong>행 (${perLevel}) · 오류 <strong>${errorCount}</strong> · 경고 <strong>${warningCount}</strong>
+            ${errorCount ? '<br>오류를 고친 뒤 다시 검증하세요.' : ''}
+        </div>`;
+
+        let html = `<div class="table-responsive"><table class="table table-sm align-middle">
+            <thead class="table-light"><tr>
+                <th>줄</th><th>레벨</th><th>한자</th><th>퀴즈 / 정답</th><th>예문</th><th>검증</th>
+            </tr></thead><tbody>`;
+        rows.forEach(r => {
+            const c = r.content;
+            const rowClass = r.errors.length ? 'table-danger' : r.warnings.length ? 'table-warning' : '';
+            const status = r.errors.length || r.warnings.length
+                ? [...r.errors, ...r.warnings].map(m => `<div class="small">${escapeHtml(m)}</div>`).join('')
+                : '<i class="fas fa-check text-success"></i>';
+            html += `<tr class="${rowClass}">
+                <td><small class="text-muted">${r.lineNo}</small></td>
+                <td><small>${escapeHtml(levelLabel[c.level] || c.level || '-')}</small></td>
+                <td><strong>${escapeHtml(c.kanji1 || '-')}</strong> / <strong>${escapeHtml(c.kanji2 || '-')}</strong></td>
+                <td><small>${escapeHtml(c.quiz || '-')}<br><span class="text-muted">${escapeHtml(c.answer || '')}</span></small></td>
+                <td><small>${escapeHtml(c.sentence || '-')}</small></td>
+                <td>${status}</td>
+            </tr>`;
+        });
+        html += '</tbody></table></div>';
+        wrapper.innerHTML = html;
+
+        if (errorCount === 0) {
+            bulkRows = rows;
+            submitBtn.disabled = false;
+        }
+    }
+
+    async function submitBulk() {
+        if (bulkRows.length === 0) return;
+        const warningCount = bulkRows.filter(r => r.warnings.length > 0).length;
+        const message = warningCount
+            ? `경고가 있는 행 ${warningCount}개를 포함해 ${bulkRows.length}개를 등록하시겠습니까?`
+            : `${bulkRows.length}개를 등록하시겠습니까?`;
+        if (!confirm(message)) return;
+
+        const btn = document.getElementById('bulk-submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> 등록 중...';
+        try {
+            const res = await adminFetch(`${ADMIN_API_URL}/content/bulk`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: bulkRows.map(r => r.content) })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                alert(`${data.count}개 등록 완료`);
+                document.getElementById('bulk-text').value = '';
+                document.getElementById('bulk-file').value = '';
+                bulkInvalidate();
+            } else {
+                alert('등록 실패 (전체 롤백): ' + await res.text());
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert('서버 통신 오류');
+            btn.disabled = false;
+        } finally {
+            btn.innerHTML = '<i class="fas fa-upload me-1"></i>일괄 등록';
+        }
+    }
+
+    async function logout() {
+        try {
+            await fetch(`${ADMIN_API_URL}/logout`, { method: 'POST' });
+        } finally {
+            window.location.href = '/admin/login';
+        }
     }
 
     // 콘텐츠 관리 탭 진입 시 자동 로드

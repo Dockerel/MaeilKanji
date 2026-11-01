@@ -61,9 +61,9 @@
 
                     <div id="adminVerificationSection" style="display: none;">
                         <div class="mb-3">
-                            <label for="adminCode" class="form-label small fw-bold">인증 코드 (4자리)</label>
+                            <label for="adminCode" class="form-label small fw-bold">로그인 코드 (10자리)</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="adminCode" placeholder="메일로 받은 4자리 숫자 입력" maxlength="4">
+                                <input type="text" class="form-control" id="adminCode" placeholder="메일로 받은 10자리 영문·숫자 입력" maxlength="10" autocomplete="one-time-code">
                                 <button class="btn btn-maeil btn-sm" type="button" id="verifyAdminCodeBtn" onclick="verifyAdminCode()">로그인</button>
                             </div>
                             <div id="codeHelp" class="form-text text-danger" style="display: none;"></div>
@@ -111,7 +111,6 @@
                 body: JSON.stringify({ email: email })
             });
 
-            const data = await response.json();
             const helpTextId = 'emailHelp';
 
             if (response.ok) {
@@ -123,7 +122,9 @@
 
             } else {
                 // 실패 응답 (HTTP 4xx: 관리자 이메일이 아님, 5xx: 서버 오류)
-                const errorMessage = data.message || "인증 메일 발송에 실패했습니다. 이메일을 확인해 주세요.";
+                const errorMessage = response.status === 401
+                    ? "관리자 이메일이 아닙니다."
+                    : "인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.";
                 updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
                 btn.textContent = '코드 발송';
                 btn.disabled = false;
@@ -139,12 +140,12 @@
     // 2. 인증 코드 확인 및 로그인 시도
     async function verifyAdminCode() {
         const email = document.getElementById('adminEmail').value;
-        const code = document.getElementById('adminCode').value;
+        const code = document.getElementById('adminCode').value.trim();
         const btn = document.getElementById('verifyAdminCodeBtn');
         const helpTextId = 'codeHelp';
 
-        if (code.length !== 4) {
-            updateHelpText(helpTextId, '4자리 코드를 입력해 주세요.', false);
+        if (code.length !== 10) {
+            updateHelpText(helpTextId, '10자리 코드를 입력해 주세요.', false);
             return;
         }
 
@@ -160,16 +161,20 @@
 
             // NOTE: 백엔드에서 인증 성공 시, 응답 헤더에 세션 쿠키(임시 토큰)를 포함하여 보내야 합니다.
 
-            if (response.ok) {
-                // 성공 응답 (HTTP 200)
+            const data = response.ok ? await response.json() : null;
+
+            if (data && data.success) {
+                // 성공 응답 (HTTP 200, success=true)
                 updateHelpText(helpTextId, '✅ 인증 성공! 관리자 페이지로 이동합니다.', true);
 
                 // 페이지 이동 (토큰이 쿠키에 담겨 있으므로, 다음 페이지에서 Interceptor가 검사)
                 window.location.href = '/admin/dashboard';
 
             } else {
-                // 실패 응답 (HTTP 4xx: 코드 불일치, 토큰 만료)
-                const errorMessage = "코드가 일치하지 않거나 만료되었습니다.";
+                // 실패 응답 (success=false: 코드 불일치, 400: 만료, 429: 시도 횟수 초과)
+                const errorMessage = response.status === 429
+                    ? "시도 횟수를 초과했습니다. 코드를 다시 발송해 주세요."
+                    : "코드가 일치하지 않거나 만료되었습니다.";
                 updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
                 btn.textContent = '로그인';
                 btn.disabled = false;

@@ -5,6 +5,8 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldMatch
@@ -41,19 +43,26 @@ class AdminServiceTest : BehaviorSpec({
     val dailyContentRepository = mockk<DailyContentRepository>(relaxUnitFun = true)
     val memberRepository = mockk<MemberRepository>(relaxUnitFun = true)
     val feedbackRepository = mockk<FeedbackRepository>()
+    val mailService = mockk<MailService>(relaxUnitFun = true)
+    val emailTemplateService = mockk<EmailTemplateService>()
 
     every { redisTemplate.opsForValue() } returns valueOps
     every { redisTemplate.delete(any<String>()) } returns true
+    every { redisTemplate.expire(any<String>(), any<Long>(), any()) } returns true
+    every { emailTemplateService.generateAdminLoginCodeTemplate(any()) } answers { "code:${firstArg<String>()}" }
 
     val adminService = AdminService(
         adminEmail,
         redisTemplate,
+        mailService,
+        emailTemplateService,
         dailyContentRepository,
         memberRepository,
         feedbackRepository,
     )
 
     val codeKey = "verify_admin_code:$adminEmail"
+    val attemptKey = "verify_admin_attempts:$adminEmail"
 
     Given("관리자 이메일로") {
         val codeSlot = slot<String>()
@@ -67,6 +76,11 @@ class AdminServiceTest : BehaviorSpec({
                 codeSlot.captured shouldMatch Regex("^[a-zA-Z0-9]{10}$")
                 verify(exactly = 1) { valueOps.set(codeKey, codeSlot.captured, 3L, TimeUnit.MINUTES) }
             }
+
+            Then("관리자 이메일로 코드를 발송하고 시도 횟수를 초기화한다") {
+                verify(exactly = 1) { mailService.send(adminEmail, any(), "code:${codeSlot.captured}") }
+                verify(exactly = 1) { redisTemplate.delete(attemptKey) }
+            }
         }
     }
 
@@ -78,6 +92,7 @@ class AdminServiceTest : BehaviorSpec({
                 }
                 exception.status shouldBe HttpStatus.UNAUTHORIZED
                 verify(exactly = 0) { valueOps.set(any(), any(), any<Long>(), any()) }
+                verify(exactly = 0) { mailService.send(any(), any(), any()) }
             }
         }
 
@@ -104,21 +119,106 @@ class AdminServiceTest : BehaviorSpec({
 
     Given("Redis 에 관리자 로그인 코드가 저장되어 있을 때") {
         every { valueOps.get(codeKey) } returns "Ab3dE5gH9k"
+        every { valueOps.increment(attemptKey) } returns 1L
 
         When("같은 코드로 검증하면") {
-            val result = adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "Ab3dE5gH9k"))
+            val sessionKeySlot = slot<String>()
+            every { valueOps.set(capture(sessionKeySlot), adminEmail, 8L, TimeUnit.HOURS) } just Runs
+            val token = adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "Ab3dE5gH9k"))
 
-            Then("true 를 반환하고 코드를 삭제한다") {
-                result shouldBe true
-                verify(exactly = 1) { redisTemplate.delete(codeKey) }
+            Then("세션 토큰을 발급해 8시간 TTL 로 저장하고 코드와 시도 횟수를 삭제한다") {
+                token.shouldNotBeNull()
+                token shouldMatch Regex("^[A-Za-z0-9_-]{43}$")
+                sessionKeySlot.captured shouldBe "admin_session:$token"
+                verify(exactly = 1) {
+                    redisTemplate.delete(codeKey)
+                    redisTemplate.delete(attemptKey)
+                }
+            }
+        }
+
+        When("첫 시도이면") {
+            adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "wrong"))
+
+            Then("시도 횟수 키에 코드와 같은 3분 TTL 을 건다") {
+                verify(exactly = 1) { redisTemplate.expire(attemptKey, 3L, TimeUnit.MINUTES) }
             }
         }
 
         When("대소문자가 다른 코드로 검증하면 (경계값)") {
-            val result = adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "ab3de5gh9k"))
+            val token = adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "ab3de5gh9k"))
 
-            Then("false 를 반환하고 코드를 삭제하지 않는다") {
-                result shouldBe false
+            Then("null 을 반환하고 코드를 삭제하지 않는다") {
+                token.shouldBeNull()
+                verify(exactly = 0) { redisTemplate.delete(any<String>()) }
+            }
+        }
+
+        When("5번째 시도이면 (경계값)") {
+            every { valueOps.increment(attemptKey) } returns 5L
+            val token = adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "wrong"))
+
+            Then("아직 검증을 허용한다") {
+                token.shouldBeNull()
+                verify(exactly = 0) { redisTemplate.delete(codeKey) }
+            }
+        }
+
+        When("6번째 시도이면 (경계값)") {
+            every { valueOps.increment(attemptKey) } returns 6L
+
+            Then("맞는 코드여도 429 예외가 발생하고 코드를 폐기한다") {
+                val exception = shouldThrow<MaeilKanjiException> {
+                    adminService.verifyAdminLoginCode(VerifyAdminLoginCodeServiceRequest(adminEmail, "Ab3dE5gH9k"))
+                }
+                exception.status shouldBe HttpStatus.TOO_MANY_REQUESTS
+                verify(exactly = 1) {
+                    redisTemplate.delete(codeKey)
+                    redisTemplate.delete(attemptKey)
+                }
+            }
+        }
+    }
+
+    Given("관리자 세션을 확인할 때") {
+        When("토큰이 없으면") {
+            Then("Redis 를 조회하지 않고 false 를 반환한다") {
+                adminService.isValidAdminSession(null) shouldBe false
+                adminService.isValidAdminSession("") shouldBe false
+                verify(exactly = 0) { redisTemplate.hasKey(any()) }
+            }
+        }
+
+        When("Redis 에 세션이 있으면") {
+            every { redisTemplate.hasKey("admin_session:tok") } returns true
+
+            Then("true 를 반환한다") {
+                adminService.isValidAdminSession("tok") shouldBe true
+            }
+        }
+
+        When("Redis 에 세션이 없으면 (만료)") {
+            every { redisTemplate.hasKey("admin_session:tok") } returns false
+
+            Then("false 를 반환한다") {
+                adminService.isValidAdminSession("tok") shouldBe false
+            }
+        }
+    }
+
+    Given("관리자가 로그아웃할 때") {
+        When("토큰이 있으면") {
+            adminService.logoutAdmin("tok")
+
+            Then("세션을 삭제한다") {
+                verify(exactly = 1) { redisTemplate.delete("admin_session:tok") }
+            }
+        }
+
+        When("토큰이 없으면") {
+            adminService.logoutAdmin(null)
+
+            Then("아무것도 삭제하지 않는다") {
                 verify(exactly = 0) { redisTemplate.delete(any<String>()) }
             }
         }
@@ -170,6 +270,35 @@ class AdminServiceTest : BehaviorSpec({
 
             Then("고급 저장소에 저장하고 id 를 반환한다") {
                 id shouldBe 30L
+            }
+        }
+    }
+
+    Given("레벨이 섞인 콘텐츠를 일괄 저장할 때") {
+        When("초급·중급·고급이 한 번에 들어오면") {
+            val beginner = dailyContentDto(KanjiLevel.BEGINNER, id = null)
+            val intermediate = dailyContentDto(KanjiLevel.INTERMEDIATE, id = null)
+            val advanced = dailyContentDto(KanjiLevel.ADVANCED, id = null)
+            every { dailyContentRepository.saveBeginner(beginner) } returns 1L
+            every { dailyContentRepository.saveIntermediate(intermediate) } returns 2L
+            every { dailyContentRepository.saveAdvanced(advanced) } returns 3L
+            val ids = adminService.saveDailyContents(listOf(beginner, intermediate, advanced))
+
+            Then("각 레벨 저장소에 저장하고 입력 순서대로 id 를 반환한다") {
+                ids shouldContainExactly listOf(1L, 2L, 3L)
+            }
+        }
+
+        When("빈 목록이면 (경계값)") {
+            val ids = adminService.saveDailyContents(emptyList())
+
+            Then("아무것도 저장하지 않는다") {
+                ids.shouldBeEmpty()
+                verify(exactly = 0) {
+                    dailyContentRepository.saveBeginner(any())
+                    dailyContentRepository.saveIntermediate(any())
+                    dailyContentRepository.saveAdvanced(any())
+                }
             }
         }
     }
