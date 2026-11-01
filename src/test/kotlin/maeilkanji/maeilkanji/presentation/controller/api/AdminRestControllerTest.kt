@@ -174,7 +174,7 @@ class AdminRestControllerTest(
         When("관리자 API 를 호출하면") {
             every { adminService.isValidAdminSession("tok") } returns true
             every { adminService.getMembers() } returns emptyList()
-            val result = mockMvc.get("$BASE/members") { cookies = arrayOf(Cookie(AdminSessionCookie.NAME, "tok")) }
+            val result = mockMvc.get("$BASE/members") { cookie(Cookie(AdminSessionCookie.NAME, "tok")) }
 
             Then("쿠키의 토큰으로 세션을 확인한다") {
                 result.andExpect { status { isOk() } }
@@ -184,7 +184,7 @@ class AdminRestControllerTest(
 
         When("로그아웃하면") {
             every { adminService.logoutAdmin("tok") } just Runs
-            val result = mockMvc.post("$BASE/logout") { cookies = arrayOf(Cookie(AdminSessionCookie.NAME, "tok")) }
+            val result = mockMvc.post("$BASE/logout") { cookie(Cookie(AdminSessionCookie.NAME, "tok")) }
 
             Then("204 와 만료된 쿠키를 반환하고 세션을 삭제한다") {
                 result.andExpect {
