@@ -26,7 +26,9 @@ class IntermediateDailyContentEntity(
     val wordMeaning3: String,
     val word4: String,
     val wordMeaning4: String,
+    @Column(columnDefinition = "TEXT")
     val sentence: String,
+    @Column(columnDefinition = "TEXT")
     val sentenceMeaning: String,
     val quiz: String,
     val answer: String,
