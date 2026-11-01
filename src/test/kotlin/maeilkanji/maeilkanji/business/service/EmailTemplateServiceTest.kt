@@ -12,6 +12,9 @@ import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
 import maeilkanji.maeilkanji.fixture.dailyContentDto
 import org.springframework.core.io.ByteArrayResource
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 
 private const val BASE_URL = "https://maeilkanji.test"
@@ -40,6 +43,31 @@ class EmailTemplateServiceTest : BehaviorSpec({
 
             Then("{{CODE}} 를 코드로 치환한다") {
                 result shouldBe "인증 코드: 1234"
+            }
+        }
+    }
+
+    Given("한국 시간으로 막 새해가 된 시점일 때 (UTC 기준으로는 아직 12월 31일)") {
+        val newYearInKst = Clock.fixed(Instant.parse("2026-12-31T15:00:00Z"), ZoneId.of("Asia/Seoul"))
+        val service = EmailTemplateService(
+            dailyContentRepository,
+            BASE_URL,
+            ByteArrayResource("© {{YEAR}} 인증 코드: {{CODE}}".toByteArray()),
+            ByteArrayResource("© {{YEAR}}".toByteArray()),
+            ByteArrayResource("© {{YEAR}} 관리자 코드: {{CODE}}".toByteArray()),
+            newYearInKst,
+        ).apply { init() }
+        every { dailyContentRepository.getBeginnerDailyContentById(1L) } returns dailyContentDto(KanjiLevel.BEGINNER, id = 1L)
+
+        When("메일 템플릿들을 생성하면") {
+            val verification = service.generateEmailVerificationTemplate("1234")
+            val adminLogin = service.generateAdminLoginCodeTemplate("code")
+            val daily = service.generateDailyContentEmailTemplate(KanjiLevel.BEGINNER, 1L, memberId)["template"]!!
+
+            Then("{{YEAR}} 를 한국 시간 기준 연도(2027)로 치환한다") {
+                verification shouldBe "© 2027 인증 코드: 1234"
+                adminLogin shouldBe "© 2027 관리자 코드: code"
+                daily shouldBe "© 2027"
             }
         }
     }

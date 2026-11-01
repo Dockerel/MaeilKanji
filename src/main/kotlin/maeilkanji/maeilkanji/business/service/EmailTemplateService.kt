@@ -7,6 +7,9 @@ import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
+import java.time.Clock
+import java.time.Year
+import java.time.ZoneId
 import java.util.*
 
 
@@ -23,6 +26,8 @@ class EmailTemplateService(
     private val dailyContentTemplateResource: Resource,
     @Value("classpath:templates/email/admin-login-code.html")
     private val adminLoginCodeTemplateResource: Resource,
+
+    private val clock: Clock = Clock.system(ZoneId.of("Asia/Seoul")),
 ) {
 
     private lateinit var emailVerificationTemplate:String
@@ -37,11 +42,15 @@ class EmailTemplateService(
     }
 
     fun generateEmailVerificationTemplate(randomCode: String): String {
-        return emailVerificationTemplate.replace("{{CODE}}", randomCode)
+        return emailVerificationTemplate
+            .replace("{{CODE}}", randomCode)
+            .replace("{{YEAR}}", currentYear())
     }
 
     fun generateAdminLoginCodeTemplate(code: String): String {
-        return adminLoginCodeTemplate.replace("{{CODE}}", code)
+        return adminLoginCodeTemplate
+            .replace("{{CODE}}", code)
+            .replace("{{YEAR}}", currentYear())
     }
 
     fun generateDailyContentEmailTemplate(level: KanjiLevel, contentIndex: Long, memberId: UUID): Map<String, String> {
@@ -65,10 +74,13 @@ class EmailTemplateService(
             .replace("{{SITE_ACCESS_URL}}", siteUrl)
             .replace("{{UNSUBSCRIBE_URL}}", "$baseUrl/unsubscribe-confirm?memberId=$memberId")
             .replace("{{LEVEL_CHANGE_URL}}", "$baseUrl/change-level-confirm?memberId=$memberId")
+            .replace("{{YEAR}}", currentYear())
 
 
         return mapOf("quiz" to content.quiz, "template" to fullTemplate)
     }
+
+    private fun currentYear(): String = Year.now(clock).value.toString()
 
     private fun getContentByLevelAndContentIndex(level: KanjiLevel, contentIndex: Long): DailyContentDto {
         return when (level) {
