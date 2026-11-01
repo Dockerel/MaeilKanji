@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<!--
+  레벨별 학습 페이지 공통 레이아웃. 서비스 소개(landing.html)의 "실제로 받게 되는 학습 내용" 미리보기와 같은 디자인.
+  사용: <html th:replace="~{fragments/daily-lesson :: page('중급')}"></html>
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="page(levelLabel)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'매일 칸지 | ' + ${levelLabel} + ' 학습 (' + ${content.kanji1} + ' vs ' + ${content.kanji2} + ')'">매일 칸지 | 학습</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/typography.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <style>
+        :root {
+            --maeil-blue: #2563EB;
+            --maeil-blue-dark: #1E4DBC;
+            --maeil-light-blue: #F0F5FF;
+            --maeil-ink: #0F172A;
+            --maeil-muted: #64748B;
+            --maeil-line: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif !important;
+            color: var(--maeil-ink);
+            background-color: #F8FAFC;
+        }
+
+        .jp {
+            font-family: 'Noto Serif JP', serif;
+        }
+
+        .text-maeil {
+            color: var(--maeil-blue) !important;
+        }
+
+        .text-muted-2 {
+            color: var(--maeil-muted);
+        }
+
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: saturate(180%) blur(8px);
+            border-bottom: 1px solid var(--maeil-line);
+        }
+
+        .lesson-main {
+            padding: 64px 0 88px;
+        }
+
+        .section-label {
+            color: var(--maeil-blue);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        /* ---------- 학습 카드 (landing.html 미리보기와 동일) ---------- */
+        .content-card-preview {
+            border: 1px solid var(--maeil-line);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px -28px rgba(37, 99, 235, 0.4);
+            background-color: white;
+            text-align: left;
+        }
+
+        .preview-head {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--maeil-line);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .level-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .preview-body {
+            padding: 24px;
+        }
+
+        .block-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--maeil-blue);
+            margin-bottom: 12px;
+        }
+
+        .kanji-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .kanji-row .glyph {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .word-list li {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            column-gap: 12px;
+            row-gap: 2px;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--maeil-line);
+            font-size: 0.92rem;
+        }
+
+        .word-list li:last-child {
+            border-bottom: 0;
+        }
+
+        .sentence-box {
+            background-color: #F8FAFC;
+            border-left: 4px solid var(--maeil-blue);
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .sentence-box .jp {
+            font-size: 1.15rem;
+            line-height: 2.2;
+            margin-bottom: 4px;
+        }
+
+        ruby {
+            ruby-position: over;
+        }
+
+        rt {
+            font-size: 0.55em;
+            color: var(--maeil-muted);
+        }
+
+        .quiz-section {
+            background-color: #FAFAFA;
+            border-top: 1px solid var(--maeil-line);
+            padding: 20px 24px 24px;
+        }
+
+        .answer-reveal {
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .answer-reveal summary {
+            cursor: pointer;
+            font-weight: 700;
+            list-style: none;
+        }
+
+        .answer-reveal summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .answer-reveal[open] summary .reveal-hint {
+            display: none;
+        }
+
+        @media (max-width: 767.98px) {
+            .lesson-main {
+                padding: 40px 0 64px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="site-nav">
+    <div class="container px-4 py-2 d-flex align-items-center justify-content-between">
+        <a th:replace="~{fragments/brand :: brand}"></a>
+        <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold">서비스 소개</a>
+    </div>
+</nav>
+
+<main class="lesson-main">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Today's Lesson</p>
+            <h1 class="section-title h2" th:text="${levelLabel} + '자를 위한 오늘의 한자'">중급자를 위한 오늘의 한자</h1>
+            <p class="text-muted-2 mt-2 mb-0">오늘의 학습을 완성하고 퀴즈 정답까지 확인하세요!</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="content-card-preview">
+                    <div class="preview-head">
+                        <span class="fw-bold">오늘의 한자
+                            <span class="jp" lang="ja" th:text="${content.kanji1}">増</span> vs
+                            <span class="jp" lang="ja" th:text="${content.kanji2}">減</span>
+                        </span>
+                        <span class="level-pill" th:text="${levelLabel}">중급</span>
+                    </div>
+
+                    <div class="preview-body">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-5">
+                                <p class="block-title">오늘의 한자 2개</p>
+                                <div class="kanji-row"
+                                     th:each="k : ${ { {content.kanji1, content.yomi1, content.meaning1}, {content.kanji2, content.yomi2, content.meaning2} } }">
+                                    <span class="glyph jp" lang="ja" th:text="${k[0]}">増</span>
+                                    <span>
+                                        <span class="small text-muted-2 jp ja-term" lang="ja"
+                                              th:text="${#strings.replace(#strings.replace(#strings.replace(#strings.replace(k[1], '(', ''), ')', ''), '（', ''), '）', '')}">ぞう, ふ</span><br>
+                                        <strong th:text="${k[2]}">늘다, 증가하다</strong>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <p class="block-title">핵심 단어 4개</p>
+                                <ul class="list-unstyled word-list mb-0"
+                                    th:with="words=${ {content.word1, content.word2, content.word3, content.word4} },
+                                             meanings=${ {content.wordMeaning1, content.wordMeaning2, content.wordMeaning3, content.wordMeaning4} }">
+                                    <li th:each="w, st : ${words}" th:with="hasReading=${#strings.contains(w, '(')}">
+                                        <span class="jp ja-term" lang="ja">
+                                            <strong th:text="${hasReading} ? ${#strings.trim(#strings.substringBefore(w, '('))} : ${w}">人口増加</strong>
+                                            <th:block th:if="${hasReading}" th:text="'(' + ${#strings.substringAfter(w, '(')}">(じんこうぞうか)</th:block>
+                                        </span>
+                                        <span class="text-muted-2" th:text="${meanings[st.index]}">인구 증가</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <p class="block-title">실용 예문 1개</p>
+                        <div class="sentence-box">
+                            <p class="jp mb-1" lang="ja" th:utext="${content.sentence}">
+                                <ruby>都市<rt>とし</rt></ruby>では<ruby>人口<rt>じんこう</rt></ruby>が<ruby>増<rt>ふ</rt></ruby>え、<ruby>地方<rt>ちほう</rt></ruby>では<ruby>減<rt>へ</rt></ruby>っています。
+                            </p>
+                            <span class="small text-muted-2" th:text="${content.sentenceMeaning}">도시에서는 인구가 늘고, 지방에서는 줄고 있습니다.</span>
+                        </div>
+                    </div>
+
+                    <div class="quiz-section">
+                        <p class="block-title mb-2">✅ 미니 퀴즈</p>
+                        <p class="mb-3" th:text="'Q. ' + ${content.quiz}">Q. '인구 증가'를 일본어로 어떻게 표현할까요?</p>
+                        <details class="answer-reveal">
+                            <summary>정답 보기 <span class="reveal-hint fw-normal small">(눌러서 확인)</span></summary>
+                            <p class="mt-2 mb-1 fw-bold jp ja-term" lang="ja" th:text="${content.answer}">じんこうぞうか (人口増加)</p>
+                            <p class="small mb-0 text-dark" th:text="${content.explanation}">'인구 증가'는 일본어로 人口増加(じんこうぞうか)라고 표현합니다.</p>
+                        </details>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <h2 class="h4 fw-bold mb-2">오늘 학습 완료! 내일도 만나요 👋</h2>
+                    <p class="text-muted-2 mb-0">내일 아침 새로운 한자 세트가 이메일로 발송됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-dark py-4">
+    <div class="container text-center">
+        <p class="text-white-50 small mb-0">© <span th:text="${currentYear}">2026</span> 매일 칸지. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
