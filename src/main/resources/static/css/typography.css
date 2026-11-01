@@ -1,0 +1,59 @@
+/*
+ * 매일 칸지 공통 타이포그래피 — PC/모바일 줄바꿈 규칙
+ * 모든 Thymeleaf 페이지에서 Bootstrap 다음에 로드한다.
+ */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* 한국어: 어절(띄어쓰기) 단위로만 줄바꿈. 화면보다 긴 단어(이메일, URL 등)만 예외적으로 끊는다. */
+body {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+/* 제목은 줄 길이를 고르게, 본문은 마지막 줄에 단어 하나만 남지 않게 (미지원 브라우저는 무시) */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    text-wrap: balance;
+}
+
+p, li, dd, summary, .lead, .form-text {
+    text-wrap: pretty;
+}
+
+/*
+ * 일본어: 띄어쓰기가 없어서 keep-all 이면 문장 전체가 한 단어가 되어 화면을 넘친다.
+ * 일반 줄바꿈 + 금칙 처리(、。っ ゃ 등이 줄 맨 앞에 오지 않게)를 적용한다.
+ * 일본어 텍스트를 감싸는 요소에 lang="ja" 를 붙인다.
+ */
+:lang(ja) {
+    word-break: normal;
+    line-break: strict;
+}
+
+/*
+ * 짧은 일본어 표현(한자 + 읽기, 단어, 정답 등)은 단어 중간에서 끊기지 않고
+ * 띄어쓰기 위치에서만 줄바꿈한다. 예: 承 (しょう, うけたまわ)
+ */
+.ja-term {
+    word-break: keep-all;
+    line-break: strict;
+}
+
+/* 버튼·배지·탭·상단 메뉴는 한 줄 유지 */
+.btn {
+    word-break: keep-all;
+}
+
+.badge, .nav-link, .navbar .btn, .btn-sm {
+    white-space: nowrap;
+}
+
+/* 표 머리글은 한 줄 유지 (본문 셀은 줄바꿈 허용) */
+.table th {
+    white-space: nowrap;
+}

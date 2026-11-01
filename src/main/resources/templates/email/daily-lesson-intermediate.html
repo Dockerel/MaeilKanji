@@ -6,6 +6,7 @@
     <title th:text="'매일 칸지 | 중급 학습 (' + ${content.kanji1} + ' vs ' + ${content.kanji2} + ')'">매일 칸지 | 중급 학습</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/typography.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
@@ -67,7 +68,7 @@
 
 <nav class="navbar navbar-light bg-white border-bottom">
     <div class="container px-4">
-        <a class="navbar-brand fw-bold fs-4 text-maeil" href="/">매일 칸지 🇯🇵</a>
+        <a th:replace="~{fragments/brand :: brand}"></a>
         <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold">서비스 소개</a>
     </div>
 </nav>
@@ -75,8 +76,6 @@
 <main class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <br>
-            </h1>
             <p class="lead text-center text-muted mb-4">
                 오늘의 학습을 완성하고 퀴즈 정답까지 확인하세요!
             </p>
@@ -85,9 +84,10 @@
                 <div class="col-lg-10">
                     <div class="content-card-preview p-4">
 
-                        <p class="fw-bold text-maeil mb-1"
-                           th:text="'[매일 칸지] 🇯🇵 중급자를 위한 오늘의 한자 (' + ${content.kanji1} + ' vs ' + ${content.kanji2} + ')'">
-                            [매일 칸지] 🇯🇵 중급자를 위한 오늘의 한자 (上 vs 下)
+                        <p class="fw-bold text-maeil mb-1">
+                            <span>[매일 칸지] 🇯🇵 중급자를 위한 오늘의 한자</span>
+                            <span class="text-nowrap" lang="ja"
+                                  th:text="'(' + ${content.kanji1} + ' vs ' + ${content.kanji2} + ')'">(上 vs 下)</span>
                         </p>
                         <hr class="my-3">
 
@@ -95,11 +95,11 @@
                             <div class="col-md-6 text-start">
                                 <h6 class="fw-bold text-maeil mb-3">오늘의 한자 2개!</h6>
                                 <p class="mb-1">
-                                    <span class="fs-5 fw-bold me-2" th:text="${content.kanji1} + ' ' + ${content.yomi1}">上 (うえ, うわ)</span>
+                                    <span class="fs-5 fw-bold me-2 ja-term" lang="ja" th:text="${content.kanji1} + ' ' + ${content.yomi1}">上 (うえ, うわ)</span>
                                     : <span th:text="${content.meaning1}">위, 오르다</span>
                                 </p>
                                 <p class="mb-3">
-                                    <span class="fs-5 fw-bold me-2" th:text="${content.kanji2} + ' ' + ${content.yomi2}">下 (した, しも)</span>
+                                    <span class="fs-5 fw-bold me-2 ja-term" lang="ja" th:text="${content.kanji2} + ' ' + ${content.yomi2}">下 (した, しも)</span>
                                     : <span th:text="${content.meaning2}">아래, 내리다</span>
                                 </p>
                             </div>
@@ -107,19 +107,19 @@
                                 <h6 class="fw-bold text-maeil mb-3">핵심 단어 4개!</h6>
                                 <ul class="list-unstyled small">
                                     <li>
-                                        <strong th:text="${content.word1}">上着(うわぎ)</strong>
+                                        <strong class="ja-term" lang="ja" th:text="${content.word1}">上着(うわぎ)</strong>
                                         : <span th:text="${content.wordMeaning1}">겉옷</span>
                                     </li>
                                     <li>
-                                        <strong th:text="${content.word2}">上手(じょうず)</strong>
+                                        <strong class="ja-term" lang="ja" th:text="${content.word2}">上手(じょうず)</strong>
                                         : <span th:text="${content.wordMeaning2}">능숙함</span>
                                     </li>
                                     <li>
-                                        <strong th:text="${content.word3}">下着(したぎ)</strong>
+                                        <strong class="ja-term" lang="ja" th:text="${content.word3}">下着(したぎ)</strong>
                                         : <span th:text="${content.wordMeaning3}">속옷</span>
                                     </li>
                                     <li>
-                                        <strong th:text="${content.word4}">下手(へた)</strong>
+                                        <strong class="ja-term" lang="ja" th:text="${content.word4}">下手(へた)</strong>
                                         : <span th:text="${content.wordMeaning4}">서투름</span>
                                     </li>
                                 </ul>
@@ -129,7 +129,7 @@
 
                         <h6 class="fw-bold text-maeil mt-3 text-start">실용 예문 1개!</h6>
                         <div  class="alert alert-secondary p-2 small text-start">
-                        <p th:utext="${content.sentence}">
+                        <p lang="ja" class="mb-1" th:utext="${content.sentence}">
                         その
                         <ruby>服
                             <rt>ふく</rt>
@@ -160,8 +160,7 @@
                             <p class="small text-start" th:text="${content.quiz}">Q. 위의 예문에서 <strong>'겉옷'</strong>의 일본어 읽는 방법은 무엇일까요?</p>
 
                             <div class="answer-reveal p-3 mt-2 text-start">
-                                <span class="fw-bold">정답: </span><span
-                                    th:text="${content.answer}">うわぎ (上着)</span>
+                                <span class="fw-bold">정답: </span><span class="ja-term" lang="ja" th:text="${content.answer}">うわぎ (上着)</span>
                                 <p class="mt-2 small mb-0 text-dark" th:text="${content.explanation}">
                                     '겉옷'은 일본어로
                                     <ruby>上着
@@ -189,7 +188,7 @@
 
 <footer class="bg-dark py-4 mt-5">
     <div class="container text-center">
-        <p class="text-white-50 small mb-0">© 2025 매일 칸지. All rights reserved.</p>
+        <p class="text-white-50 small mb-0">© <span th:text="${currentYear}">2026</span> 매일 칸지. All rights reserved.</p>
     </div>
 </footer>
 

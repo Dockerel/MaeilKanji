@@ -3,26 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매일 칸지</title>
+    <title>매일 칸지 | 매일 3분 일본어 한자 루틴</title>
+    <meta name="description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로. 3분이면 끝나는 일본어 한자 학습 서비스, 매일 칸지.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/typography.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <style>
-        /* (스타일 시트 내용은 이전과 동일합니다. 생략) */
         :root {
             --maeil-blue: #2563EB;
+            --maeil-blue-dark: #1E4DBC;
             --maeil-light-blue: #F0F5FF;
+            --maeil-ink: #0F172A;
+            --maeil-muted: #64748B;
+            --maeil-line: #E2E8F0;
             --maeil-success: #198754;
         }
 
         body {
             font-family: 'Noto Sans KR', sans-serif !important;
+            color: var(--maeil-ink);
+            background-color: #fff;
+        }
+
+        .jp {
+            font-family: 'Noto Serif JP', serif;
         }
 
         .text-maeil {
@@ -33,74 +44,461 @@
             background-color: var(--maeil-blue) !important;
         }
 
+        .text-muted-2 {
+            color: var(--maeil-muted);
+        }
+
         .btn-maeil {
             background-color: var(--maeil-blue);
             border-color: var(--maeil-blue);
             color: white;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
-        .btn-maeil:hover {
-            background-color: #1E4DBC;
-            border-color: #1E4DBC;
+        .btn-maeil:hover, .btn-maeil:focus {
+            background-color: var(--maeil-blue-dark);
+            border-color: var(--maeil-blue-dark);
             color: white;
         }
 
-        .section-divider {
-            height: 3px;
-            width: 60px;
-            background-color: var(--maeil-blue);
-            margin: 20px auto 30px auto;
-            border-radius: 2px;
+        /* ---------- Nav ---------- */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: saturate(180%) blur(8px);
+            border-bottom: 1px solid var(--maeil-line);
         }
 
-        .feature-icon {
-            font-size: 2.5rem;
+        /* ---------- Hero ---------- */
+        .hero {
+            background: radial-gradient(1200px 400px at 80% -10%, #DCE7FF 0%, transparent 60%), var(--maeil-light-blue);
+            padding: 72px 0 80px;
+            overflow: hidden;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background-color: white;
+            border: 1px solid #D6E2FF;
+            color: var(--maeil-blue);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .hero h1 {
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.3;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            color: var(--maeil-muted);
+            font-size: 0.9rem;
+        }
+
+        .hero-meta span {
+            white-space: nowrap;
+        }
+
+        .hero-meta i {
+            color: var(--maeil-blue);
+            margin-right: 4px;
+        }
+
+        .kanji-pair {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .kanji-tile {
+            width: min(150px, 40vw);
+            background: white;
+            border: 1px solid var(--maeil-line);
+            border-radius: 20px;
+            padding: 20px 8px 16px;
+            text-align: center;
+            box-shadow: 0 20px 40px -20px rgba(37, 99, 235, 0.35);
+        }
+
+        .kanji-tile:nth-child(2) {
+            transform: translateY(24px);
+        }
+
+        .kanji-tile .glyph {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
             color: var(--maeil-blue);
         }
 
-        .content-card-preview {
-            border: 1px solid #dee2e6;
+        .kanji-tile .yomi {
+            font-size: 0.8rem;
+            color: var(--maeil-muted);
+        }
+
+        .kanji-tile .meaning {
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .vs-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--maeil-ink);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        /* ---------- Sections ---------- */
+        section {
+            padding: 88px 0;
+        }
+
+        .section-label {
+            color: var(--maeil-blue);
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-card {
+            height: 100%;
+            padding: 28px 24px;
+            border: 1px solid var(--maeil-line);
+            border-radius: 16px;
+            background: white;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: #BFD3FF;
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        /* ---------- How it works ---------- */
+        .bg-soft {
+            background-color: #F8FAFC;
+        }
+
+        .step-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: var(--maeil-blue);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .mock-window {
+            background: white;
+            border: 1px solid var(--maeil-line);
+            border-radius: 14px;
+            box-shadow: 0 24px 48px -24px rgba(15, 23, 42, 0.25);
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .mock-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background-color: #F1F5F9;
+            border-bottom: 1px solid var(--maeil-line);
+            font-size: 0.75rem;
+            color: var(--maeil-muted);
+        }
+
+        .mock-bar .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #CBD5E1;
+        }
+
+        .mock-bar .addr {
+            margin-left: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .mail-header {
+            background-color: var(--maeil-blue);
+            color: white;
+            text-align: center;
+            padding: 18px 20px;
+        }
+
+        .mail-header small {
+            color: #D1E7FF;
+        }
+
+        .mail-kanji {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--maeil-blue);
+            margin-right: 6px;
+        }
+
+        .mail-quiz {
+            background-color: #F8FAFC;
+            border: 1px solid var(--maeil-line);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .mail-cta {
+            display: inline-block;
+            background-color: var(--maeil-blue);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-weight: 700;
+        }
+
+        .step-arrow {
+            color: #94A3B8;
+            font-size: 1.5rem;
+        }
+
+        /* ---------- Content preview (실제 중급 페이지와 동일한 구성) ---------- */
+        .content-card-preview {
+            border: 1px solid var(--maeil-line);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 48px -28px rgba(37, 99, 235, 0.4);
             background-color: white;
+            text-align: left;
+        }
+
+        .preview-head {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--maeil-line);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .level-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .preview-body {
+            padding: 24px;
+        }
+
+        .block-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--maeil-blue);
+            margin-bottom: 12px;
+        }
+
+        .kanji-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .kanji-row .glyph {
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .word-list li {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            column-gap: 12px;
+            row-gap: 2px;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--maeil-line);
+            font-size: 0.92rem;
+        }
+
+        .word-list li:last-child {
+            border-bottom: 0;
+        }
+
+        .sentence-box {
+            background-color: #F8FAFC;
+            border-left: 4px solid var(--maeil-blue);
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .sentence-box .jp {
+            font-size: 1.15rem;
+            line-height: 2.2;
+            margin-bottom: 4px;
+        }
+
+        ruby {
+            ruby-position: over;
+        }
+
+        rt {
+            font-size: 0.55em;
+            color: var(--maeil-muted);
         }
 
         .quiz-section {
-            background-color: #fafafa;
-            border-top: 1px solid #eee;
+            background-color: #FAFAFA;
+            border-top: 1px solid var(--maeil-line);
+            padding: 20px 24px 24px;
         }
 
         .answer-reveal {
             background-color: var(--maeil-light-blue);
             color: var(--maeil-blue);
-            font-weight: bold;
-            border-radius: 6px;
+            border-radius: 10px;
+            padding: 14px 16px;
         }
 
-        /* --------------------- 모달 버튼 스타일 추가 --------------------- */
+        .answer-reveal summary {
+            cursor: pointer;
+            font-weight: 700;
+            list-style: none;
+        }
+
+        .answer-reveal summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .answer-reveal[open] summary .reveal-hint {
+            display: none;
+        }
+
+        /* ---------- Levels ---------- */
+        .level-card {
+            height: 100%;
+            border: 1px solid var(--maeil-line);
+            border-radius: 16px;
+            padding: 24px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .level-card.featured {
+            border-color: var(--maeil-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .level-card .goal {
+            font-weight: 700;
+            margin: 12px 0 6px;
+        }
+
+        .level-card .time {
+            font-size: 0.85rem;
+            color: var(--maeil-muted);
+        }
+
+        .level-card .time i {
+            color: var(--maeil-blue);
+            margin-right: 4px;
+        }
+
+        /* ---------- FAQ ---------- */
+        .faq .accordion-button {
+            font-weight: 700;
+        }
+
+        .faq .accordion-button:not(.collapsed) {
+            color: var(--maeil-blue);
+            background-color: var(--maeil-light-blue);
+            box-shadow: none;
+        }
+
+        .faq .accordion-button:focus {
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.2);
+        }
+
+        /* ---------- CTA ---------- */
+        .cta {
+            background: linear-gradient(135deg, var(--maeil-blue) 0%, #1D3FA8 100%);
+            color: white;
+        }
+
+        .cta .lead {
+            color: #DCE7FF;
+        }
+
+        /* ---------- Modal (기존 구독 플로우 스타일 유지) ---------- */
         .btn-modal-action {
             background-color: var(--maeil-blue);
             color: white;
             border: none;
-            border-radius: 0.375rem; /* Bootstrap 기본 border-radius */
-            padding: 0.375rem 0.75rem; /* Bootstrap 기본 padding */
-            font-size: 0.875rem; /* Bootstrap 기본 font-size */
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
             transition: background-color 0.15s ease-in-out;
         }
 
         .btn-modal-action:hover {
-            background-color: #1E4DBC; /* 더 진한 파랑 */
+            background-color: var(--maeil-blue-dark);
             color: white;
         }
 
         .btn-modal-action:disabled {
-            background-color: #adb5bd; /* 비활성화 색상 */
+            background-color: #adb5bd;
             border-color: #adb5bd;
         }
 
-        /* 레벨 선택 라디오 버튼 스타일 */
         .level-option {
             display: inline-block;
             margin-right: 15px;
@@ -108,7 +506,7 @@
         }
 
         .level-option input[type="radio"] {
-            display: none; /* 기본 라디오 버튼 숨기기 */
+            display: none;
         }
 
         .level-option label {
@@ -132,176 +530,356 @@
             background-color: var(--maeil-blue);
             color: white;
             border-color: var(--maeil-blue);
-            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25); /* Bootstrap focus-ring 느낌 */
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
         }
 
         .level-option label .check-icon {
             margin-right: 8px;
             font-size: 1.1rem;
-            color: #ccc; /* 체크 안 됐을 때 아이콘 색상 */
+            color: #ccc;
         }
 
         .level-option input[type="radio"]:checked + label .check-icon {
-            color: white; /* 체크 됐을 때 아이콘 색상 */
+            color: white;
         }
 
         #levelOptions {
             display: flex;
             flex-direction: column;
         }
+
+        @media (max-width: 767.98px) {
+            .hero {
+                padding: 48px 0 64px;
+            }
+
+            section {
+                padding: 64px 0;
+            }
+
+            .kanji-tile .glyph {
+                font-size: 3.6rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-white border-bottom">
-    <div class="container px-4">
-<!--        <a class="navbar-brand fw-bold fs-4 text-maeil" href="#"> 🇯🇵</a>-->
-        <div style="display: flex; align-content: center">
-            <img style="width: 40px; margin-right: 5px" src="/maeilkanji.png" alt="">
-        <a style="margin-top: 3px" class="navbar-brand fw-bold fs-4 text-maeil" href="#">
-            매일 칸지
-        </a>
+<nav class="site-nav">
+    <div class="container px-4 py-2 d-flex align-items-center justify-content-between">
+        <a th:replace="~{fragments/brand :: brand}"></a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="#content-preview" class="d-none d-md-inline small text-muted-2 text-decoration-none">콘텐츠 미리보기</a>
+            <a href="#levels" class="d-none d-md-inline small text-muted-2 text-decoration-none">레벨 안내</a>
+            <a href="#faq" class="d-none d-md-inline small text-muted-2 text-decoration-none">FAQ</a>
+            <button type="button" class="btn btn-sm btn-maeil fw-semibold px-3" data-bs-toggle="modal"
+                    data-bs-target="#subscribeModal">무료 구독
+            </button>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal"
-                data-bs-target="#subscribeModal">무료 구독
-        </button>
     </div>
 </nav>
 
-<header id="hero" class="text-center py-5" style="background-color: var(--maeil-light-blue);">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <h1 class="display-5 fw-bold text-dark mb-3">
-                    작심삼일 없이, <span class="text-maeil">매일 3분</span>으로 끝내는 일본어 한자 루틴
+<header id="hero" class="hero">
+    <div class="container px-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7 text-center text-lg-start">
+                <span class="hero-eyebrow mb-3"><i class="fa-regular fa-envelope"></i> 매일 아침, 메일로 오는 한자 한 세트</span>
+                <h1 class="display-5 mb-3">
+                    작심삼일 없이,<br><span class="text-maeil">매일 3분</span>으로 끝내는<br class="d-none d-md-inline"> 일본어 한자 루틴
                 </h1>
-                <p class="lead text-muted mb-4">
-                    매일 칸지는 <strong>레벨별 2개의 핵심 한자</strong>와 실용 예문을 이메일로 보내드려, 부담 없이 <strong>꾸준히</strong> 일본어 실력을 쌓게 돕는
-                    데일리 학습 서비스입니다.
+                <p class="lead text-muted-2 mb-4">
+                    레벨에 맞는 <strong>핵심 한자 2개</strong>와 단어 4개, 실용 예문 1개.
+                    메일로 퀴즈를 받고, 사이트에서 정답을 확인하면 오늘 공부 끝입니다.
                 </p>
-                <button type="button" class="btn btn-maeil btn-lg fw-semibold" data-bs-toggle="modal"
-                        data-bs-target="#subscribeModal">
-                    🚀 지금 바로 무료 구독 시작하기
-                </button>
+                <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center justify-content-lg-start mb-4">
+                    <button type="button" class="btn btn-maeil btn-lg fw-semibold px-4" data-bs-toggle="modal"
+                            data-bs-target="#subscribeModal">
+                        무료로 구독 시작하기
+                    </button>
+                    <a href="/daily-content/intermediate/1" class="btn btn-outline-secondary btn-lg fw-semibold px-4 bg-white">
+                        실제 학습 페이지 보기
+                    </a>
+                </div>
+                <div class="hero-meta justify-content-center justify-content-lg-start">
+                    <span><i class="fa-solid fa-check"></i>완전 무료</span>
+                    <span><i class="fa-solid fa-check"></i>이메일 인증만으로 가입</span>
+                    <span><i class="fa-solid fa-check"></i>언제든 원클릭 수신 거부</span>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="kanji-pair" aria-label="오늘의 한자 예시: 増과 減">
+                    <div class="kanji-tile">
+                        <div class="glyph jp">増</div>
+                        <div class="yomi jp">ぞう・ふ(える)</div>
+                        <div class="meaning">늘다</div>
+                    </div>
+                    <span class="vs-badge">VS</span>
+                    <div class="kanji-tile">
+                        <div class="glyph jp">減</div>
+                        <div class="yomi jp">げん・へ(る)</div>
+                        <div class="meaning">줄다</div>
+                    </div>
+                </div>
+                <p class="text-center small text-muted-2 mt-5 mb-0">중급 1일차 학습 한자</p>
             </div>
         </div>
     </div>
 </header>
 
-<section id="concept" class="py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-2">매일 칸지가 제공하는 3가지 핵심 가치</h2>
-        <div class="section-divider"></div>
-        <div class="row mt-5">
-            <div class="col-md-4 mb-4">
-                <div class="feature-icon mb-3">🎯</div>
-                <h5 class="fw-bold">개인 맞춤형 난이도</h5>
-                <p class="text-muted">가입 시 <strong>초급, 중급, 고급</strong> 중 선택! 매일 자신의 레벨에 맞는 2개의 한자만 받습니다.</p>
+<section id="concept">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Why Maeil Kanji</p>
+            <h2 class="section-title">꾸준히 할 수 있게, 딱 필요한 만큼만</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <h5 class="fw-bold">내 레벨에 맞는 난이도</h5>
+                    <p class="text-muted-2 mb-0">가입할 때 <strong>초급·중급·고급</strong> 중 하나를 고르면, 매일 그 레벨에 맞는 한자만 받습니다. 레벨은 메일에서 언제든 바꿀 수 있어요.</p>
+                </div>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <div class="feature-icon mb-3">🔗</div>
-                <h5 class="fw-bold">이해가 쉬운 연관 학습</h5>
-                <p class="text-muted">서로 연관되거나 반의어인 한자를 묶어 보내 <strong>연상 암기 효과</strong>를 극대화합니다.</p>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-link"></i></div>
+                    <h5 class="fw-bold">짝지어 외우는 연관 학습</h5>
+                    <p class="text-muted-2 mb-0"><span class="jp">増</span>과 <span class="jp">減</span>처럼 반대되거나 서로 연관된 한자를 함께 보내, 하나를 보면 다른 하나가 떠오르게 만듭니다.</p>
+                </div>
             </div>
-
-            <div class="col-md-4 mb-4">
-                <div class="feature-icon mb-3">✅</div>
-                <h5 class="fw-bold">최적화된 콘텐츠 밀도</h5>
-                <p class="text-muted">핵심 2한자, 단어 4개, 예문 1개만으로 <strong>3분 안에</strong> 오늘 학습을 완료합니다.</p>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-regular fa-clock"></i></div>
+                    <h5 class="fw-bold">3분이면 끝나는 분량</h5>
+                    <p class="text-muted-2 mb-0">한자 2개, 단어 4개, 예문 1개, 퀴즈 1개. 출근길이나 커피 한 잔 하는 동안 오늘 공부를 마칠 수 있습니다.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section id="how-it-works" class="py-5 bg-light">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-2">메일과 사이트, 이렇게 작동합니다</h2>
-        <div class="section-divider"></div>
+<section id="how-it-works" class="bg-soft">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">How it works</p>
+            <h2 class="section-title">메일로 퀴즈, 사이트에서 정답</h2>
+            <p class="text-muted-2 mt-2 mb-0">궁금증이 생겨야 오래 기억에 남습니다.</p>
+        </div>
 
-        <div class="row mt-5">
-            <div class="col-lg-10 mx-auto">
-                <div class="row align-items-center">
-                    <div class="col-md-5 text-start mb-4 mb-md-0">
-                        <h4 class="fw-bold text-maeil">STEP 1. 이메일 (퀴즈 & 유도)</h4>
-                        <p class="lead">메일에는 <strong>핵심 퀴즈</strong>만 노출하여 궁금증을 유발합니다.</p>
-<!--                        <div class="p-3 bg-white border rounded shadow-sm">-->
-<!--                            <p class="fw-bold text-center mb-0"><strong>[퀴즈]</strong> '겉옷'의 일본어 읽는 방법은 무엇일까요?</p>-->
-<!--                            <button class="btn btn-maeil btn-sm w-100 mt-3">정답 및 학습 완성하러 가기</button>-->
-<!--                        </div>-->
-                        <div style="background-color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);padding:0;overflow:hidden;">
+        <div class="row align-items-center g-4">
+            <div class="col-md-5">
+                <span class="step-badge">STEP 1</span>
+                <h4 class="fw-bold mb-2">아침에 퀴즈 메일 도착</h4>
+                <p class="text-muted-2">오늘의 한자 2개와 퀴즈만 먼저 보여드립니다.</p>
+                <div class="mock-window">
+                    <div class="mock-bar">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="addr">[매일 칸지] '인구 증가'를 일본어로 어떻게 표현할까요?</span>
+                    </div>
+                    <div class="mail-header">
+                        <div class="fw-bold fs-5">매일 칸지 🇯🇵</div>
+                        <small><strong>중급</strong> 학습자를 위한 오늘의 3분 학습</small>
+                    </div>
+                    <div class="p-4">
+                        <p class="small fw-bold text-muted-2 mb-2">오늘 배울 핵심 한자 2개</p>
+                        <p class="mb-1"><span class="mail-kanji jp">増</span>(ぞう, ふ) : 늘다, 증가하다</p>
+                        <p class="mb-3"><span class="mail-kanji jp">減</span>(げん, へ) : 줄다, 감소하다</p>
+                        <div class="mail-quiz mb-3">
+                            <p class="small fw-bold mb-1">🤔 오늘의 퀴즈</p>
+                            <p class="fw-bold mb-0">Q. '인구 증가'를 일본어로 어떻게 표현할까요?</p>
+                        </div>
+                        <div class="text-center">
+                            <span class="mail-cta">✅ 학습 완성하러 가기</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                            <div style="background-color:#2563EB; padding: 20px 30px; text-align:center;">
-                                <h2 style="font-size:24px;font-weight:bold; color:white; margin:0;">
-                                    매일 칸지 🇯🇵
-                                </h2>
-                                <p style="color:#D1E7FF; font-size:14px; margin:5px 0 0 0;">
-                                    <span style="font-weight:bold;">초급</span> 학습자를 위한 오늘의 3분 학습
-                                </p>
-                            </div>
+            <div class="col-md-2 text-center">
+                <i class="fa-solid fa-arrow-right step-arrow d-none d-md-inline"></i>
+                <i class="fa-solid fa-arrow-down step-arrow d-md-none"></i>
+            </div>
 
-                            <div style="padding: 30px;">
+            <div class="col-md-5">
+                <span class="step-badge">STEP 2</span>
+                <h4 class="fw-bold mb-2">사이트에서 정답 확인</h4>
+                <p class="text-muted-2">버튼을 누르면 정답과 함께 단어 4개, 예문까지 한 번에 정리됩니다.</p>
+                <div class="mock-window">
+                    <div class="mock-bar">
+                        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        <span class="addr">maeilkanji.com/daily-content/intermediate/1</span>
+                    </div>
+                    <div class="p-4">
+                        <p class="fw-bold text-maeil mb-2">✅ 미니 퀴즈 정답</p>
+                        <div class="answer-reveal mb-3">
+                            <span class="fw-bold">정답: </span><span class="jp">じんこうぞうか (人口増加)</span>
+                        </div>
+                        <p class="small fw-bold text-muted-2 mb-1">함께 보는 단어</p>
+                        <p class="small mb-0 jp">人口増加 · 増える · 人口減少 · 減る</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                                <p style="font-size:18px; font-weight:bold; color:#2563EB; margin-top:0; margin-bottom: 20px; text-align:center;">
-                                    [오늘의 퀴즈] 정답을 맞혀보세요!
-                                </p>
+<section id="content-preview">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Preview</p>
+            <h2 class="section-title">실제로 받게 되는 학습 내용</h2>
+            <p class="text-muted-2 mt-2 mb-0">중급 1일차 콘텐츠를 그대로 옮겨왔어요. 정답은 직접 눌러서 확인해 보세요.</p>
+        </div>
 
-                                <div style="margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:15px;">
-                                    <h3 style="font-size:20px; color:#333; margin:0 0 10px 0;">
-                                        오늘 배울 핵심 한자 2개!
-                                    </h3>
-                                    <p style="margin:5px 0;">
-                                        <span style="font-size:28px; font-weight:bold; color:#2563EB;">上</span> (うえ, うわ) : 위, 오르다
-                                    </p>
-                                    <p style="margin:5px 0;">
-                                        <span style="font-size:28px; font-weight:bold; color:#2563EB;">下</span> (した, しも) : 아래, 내리다
-                                    </p>
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="content-card-preview">
+                    <div class="preview-head">
+                        <span class="fw-bold">오늘의 한자 <span class="jp">増</span> vs <span class="jp">減</span></span>
+                        <span class="level-pill">중급</span>
+                    </div>
+
+                    <div class="preview-body">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-5">
+                                <p class="block-title">오늘의 한자 2개</p>
+                                <div class="kanji-row">
+                                    <span class="glyph jp">増</span>
+                                    <span><span class="small text-muted-2 jp">ぞう, ふ</span><br><strong>늘다, 증가하다</strong></span>
                                 </div>
-
-                                <div style="background-color:#f8f8f8; border-radius:8px; padding:20px; margin-bottom:30px; border: 1px solid #ddd;">
-                                    <p style="font-size:16px; font-weight:bold; color:#333; margin-top:0;">
-                                        🤔 오늘의 퀴즈:
-                                    </p>
-                                    <p style="font-size:18px; margin-top:5px; font-weight:bold; color:#555;">
-                                        Q. '겉옷'의 일본어 읽는 방법은 무엇일까요?
-                                    </p>
+                                <div class="kanji-row">
+                                    <span class="glyph jp">減</span>
+                                    <span><span class="small text-muted-2 jp">げん, へ</span><br><strong>줄다, 감소하다</strong></span>
                                 </div>
-
-                                <div style="text-align:center; margin-top:30px;">
-                                    <p style="font-size:16px; margin-bottom:15px; color:#555;">
-                                        <strong>정답, 핵심 단어 4개, 실용 예문</strong>을 지금 확인하세요!
-                                    </p>
-                                    <br>
-                                    <span href="#"
-                                       style="background-color:#2563EB; color:white; border-radius:8px; padding:15px 35px; font-weight:bold; text-decoration:none; font-size:18px; box-shadow:0 3px 6px rgba(0,0,0,0.2);">
-                                        ✅ 학습 완성하러 가기
-                                    </span>
-                                </div>
-
                             </div>
-
-                            <div style="background-color:#f9f9f9; padding:20px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
-                                <p style="margin:0;">이 메일은 수신자님의 요청에 의해 매일 발송됩니다.</p>
-                                <p style="margin:5px 0 0 0;">수신 거부: <a href="{{UNSUBSCRIBE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</p>
-                                <p style="margin:5px 0 0 0;">&copy; 2025 MaeilKanji. All rights reserved.</p>
+                            <div class="col-md-7">
+                                <p class="block-title">핵심 단어 4개</p>
+                                <ul class="list-unstyled word-list mb-0">
+                                    <li><span class="jp"><strong>人口増加</strong> (じんこうぞうか)</span><span class="text-muted-2">인구 증가</span></li>
+                                    <li><span class="jp"><strong>増える</strong> (ふえる)</span><span class="text-muted-2">늘다</span></li>
+                                    <li><span class="jp"><strong>人口減少</strong> (じんこうげんしょう)</span><span class="text-muted-2">인구 감소</span></li>
+                                    <li><span class="jp"><strong>減る</strong> (へる)</span><span class="text-muted-2">줄다</span></li>
+                                </ul>
                             </div>
+                        </div>
 
+                        <p class="block-title">실용 예문 1개</p>
+                        <div class="sentence-box">
+                            <p class="jp mb-1" lang="ja">
+                                <ruby>都市<rt>とし</rt></ruby>では<ruby>人口<rt>じんこう</rt></ruby>が<ruby><strong>増</strong><rt>ふ</rt></ruby>え、<ruby>地方<rt>ちほう</rt></ruby>では<ruby><strong>減</strong><rt>へ</rt></ruby>っています。
+                            </p>
+                            <span class="small text-muted-2">도시에서는 인구가 늘고, 지방에서는 줄고 있습니다.</span>
                         </div>
                     </div>
 
-                    <div class="col-md-2 text-center d-none d-md-block">
-                        <span class="feature-icon">➡️</span>
+                    <div class="quiz-section">
+                        <p class="block-title mb-2">✅ 미니 퀴즈</p>
+                        <p class="mb-3">Q. '인구 증가'를 일본어로 어떻게 표현할까요?</p>
+                        <details class="answer-reveal">
+                            <summary>정답 보기 <span class="reveal-hint fw-normal small">(눌러서 확인)</span></summary>
+                            <p class="mt-2 mb-1 fw-bold jp">じんこうぞうか (人口増加)</p>
+                            <p class="small mb-0 text-dark">'인구 증가'는 일본어로 <span class="jp">人口増加(じんこうぞうか)</span>라고 표현합니다. 오늘 배운 <strong class="jp">増</strong>(ぞう)를 사용한 단어였습니다!</p>
+                        </details>
                     </div>
+                </div>
 
-                    <div class="col-md-5 text-start">
-                        <h4 class="fw-bold text-maeil">STEP 2. 웹사이트 (답변 & 완성)</h4>
-                        <p class="lead">사이트 접속 후 <strong>정답을 확인하고</strong> 오늘 학습을 최종 완료합니다.</p>
-                        <div class="p-3 bg-white border rounded shadow-sm">
-                            <h5 class="fw-bold text-maeil">✅ 퀴즈 정답 공개!</h5>
-                            <p class="mb-1 small fw-bold">정답: うわぎ (上着)</p>
-                            <hr class="my-2">
-                            <h6 class="fw-bold">⭐ 학습 내용</h6>
-                            <p class="small text-muted mb-0">핵심 단어 4개와 실용 예문까지 모두 확인하여 학습을 완성하세요.</p>
+                <div class="text-center mt-4">
+                    <a href="/daily-content/intermediate/1" class="text-maeil fw-semibold text-decoration-none">
+                        실제 학습 페이지에서 보기 <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="levels" class="bg-soft">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Levels</p>
+            <h2 class="section-title">나에게 맞는 레벨을 고르세요</h2>
+            <p class="text-muted-2 mt-2 mb-0">레벨별로 발송 시간이 달라요. 출근 전에 메일함에 도착합니다.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="level-card">
+                    <span class="level-pill align-self-start">초급</span>
+                    <p class="goal">여행지 간판 읽기에 도전합니다</p>
+                    <p class="text-muted-2 small flex-grow-1">일상에서 자주 보는 기본 한자부터. <span class="jp">上</span>·<span class="jp">下</span>처럼 쉬운 짝으로 시작해요.</p>
+                    <span class="time"><i class="fa-regular fa-clock"></i>매일 오전 3시 발송</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="level-card featured">
+                    <span class="level-pill align-self-start">중급</span>
+                    <p class="goal">일본 뉴스 기사 제목을 해석합니다</p>
+                    <p class="text-muted-2 small flex-grow-1">뉴스·사회 분야에서 자주 쓰이는 한자. <span class="jp">増</span>·<span class="jp">減</span>, <span class="jp">人口増加</span> 같은 표현을 익혀요.</p>
+                    <span class="time"><i class="fa-regular fa-clock"></i>매일 오전 4시 발송</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="level-card">
+                    <span class="level-pill align-self-start">고급</span>
+                    <p class="goal">전문가 리포트의 핵심 개념을 파악합니다</p>
+                    <p class="text-muted-2 small flex-grow-1">경제·학술 문서에 나오는 어려운 한자어. 긴 글의 핵심을 빠르게 읽어내는 힘을 길러요.</p>
+                    <span class="time"><i class="fa-regular fa-clock"></i>매일 오전 5시 발송</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq" class="faq">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">FAQ</p>
+            <h2 class="section-title">자주 묻는 질문</h2>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq1" aria-expanded="false" aria-controls="faq1">
+                                정말 무료인가요?
+                            </button>
+                        </h3>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted-2">네, 매일 칸지는 별도 결제 없이 무료로 이용할 수 있습니다. 이메일 주소만 있으면 됩니다.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                                메일은 언제 오나요?
+                            </button>
+                        </h3>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted-2">매일 새벽 레벨별로 발송됩니다(초급 3시 · 중급 4시 · 고급 5시, 한국 시간). 구독한 다음 날 아침부터 받아보실 수 있어요.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                                레벨을 나중에 바꿀 수 있나요?
+                            </button>
+                        </h3>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted-2">네. 받은 메일 하단의 레벨 변경 링크에서 언제든 다른 레벨로 바꿀 수 있습니다.</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h3 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                                그만 받고 싶으면 어떻게 하나요?
+                            </button>
+                        </h3>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted-2">메일 하단의 수신 거부 링크를 누르면 바로 발송이 중단됩니다.</div>
                         </div>
                     </div>
                 </div>
@@ -310,99 +888,20 @@
     </div>
 </section>
 
-<section id="content-preview" class="py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-2">사이트에서 제공되는 최종 콘텐츠 미리보기</h2>
-        <p class="lead text-muted">메일 버튼을 누르면 이처럼 깔끔하게 정리된 오늘의 학습 내용을 보게 됩니다.</p>
-        <div class="section-divider"></div>
-
-        <div class="row justify-content-center mt-5">
-            <div class="col-lg-10">
-                <div class="content-card-preview p-4">
-
-                    <p class="fw-bold text-maeil mb-1">
-                        [매일 칸지] 🇯🇵 초급자를 위한 오늘의 한자 (上 vs 下)
-                    </p>
-                    <hr class="my-3">
-
-                    <div class="row mb-4">
-                        <div class="col-md-6 text-start">
-                            <h6 class="fw-bold text-maeil mb-3">오늘의 한자 2개!</h6>
-                            <p class="mb-1">
-                                <span class="fs-5 fw-bold me-2">上 (うえ, うわ)</span> : 위, 오르다
-                            </p>
-                            <p class="mb-3">
-                                <span class="fs-5 fw-bold me-2">下 (した, しも)</span> : 아래, 내리다
-                            </p>
-                        </div>
-                        <div class="col-md-6 text-start">
-                            <h6 class="fw-bold text-maeil mb-3">핵심 단어 4개!</h6>
-                            <ul class="list-unstyled small">
-                                <li><strong>上着(うわぎ)</strong>: 겉옷</li>
-                                <li><strong>上手(じょうず)</strong>: 능숙함</li>
-                                <li><strong>下着(したぎ)</strong>: 속옷</li>
-                                <li><strong>下手(へた)</strong>: 서투름</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <h6 class="fw-bold text-maeil mt-3 text-start">실용 예문 1개!</h6>
-                    <p class="alert alert-secondary p-2 small text-start">
-                        その
-                        <ruby>服
-                            <rt>ふく</rt>
-                        </ruby>
-                        は<strong>
-                        <ruby>上着
-                            <rt>うわぎ</rt>
-                        </ruby>
-                    </strong>も<strong>
-                        <ruby>下着
-                            <rt>したぎ</rt>
-                        </ruby>
-                    </strong>も<strong>
-                        <ruby>下手
-                            <rt>へた</rt>
-                        </ruby>
-                    </strong>な
-                        <ruby>私
-                            <rt>わたし</rt>
-                        </ruby>
-                        にピッタリでした。
-                        <span class="d-block mt-1 text-muted">(그 옷은 겉옷도 속옷도 서투른 나에게 딱 맞았습니다.)</span>
-                    </p>
-
-                    <div class="quiz-section p-3 mt-3">
-                        <h6 class="fw-bold text-maeil mt-1 text-start">✅ 미니 퀴즈 정답 확인!</h6>
-                        <p class="small text-start">Q. 위의 예문에서 <strong>'겉옷'</strong>의 일본어 읽는 방법은 무엇일까요?</p>
-
-                        <div class="answer-reveal p-3 mt-2 text-start">
-                            <span class="fw-bold">정답: </span><span>うわぎ (上着)</span>
-                            <p class="mt-2 small mb-0 text-dark">
-                                '겉옷'은 일본어로 上着(うわぎ)라고 읽습니다. 오늘 배운 <strong>上</strong>(うえ)를 활용한 단어였습니다!
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section id="cta" class="py-5 bg-maeil text-white text-center">
-    <div class="container">
-        <h2 class="fw-bold mb-3">당신의 일본어 실력, 오늘부터 달라집니다.</h2>
-        <p class="lead mb-4">지금 바로 무료로 시작하고 매일 꾸준함의 힘을 경험하세요.</p>
-        <button type="button" class="btn btn-light btn-lg fw-semibold text-maeil" data-bs-toggle="modal"
+<section id="cta" class="cta text-center">
+    <div class="container px-4">
+        <h2 class="fw-bold mb-3">내일 아침, 첫 번째 한자가 도착합니다</h2>
+        <p class="lead mb-4">오늘 구독하고 하루 3분의 힘을 경험해 보세요.</p>
+        <button type="button" class="btn btn-light btn-lg fw-semibold text-maeil px-4" data-bs-toggle="modal"
                 data-bs-target="#subscribeModal">
-            🚀 매일 칸지 무료 구독 시작하기
+            매일 칸지 무료 구독하기
         </button>
     </div>
 </section>
 
 <footer class="bg-dark py-4">
     <div class="container text-center">
-        <p class="text-white-50 small mb-0">© 2025 매일 칸지. All rights reserved.</p>
+        <p class="text-white-50 small mb-0">© <span th:text="${currentYear}">2026</span> 매일 칸지. All rights reserved.</p>
     </div>
 </footer>
 

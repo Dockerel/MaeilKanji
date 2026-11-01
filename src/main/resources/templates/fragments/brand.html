@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- 서비스 공통 마크 (홈 화면 기준). 사용: <a th:replace="~{fragments/brand :: brand}"></a> -->
+<a th:fragment="brand" th:href="@{/}" class="d-inline-flex align-items-center text-decoration-none"
+   style="gap: 8px;" aria-label="매일 칸지 홈">
+    <img src="/maeilkanji.png" alt="" width="36" height="36" style="width: 36px; height: 36px;">
+    <span class="fw-bold fs-5" style="color: #2563EB;">매일 칸지</span>
+</a>
+</body>
+</html>

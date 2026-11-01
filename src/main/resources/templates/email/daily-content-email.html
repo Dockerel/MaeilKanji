@@ -20,7 +20,7 @@
         }
     </style>
 </head>
-<body style="font-family:'Noto Sans KR', sans-serif, Arial, sans-serif; line-height:1.6; color:#333; max-width:600px; margin:0 auto; padding:20px; background-color:#ffffff;">
+<body style="word-break:keep-all;overflow-wrap:break-word;font-family:'Noto Sans KR', sans-serif, Arial, sans-serif; line-height:1.6; color:#333; max-width:600px; margin:0 auto; padding:20px; background-color:#ffffff;">
 
 <div style="background-color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);padding:0;overflow:hidden;">
 
@@ -81,11 +81,10 @@
     <div style="background-color:#f9f9f9; padding:20px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
         <p style="margin:0;">이 메일은 수신자님의 요청에 의해 매일 발송됩니다.</p>
         <p style="margin:5px 0 0 0;">
-            수신 거부: <a href="{{UNSUBSCRIBE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.
-            |
-            레벨 변경: <a href="{{LEVEL_CHANGE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.
+            <span style="display:inline-block;">수신 거부: <a href="{{UNSUBSCRIBE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
+            <span style="display:inline-block;">레벨 변경: <a href="{{LEVEL_CHANGE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
         </p>
-        <p style="margin:5px 0 0 0;">&copy; 2025 MaeilKanji. All rights reserved.</p>
+        <p style="margin:5px 0 0 0;">&copy; {{YEAR}} MaeilKanji. All rights reserved.</p>
     </div>
 
 </div>
