@@ -505,6 +505,10 @@
         'sentence', 'sentenceMeaning', 'answer', 'explanation'];
     const BULK_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
     const BULK_MAX_FIELD_LENGTH = 255; // JPA String 기본 컬럼 길이 (varchar(255))
+    // TEXT 컬럼 (65,535바이트, utf8mb4 최대 4바이트/자 기준)
+    const BULK_TEXT_COLUMNS = ['sentence', 'sentenceMeaning'];
+    const BULK_MAX_TEXT_LENGTH = 16383;
+    const bulkMaxLength = col => BULK_TEXT_COLUMNS.includes(col) ? BULK_MAX_TEXT_LENGTH : BULK_MAX_FIELD_LENGTH;
     let bulkRows = [];
 
     function escapeHtml(s) {
@@ -544,7 +548,7 @@
                     if (!BULK_LEVELS.includes(content.level)) errors.push(`잘못된 레벨: ${content.level}`);
                     BULK_COLUMNS.forEach(col => {
                         if (!content[col]) errors.push(`${col} 비어 있음`);
-                        else if (content[col].length > BULK_MAX_FIELD_LENGTH) errors.push(`${col} ${content[col].length}자 (최대 ${BULK_MAX_FIELD_LENGTH}자)`);
+                        else if (content[col].length > bulkMaxLength(col)) errors.push(`${col} ${content[col].length}자 (최대 ${bulkMaxLength(col)}자)`);
                     });
                 }
                 return { lineNo, content, errors, warnings: [] };
