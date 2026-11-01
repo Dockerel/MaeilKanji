@@ -43,12 +43,14 @@ class EmailTemplateService(
 
     fun generateEmailVerificationTemplate(randomCode: String): String {
         return emailVerificationTemplate
+            .replace("{{LOGO_URL}}", logoUrl())
             .replace("{{CODE}}", randomCode)
             .replace("{{YEAR}}", currentYear())
     }
 
     fun generateAdminLoginCodeTemplate(code: String): String {
         return adminLoginCodeTemplate
+            .replace("{{LOGO_URL}}", logoUrl())
             .replace("{{CODE}}", code)
             .replace("{{YEAR}}", currentYear())
     }
@@ -63,6 +65,7 @@ class EmailTemplateService(
         }
 
         val fullTemplate = dailyContentTemplate
+            .replace("{{LOGO_URL}}", logoUrl())
             .replace("{{level}}", content.level.korean)
             .replace("{{kanji1}}", content.kanji1)
             .replace("{{yomi1}}", content.yomi1)
@@ -79,6 +82,8 @@ class EmailTemplateService(
 
         return mapOf("quiz" to content.quiz, "template" to fullTemplate)
     }
+
+    private fun logoUrl(): String = "$baseUrl/maeilkanji.png"
 
     private fun currentYear(): String = Year.now(clock).value.toString()
 

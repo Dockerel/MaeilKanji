@@ -21,7 +21,7 @@ private const val BASE_URL = "https://maeilkanji.test"
 
 private const val DAILY_TEMPLATE =
     "{{level}}|{{kanji1}}|{{yomi1}}|{{meaning1}}|{{kanji2}}|{{yomi2}}|{{meaning2}}|{{quiz}}|" +
-        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}"
+        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}|{{LOGO_URL}}"
 
 class EmailTemplateServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerLeaf
@@ -30,9 +30,9 @@ class EmailTemplateServiceTest : BehaviorSpec({
     val emailTemplateService = EmailTemplateService(
         dailyContentRepository,
         BASE_URL,
-        ByteArrayResource("인증 코드: {{CODE}}".toByteArray()),
+        ByteArrayResource("{{LOGO_URL}}|인증 코드: {{CODE}}".toByteArray()),
         ByteArrayResource(DAILY_TEMPLATE.toByteArray()),
-        ByteArrayResource("관리자 코드: {{CODE}}".toByteArray()),
+        ByteArrayResource("{{LOGO_URL}}|관리자 코드: {{CODE}}".toByteArray()),
     ).apply { init() }
 
     val memberId = UUID.fromString("11111111-2222-3333-4444-555555555555")
@@ -41,8 +41,8 @@ class EmailTemplateServiceTest : BehaviorSpec({
         When("코드 1234 로 템플릿을 생성하면") {
             val result = emailTemplateService.generateEmailVerificationTemplate("1234")
 
-            Then("{{CODE}} 를 코드로 치환한다") {
-                result shouldBe "인증 코드: 1234"
+            Then("{{LOGO_URL}} 을 로고 절대 URL 로, {{CODE}} 를 코드로 치환한다") {
+                result shouldBe "$BASE_URL/maeilkanji.png|인증 코드: 1234"
             }
         }
     }
@@ -76,8 +76,8 @@ class EmailTemplateServiceTest : BehaviorSpec({
         When("코드로 템플릿을 생성하면") {
             val result = emailTemplateService.generateAdminLoginCodeTemplate("Ab3dE5gH9k")
 
-            Then("{{CODE}} 를 코드로 치환한다") {
-                result shouldBe "관리자 코드: Ab3dE5gH9k"
+            Then("{{LOGO_URL}} 을 로고 절대 URL 로, {{CODE}} 를 코드로 치환한다") {
+                result shouldBe "$BASE_URL/maeilkanji.png|관리자 코드: Ab3dE5gH9k"
             }
         }
     }
@@ -95,6 +95,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
                     "$BASE_URL/daily-content/beginner/3",
                     "$BASE_URL/unsubscribe-confirm?memberId=$memberId",
                     "$BASE_URL/change-level-confirm?memberId=$memberId",
+                    "$BASE_URL/maeilkanji.png",
                 ).joinToString("|")
                 result["template"]!! shouldNotContain "{{"
             }
