@@ -97,4 +97,27 @@ class DailyContentServiceTest : BehaviorSpec({
             }
         }
     }
+
+    Given("초급 2명, 중급 1명, 고급 0명의 활성 회원이 있을 때") {
+        val b1 = memberDto(email = "a@test.com")
+        val b2 = memberDto(email = "b@test.com")
+        val i1 = memberDto(email = "c@test.com", level = KanjiLevel.INTERMEDIATE)
+        every { memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.BEGINNER) } returns listOf(b1, b2)
+        every { memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.INTERMEDIATE) } returns listOf(i1)
+        every { memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.ADVANCED) } returns emptyList()
+
+        When("오늘 학습 메일 전체 재발송을 요청하면") {
+            val count = dailyContentService.resendTodayDailyContentEmails()
+
+            Then("모든 레벨의 회원에게 각자 레벨로 메시지를 발행하고 발행 수를 반환한다") {
+                count shouldBe 3
+                verify(exactly = 1) {
+                    publisher.publishSendDailyContentEmailMessage(KanjiLevel.BEGINNER, b1.id, b1.email)
+                    publisher.publishSendDailyContentEmailMessage(KanjiLevel.BEGINNER, b2.id, b2.email)
+                    publisher.publishSendDailyContentEmailMessage(KanjiLevel.INTERMEDIATE, i1.id, i1.email)
+                }
+                verify(exactly = 3) { publisher.publishSendDailyContentEmailMessage(any(), any(), any()) }
+            }
+        }
+    }
 })

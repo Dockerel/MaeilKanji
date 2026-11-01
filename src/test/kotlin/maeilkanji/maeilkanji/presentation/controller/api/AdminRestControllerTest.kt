@@ -15,6 +15,7 @@ import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.service.AdminService
+import maeilkanji.maeilkanji.business.service.DailyContentService
 import maeilkanji.maeilkanji.business.service.SendAdminLoginCodeResponse
 import maeilkanji.maeilkanji.business.service.dto.FeedbackDto
 import maeilkanji.maeilkanji.business.service.request.SendAdminLoginCodeServiceRequest
@@ -47,12 +48,13 @@ class AdminRestControllerTest(
     mockMvc: MockMvc,
     objectMapper: ObjectMapper,
     adminService: AdminService,
+    dailyContentService: DailyContentService,
 ) : BehaviorSpec({
     extensions(SpringExtension)
     isolationMode = IsolationMode.InstancePerLeaf
 
     // 컨텍스트 캐시로 mock 빈이 공유되므로 leaf 마다 초기화
-    clearMocks(adminService)
+    clearMocks(adminService, dailyContentService)
     // 기본은 로그인된 관리자. 인증 실패 케이스는 leaf 에서 덮어쓴다
     every { adminService.isValidAdminSession(any()) } returns true
 
@@ -366,6 +368,44 @@ class AdminRestControllerTest(
         }
     }
 
+    Given("오늘 학습 메일 전체 재발송 요청에서") {
+        When("관리자 세션이 있으면") {
+            every { dailyContentService.resendTodayDailyContentEmails() } returns 3
+            val result = mockMvc.post("$BASE/daily-content/resend")
+
+            Then("200 과 발행한 회원 수를 반환한다") {
+                result.andExpect {
+                    status { isOk() }
+                    jsonPath("\$.count") { value(3) }
+                }
+                verify(exactly = 1) { dailyContentService.resendTodayDailyContentEmails() }
+            }
+        }
+
+        When("관리자 세션이 없으면") {
+            every { adminService.isValidAdminSession(any()) } returns false
+            val result = mockMvc.post("$BASE/daily-content/resend")
+
+            Then("401 을 반환하고 발송하지 않는다") {
+                result.andExpect { status { isUnauthorized() } }
+                verify(exactly = 0) { dailyContentService.resendTodayDailyContentEmails() }
+            }
+        }
+
+        When("오늘 콘텐츠 인덱스가 없으면") {
+            every { dailyContentService.resendTodayDailyContentEmails() } throws
+                MaeilKanjiException("Can't find daily content index", HttpStatus.NOT_FOUND)
+            val result = mockMvc.post("$BASE/daily-content/resend")
+
+            Then("404 와 원인 메시지를 반환한다") {
+                result.andExpect {
+                    status { isNotFound() }
+                    content { string("Can't find daily content index") }
+                }
+            }
+        }
+    }
+
     Given("피드백 목록 조회 요청에서") {
         When("피드백이 있으면") {
             every { adminService.getFeedbacks() } returns listOf(
@@ -387,5 +427,8 @@ class AdminRestControllerTest(
     class MockConfig {
         @Bean
         fun adminService(): AdminService = mockk()
+
+        @Bean
+        fun dailyContentService(): DailyContentService = mockk()
     }
 }

@@ -207,9 +207,14 @@
         <div class="card card-maeil p-4">
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0"><i class="fas fa-users me-2 text-maeil"></i>전체 회원</h5>
-                <button class="btn btn-sm btn-maeil" onclick="loadMembers()">
-                    <i class="fas fa-sync me-1"></i>새로고침
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-danger" id="resend-daily-btn" onclick="resendTodayDailyContent()">
+                        <i class="fas fa-paper-plane me-1"></i>오늘 학습 메일 전체 재발송
+                    </button>
+                    <button class="btn btn-sm btn-maeil" onclick="loadMembers()">
+                        <i class="fas fa-sync me-1"></i>새로고침
+                    </button>
+                </div>
             </div>
             <div id="member-table-wrapper">
                 <div class="text-center text-muted py-4">새로고침 버튼을 눌러 회원 목록을 불러오세요.</div>
@@ -459,6 +464,26 @@
             }
         } catch (e) {
             alert('서버 통신 오류');
+        }
+    }
+
+    // 오늘 학습 메일을 모든 ACTIVE 회원에게 재발송 (이미 받은 회원도 다시 받음)
+    async function resendTodayDailyContent() {
+        if (!confirm('오늘 학습 메일을 모든 ACTIVE 회원에게 다시 발송합니다.\n이미 받은 회원도 한 번 더 받게 됩니다. 계속하시겠습니까?')) return;
+        const btn = document.getElementById('resend-daily-btn');
+        btn.disabled = true;
+        try {
+            const res = await adminFetch(`${ADMIN_API_URL}/daily-content/resend`, { method: 'POST' });
+            if (res.ok) {
+                const data = await res.json();
+                alert(`${data.count}명에게 재발송 요청 완료`);
+            } else {
+                alert('재발송 실패: ' + await res.text());
+            }
+        } catch (e) {
+            alert('서버 통신 오류');
+        } finally {
+            btn.disabled = false;
         }
     }
 

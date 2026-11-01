@@ -32,39 +32,32 @@ class DailyContentService(
     }
 
     fun sendBeginnerDailyContentEmails() {
-        val members = memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.BEGINNER)
-
-        for (member in members) {
-            dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
-                KanjiLevel.BEGINNER,
-                member.id,
-                member.email
-            )
-        }
+        sendDailyContentEmails(KanjiLevel.BEGINNER)
     }
 
     fun sendIntermediateDailyContentEmails() {
-        val members = memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.INTERMEDIATE)
-
-        for (member in members) {
-            dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
-                KanjiLevel.INTERMEDIATE,
-                member.id,
-                member.email
-            )
-        }
+        sendDailyContentEmails(KanjiLevel.INTERMEDIATE)
     }
 
     fun sendAdvancedDailyContentEmails() {
-        val members = memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, KanjiLevel.ADVANCED)
+        sendDailyContentEmails(KanjiLevel.ADVANCED)
+    }
+
+    /**
+     * 오늘 콘텐츠 메일을 모든 레벨의 ACTIVE 회원에게 다시 발행한다. 관리자 수동 재발송용.
+     * 이미 받은 회원도 다시 받는다. 발행한 회원 수를 반환한다.
+     */
+    fun resendTodayDailyContentEmails(): Int {
+        return KanjiLevel.values().sumOf { sendDailyContentEmails(it) }
+    }
+
+    private fun sendDailyContentEmails(level: KanjiLevel): Int {
+        val members = memberRepository.findAllByMemberStatusAndLevel(MemberStatus.ACTIVE, level)
 
         for (member in members) {
-            dailyContentEmailPublisher.publishSendDailyContentEmailMessage(
-                KanjiLevel.ADVANCED,
-                member.id,
-                member.email
-            )
+            dailyContentEmailPublisher.publishSendDailyContentEmailMessage(level, member.id, member.email)
         }
+        return members.size
     }
 
 }

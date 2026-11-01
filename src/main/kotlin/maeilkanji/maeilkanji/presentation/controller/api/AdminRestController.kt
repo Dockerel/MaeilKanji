@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.service.AdminService
+import maeilkanji.maeilkanji.business.service.DailyContentService
 import maeilkanji.maeilkanji.business.service.SendAdminLoginCodeResponse
 import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
 import maeilkanji.maeilkanji.business.service.dto.FeedbackDto
@@ -21,7 +22,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/v1/admin")
 class AdminRestController(
-    private val adminService: AdminService
+    private val adminService: AdminService,
+    private val dailyContentService: DailyContentService,
 ) {
 
     @PostMapping("/send-login-code")
@@ -83,6 +85,12 @@ class AdminRestController(
     fun reactivateMember(@PathVariable memberId: UUID): ResponseEntity<Void> {
         adminService.reactivateMember(memberId)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/daily-content/resend")
+    fun resendTodayDailyContentEmails(): ResponseEntity<Map<String, Int>> {
+        val count = dailyContentService.resendTodayDailyContentEmails()
+        return ResponseEntity.ok(mapOf("count" to count))
     }
 
     @GetMapping("/feedbacks")
