@@ -23,7 +23,7 @@ infra/            → JPA entities, JpaRepository interfaces, repository impleme
 
 - **Repository pattern**: `business/repository/*.kt` defines interfaces; `infra/repository/*RepositoryImpl.kt` implements them using JPA. `infra/repository/*JpaRepository.kt` are Spring Data JPA interfaces.
 - **DTO flow**: request DTOs in `presentation/controller/api/request/`, service request/response types in `business/service/request/` and `business/service/response/`, service-level DTOs in `business/service/dto/`.
-- **Async email**: `DailyContentEmailPublisher` publishes to RabbitMQ; `DailyContentEmailConsumer` consumes and sends via `MailService` (Gmail SMTP).
+- **Async email**: `DailyContentEmailPublisher` publishes to RabbitMQ; `DailyContentEmailConsumer` consumes and sends via `MailService` (Resend SMTP, sender `MAIL_FROM`).
 - **Schedulers**: `DailyContentScheduler`, `DailyContentIndexScheduler` — check `@Scheduled` usage.
 
 ## Infrastructure
@@ -31,7 +31,7 @@ infra/            → JPA entities, JpaRepository interfaces, repository impleme
 - **MySQL** (JPA, `hibernate.dialect=MySQL8Dialect`, `ddl-auto=update`)
 - **Redis** (Spring Data Redis)
 - **RabbitMQ** (Spring AMQP, retry config in `application.properties` + `RetryConfig.kt`)
-- **Gmail SMTP** (Spring Mail, port 587, STARTTLS)
+- **Resend SMTP** (Spring Mail, `smtp.resend.com:587`, STARTTLS; username `resend`, password = API key)
 
 All connection params are environment variables (see `application.properties`). No defaults — app fails fast without them.
 
@@ -47,4 +47,4 @@ All connection params are environment variables (see `application.properties`). 
 
 ## Env vars required to run
 
-`MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME`, `RABBITMQ_PASSWORD`, `SERVICE_BASE_URL`, `ADMIN_EMAIL`.
+`MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `MAIL_FROM`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME`, `RABBITMQ_PASSWORD`, `SERVICE_BASE_URL`, `ADMIN_EMAIL`.
