@@ -47,8 +47,21 @@
         .answer-reveal {
             background-color: var(--maeil-light-blue);
             color: var(--maeil-blue);
-            font-weight: bold;
             border-radius: 6px;
+        }
+
+        .answer-reveal summary {
+            cursor: pointer;
+            font-weight: 700;
+            list-style: none;
+        }
+
+        .answer-reveal summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .answer-reveal[open] summary .reveal-hint {
+            display: none;
         }
 
         ruby {
@@ -156,12 +169,13 @@
                         </div>
 
                         <div class="quiz-section p-3 mt-3">
-                            <h6 class="fw-bold text-maeil mt-1 text-start">✅ 미니 퀴즈 정답 확인!</h6>
+                            <h6 class="fw-bold text-maeil mt-1 text-start">✅ 미니 퀴즈</h6>
                             <p class="small text-start" th:text="${content.quiz}">Q. 위의 예문에서 <strong>'겉옷'</strong>의 일본어
                                 읽는 방법은 무엇일까요?</p>
 
-                            <div class="answer-reveal p-3 mt-2 text-start">
-                                <span class="fw-bold">정답: </span><span class="ja-term" lang="ja" th:text="${content.answer}">うわぎ (上着)</span>
+                            <details class="answer-reveal p-3 mt-2 text-start">
+                                <summary>정답 보기 <span class="reveal-hint fw-normal small">(눌러서 확인)</span></summary>
+                                <p class="mt-2 mb-1 fw-bold">정답: <span class="ja-term" lang="ja" th:text="${content.answer}">うわぎ (上着)</span></p>
                                 <p class="mt-2 small mb-0 text-dark" th:text="${content.explanation}">
                                     '겉옷'은 일본어로
                                     <ruby>上着
@@ -169,7 +183,7 @@
                                     </ruby>
                                     라고 읽습니다. 오늘 배운 <strong>上</strong>(うえ)를 활용한 단어였습니다!
                                 </p>
-                            </div>
+                            </details>
                         </div>
                     </div>
                 </div>
