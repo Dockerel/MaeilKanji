@@ -24,11 +24,13 @@ argument-hint: <BEGINNER|INTERMEDIATE|ADVANCED|ALL> [개수=1]
 
 ## 생성 전 중복 확인 (필수)
 
-아래 파일을 읽고 이미 사용된 한자 쌍(kanji1, kanji2)을 확인합니다.
+아래 파일을 모두 읽고 이미 사용된 한자 쌍(kanji1, kanji2)을 확인합니다. 날짜가 붙은 파일(이전 생성분)도 빠짐없이 포함합니다.
 
-- `src/main/resources/static/beginner_daily_contents.csv`
-- `src/main/resources/static/intermediate_daily_contents.csv`
-- `src/main/resources/static/advanced_daily_contents.csv`
+- `src/main/resources/static/beginner_daily_contents*.csv`
+- `src/main/resources/static/intermediate_daily_contents*.csv`
+- `src/main/resources/static/advanced_daily_contents*.csv`
+
+이번 실행에서 함께 생성하는 행끼리도 한자 쌍이 겹치지 않게 합니다.
 
 같은 레벨에서 이미 쓴 kanji1은 다시 쓰지 않습니다. 같은 쌍은 레벨이 달라도 다시 쓰지 않습니다.
 
@@ -89,9 +91,16 @@ ADVANCED;栄;(えい, さか);번영하다, 번성하다;衰;(すい, おとろ)
 5. `sentence_meaning`이 직역투가 아닌 자연스러운 한국어인가?
 6. answer가 word1과 같은 단어인가?
 7. explanation 마지막 문장이 정해진 형식인가?
-8. 기존 CSV와 한자 쌍이 겹치지 않는가?
+8. 기존 CSV(날짜가 붙은 파일 포함)와 한자 쌍이 겹치지 않는가?
 
 ## 결과 처리
 
 1. 레벨별로 생성한 행을 코드 블록에 출력합니다.
-2. 사용자가 추가를 승인하면 해당 레벨 CSV 파일 끝에 붙입니다. 파일 끝에 줄바꿈이 없으면 먼저 넣습니다.
+2. 사용자가 저장을 승인하면 레벨별로 **날짜가 붙은 새 파일**에 저장합니다. 기존 `*_daily_contents.csv` 파일에는 붙이지 않습니다.
+   - 날짜는 한국 시간 기준 오늘 날짜를 `YYYYMMDD` 형식으로 씁니다. 추측하지 말고 `TZ=Asia/Seoul date +%Y%m%d`로 확인합니다.
+   - 파일 경로: `src/main/resources/static/{level 소문자}_daily_contents_{YYYYMMDD}.csv`
+     - 예: `beginner_daily_contents_20261101.csv`, `intermediate_daily_contents_20261101.csv`, `advanced_daily_contents_20261101.csv`
+   - 생성한 레벨의 파일만 만듭니다. 예를 들어 `BEGINNER`만 생성했다면 초급 파일 하나만 만듭니다.
+   - 헤더 행 없이 데이터 행만 쓰고, 파일 끝은 줄바꿈으로 끝냅니다.
+   - 같은 날짜의 파일이 이미 있으면 덮어쓰지 않고 그 파일 끝에 붙입니다. 파일 끝에 줄바꿈이 없으면 먼저 넣습니다.
+3. 저장한 파일 경로와 레벨별 행 수를 알려줍니다.
