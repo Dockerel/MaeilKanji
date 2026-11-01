@@ -14,22 +14,21 @@ class DailyContentScheduler(
         private val logger = LoggerFactory.getLogger(DailyContentScheduler::class.java)
     }
 
-    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
-    fun sendBeginnerDailyContentEmails() {
-        dailyContentService.sendBeginnerDailyContentEmails()
-        logger.info("DailyContentScheduler sending beginner daily content")
+    /**
+     * 매일 오전 7시(KST)에 초급 → 중급 → 고급 순서로 발송한다.
+     * 한 레벨이 실패해도 나머지 레벨은 계속 발송되도록 레벨별로 예외를 격리한다.
+     */
+    @Scheduled(cron = "0 0 7 * * *", zone = "Asia/Seoul")
+    fun sendDailyContentEmails() {
+        sendLevel("beginner") { dailyContentService.sendBeginnerDailyContentEmails() }
+        sendLevel("intermediate") { dailyContentService.sendIntermediateDailyContentEmails() }
+        sendLevel("advanced") { dailyContentService.sendAdvancedDailyContentEmails() }
     }
 
-    @Scheduled(cron = "0 0 4 * * *", zone = "Asia/Seoul")
-    fun sendIntermediateDailyContentEmails() {
-        dailyContentService.sendIntermediateDailyContentEmails()
-        logger.info("DailyContentScheduler sending intermediate daily content")
-    }
-
-    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
-    fun sendAdvancedDailyContentEmails() {
-        dailyContentService.sendAdvancedDailyContentEmails()
-        logger.info("DailyContentScheduler sending advanced daily content")
+    private fun sendLevel(level: String, send: () -> Unit) {
+        runCatching(send)
+            .onSuccess { logger.info("DailyContentScheduler sending {} daily content", level) }
+            .onFailure { logger.error("DailyContentScheduler failed to send {} daily content", level, it) }
     }
 
 }
