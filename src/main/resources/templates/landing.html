@@ -478,74 +478,273 @@
             color: #DCE7FF;
         }
 
-        /* ---------- Modal (기존 구독 플로우 스타일 유지) ---------- */
+        /* ---------- Subscribe Modal ---------- */
+        .subscribe-modal .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 30px 60px -20px rgba(15, 23, 42, 0.35);
+            overflow: hidden;
+        }
+
+        .subscribe-modal .modal-header {
+            position: relative;
+            display: block;
+            padding: 28px 28px 20px;
+            background: radial-gradient(500px 160px at 90% -20%, #DCE7FF 0%, transparent 70%), var(--maeil-light-blue);
+            border-bottom: 1px solid #DCE7FF;
+        }
+
+        .subscribe-modal .modal-header .btn-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 0.8rem;
+        }
+
+        .subscribe-modal .modal-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background-color: white;
+            border: 1px solid #D6E2FF;
+            color: var(--maeil-blue);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .subscribe-modal .modal-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: var(--maeil-ink);
+            margin: 0;
+        }
+
+        .subscribe-modal .modal-subtitle {
+            margin: 6px 0 0;
+            color: var(--maeil-muted);
+            font-size: 0.9rem;
+        }
+
+        .subscribe-modal .modal-body {
+            padding: 24px 28px 28px;
+        }
+
+        .modal-step + .modal-step {
+            margin-top: 24px;
+        }
+
+        .modal-step-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--maeil-ink);
+        }
+
+        .modal-step-label .step-num {
+            display: inline-grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: var(--maeil-blue);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .modal-step-label .step-hint {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--maeil-muted);
+        }
+
+        .subscribe-modal .form-control {
+            height: 46px;
+            border-color: var(--maeil-line);
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .subscribe-modal .form-control::placeholder {
+            color: #A0AEC0;
+        }
+
+        .subscribe-modal .form-control:focus {
+            border-color: var(--maeil-blue);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+        }
+
+        .subscribe-modal .form-control:disabled {
+            background-color: #F8FAFC;
+            color: var(--maeil-muted);
+        }
+
+        .subscribe-modal .input-group > .form-control {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
         .btn-modal-action {
             background-color: var(--maeil-blue);
             color: white;
             border: none;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.75rem;
+            border-radius: 0 10px 10px 0;
+            padding: 0 16px;
             font-size: 0.875rem;
+            font-weight: 700;
+            white-space: nowrap;
             transition: background-color 0.15s ease-in-out;
         }
 
-        .btn-modal-action:hover {
+        .btn-modal-action:hover, .btn-modal-action:focus {
             background-color: var(--maeil-blue-dark);
             color: white;
         }
 
         .btn-modal-action:disabled {
-            background-color: #adb5bd;
-            border-color: #adb5bd;
-        }
-
-        .level-option {
-            display: inline-block;
-            margin-right: 15px;
-            margin-bottom: 10px;
-        }
-
-        .level-option input[type="radio"] {
-            display: none;
-        }
-
-        .level-option label {
-            display: flex;
-            align-items: center;
-            padding: 8px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            background-color: #fff;
-            color: #495057;
-        }
-
-        .level-option label:hover {
-            border-color: var(--maeil-blue);
-            color: var(--maeil-blue);
-        }
-
-        .level-option input[type="radio"]:checked + label {
-            background-color: var(--maeil-blue);
+            background-color: #CBD5E1;
             color: white;
-            border-color: var(--maeil-blue);
-            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
         }
 
-        .level-option label .check-icon {
-            margin-right: 8px;
-            font-size: 1.1rem;
-            color: #ccc;
+        .subscribe-modal .form-text {
+            margin-top: 8px;
+            font-size: 0.8rem;
         }
 
-        .level-option input[type="radio"]:checked + label .check-icon {
-            color: white;
+        #verificationSection {
+            margin-top: 12px;
         }
 
         #levelOptions {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+        }
+
+        .level-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .level-option label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--maeil-line);
+            border-radius: 12px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+        }
+
+        .level-option label:hover {
+            border-color: #A9C1F7;
+        }
+
+        .level-option .level-radio {
+            flex: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #CBD5E1;
+            border-radius: 50%;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .level-option .level-text {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .level-option .level-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--maeil-ink);
+        }
+
+        .level-option .level-desc {
+            font-size: 0.82rem;
+            color: var(--maeil-muted);
+        }
+
+        .level-option input[type="radio"]:checked + label {
+            border-color: var(--maeil-blue);
+            background-color: var(--maeil-light-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .level-option input[type="radio"]:checked + label .level-radio {
+            border-color: var(--maeil-blue);
+            box-shadow: inset 0 0 0 3px white, inset 0 0 0 10px var(--maeil-blue);
+        }
+
+        .level-option input[type="radio"]:checked + label .level-name {
+            color: var(--maeil-blue);
+        }
+
+        .level-option input[type="radio"]:focus-visible + label {
+            outline: 2px solid var(--maeil-blue);
+            outline-offset: 2px;
+        }
+
+        .level-option input[type="radio"]:disabled + label {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .level-option input[type="radio"]:disabled + label:hover {
+            border-color: var(--maeil-line);
+        }
+
+        #finalSignupBtn {
+            height: 52px;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        #finalSignupBtn:disabled {
+            background-color: #CBD5E1;
+            border-color: #CBD5E1;
+            opacity: 1;
+        }
+
+        .modal-footnote {
+            margin: 12px 0 0;
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--maeil-muted);
+        }
+
+        .success-icon {
+            display: inline-grid;
+            place-items: center;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            border-radius: 50%;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-size: 1.6rem;
+        }
+
+        @media (max-width: 575.98px) {
+            .subscribe-modal .modal-header {
+                padding: 24px 20px 18px;
+            }
+
+            .subscribe-modal .modal-body {
+                padding: 20px 20px 24px;
+            }
         }
 
         @media (max-width: 767.98px) {
@@ -905,38 +1104,40 @@
     </div>
 </footer>
 
-<div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+<div class="modal fade subscribe-modal" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0"><h5 class="modal-title fw-bold text-dark" id="subscribeModalLabel">
-                매일 칸지 구독</h5>
+            <div class="modal-header">
+                <span class="modal-eyebrow"><i class="fa-solid fa-envelope-open-text"></i> 무료 · 언제든 해지 가능</span>
+                <h5 class="modal-title" id="subscribeModalLabel">매일 칸지 구독</h5>
+                <p class="modal-subtitle">이메일 인증 후 레벨을 고르면 내일 아침부터 받아볼 수 있어요.</p>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body pt-0">
+            <div class="modal-body">
                 <div id="signupFormContent">
                     <form id="subscribeForm" th:action="@{/api/v1/members/signup}" method="post">
 
-                        <!--                        <p class="text-center text-muted small mb-3">간편 인증 후, 레벨을 선택해 주세요.</p>-->
-                        <br>
-                        <div class="mb-3">
-                            <label for="email" class="form-label small fw-bold">이메일 주소</label>
+                        <div class="modal-step">
+                            <label for="email" class="modal-step-label">
+                                <span class="step-num">1</span> 이메일 인증
+                            </label>
                             <div class="input-group">
                                 <input type="email" class="form-control" id="email" name="email"
-                                       placeholder="example@email.com" required>
-                                <button class="btn btn-modal-action btn-sm" type="button" id="sendCodeBtn"
+                                       placeholder="example@email.com" autocomplete="email" required>
+                                <button class="btn btn-modal-action" type="button" id="sendCodeBtn"
                                         onclick="sendVerificationCode()">인증 코드 발송
                                 </button>
                             </div>
                             <div id="emailHelp" class="form-text text-danger" style="display: none;"></div>
-                        </div>
 
-                        <div id="verificationSection" style="display: none;">
-                            <div class="mb-3">
-                                <label for="code" class="form-label small fw-bold">인증 코드 (4자리 숫자)</label>
+                            <div id="verificationSection" style="display: none;">
+                                <label for="code" class="visually-hidden">인증 코드 (4자리 숫자)</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="code" name="code"
-                                           placeholder="메일로 받은 4자리 숫자 입력" maxlength="4">
-                                    <button class="btn btn-modal-action btn-sm" type="button" id="verifyCodeBtn"
+                                           placeholder="메일로 받은 4자리 숫자" maxlength="4"
+                                           inputmode="numeric" autocomplete="one-time-code">
+                                    <button class="btn btn-modal-action" type="button" id="verifyCodeBtn"
                                             onclick="verifyCode()">코드 확인
                                     </button>
                                 </div>
@@ -944,45 +1145,62 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold d-block">학습 레벨 선택</label>
+                        <div class="modal-step">
+                            <div class="modal-step-label">
+                                <span class="step-num">2</span> 학습 레벨 선택
+                                <span class="step-hint">인증 후 선택 가능</span>
+                            </div>
                             <div id="levelOptions">
                                 <div class="level-option">
                                     <input type="radio" id="levelBeginner" name="level" value="BEGINNER" required
                                            disabled>
                                     <label for="levelBeginner">
-                                        <i class="fa-solid fa-circle check-icon"></i> 초급 ➡️ 여행지 간판 읽기에 도전합니다!
+                                        <span class="level-radio"></span>
+                                        <span class="level-text">
+                                            <span class="level-name">초급</span>
+                                            <span class="level-desc">여행지 간판 읽기에 도전합니다</span>
+                                        </span>
                                     </label>
                                 </div>
                                 <div class="level-option">
                                     <input type="radio" id="levelIntermediate" name="level" value="INTERMEDIATE"
                                            disabled>
                                     <label for="levelIntermediate">
-                                        <i class="fa-solid fa-circle check-icon"></i> 중급 ➡️ 일본 뉴스 기사 제목을 해석합니다!
+                                        <span class="level-radio"></span>
+                                        <span class="level-text">
+                                            <span class="level-name">중급</span>
+                                            <span class="level-desc">일본 뉴스 기사 제목을 해석합니다</span>
+                                        </span>
                                     </label>
                                 </div>
                                 <div class="level-option">
                                     <input type="radio" id="levelAdvanced" name="level" value="ADVANCED" disabled>
                                     <label for="levelAdvanced">
-                                        <i class="fa-solid fa-circle check-icon"></i> 고급 ➡️ 전문가 리포트의 핵심 개념을 파악합니다!
+                                        <span class="level-radio"></span>
+                                        <span class="level-text">
+                                            <span class="level-name">고급</span>
+                                            <span class="level-desc">전문가 리포트의 핵심 개념을 파악합니다</span>
+                                        </span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-maeil btn-lg fw-bold" id="finalSignupBtn" disabled>
+                                <button type="submit" class="btn btn-maeil fw-bold" id="finalSignupBtn" disabled>
                                     구독 완료 및 시작하기
                                 </button>
                             </div>
+                            <p class="modal-footnote">레벨은 구독 후에도 메일 하단 링크에서 바꿀 수 있어요.</p>
                         </div>
                     </form>
                 </div>
 
-                <div id="successMessageContent" class="text-center py-4" style="display: none;">
-                    <h4 class="text-maeil fw-bold mb-3">🎉 구독을 환영합니다! 🎉</h4>
-                    <p class="lead"><strong>매일 칸지</strong> 구독이 성공적으로 완료되었습니다.</p>
-                    <p class="text-muted small">첫 번째 학습 메일은 내일 아침 선택하신 레벨로 발송됩니다. 감사합니다!</p>
-                    <button type="button" class="btn btn-outline-secondary mt-3" data-bs-dismiss="modal">창 닫기</button>
+                <div id="successMessageContent" class="text-center py-3" style="display: none;">
+                    <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+                    <h4 class="fw-bold mb-2">구독을 환영합니다!</h4>
+                    <p class="text-muted-2 mb-1"><strong class="text-maeil">매일 칸지</strong> 구독이 완료되었습니다.</p>
+                    <p class="text-muted-2 small mb-4">첫 번째 학습 메일은 내일 아침 선택하신 레벨로 발송됩니다.</p>
+                    <button type="button" class="btn btn-maeil fw-semibold px-4" data-bs-dismiss="modal">확인</button>
                 </div>
 
             </div>
