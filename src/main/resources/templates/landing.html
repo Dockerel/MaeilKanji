@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매일 칸지 | 매일 3분 일본어 한자 루틴</title>
     <meta name="description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로. 3분이면 끝나는 일본어 한자 학습 서비스, 매일 칸지.">
+    <meta name="keywords" content="일본어 한자, 일본어 공부, 한자 학습, JLPT 한자, 일본어 단어, 매일 칸지, 일본어 메일 학습">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" th:href="${siteUrl} + '/'">
+    <meta th:if="${!#strings.isEmpty(googleSiteVerification)}" name="google-site-verification" th:content="${googleSiteVerification}">
+    <meta th:if="${!#strings.isEmpty(naverSiteVerification)}" name="naver-site-verification" th:content="${naverSiteVerification}">
+    <link rel="icon" href="/favicon.ico">
+
+    <!-- Open Graph / 카카오톡·페이스북 등 링크 미리보기 -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="매일 칸지">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:title" content="매일 칸지 | 매일 3분 일본어 한자 루틴">
+    <meta property="og:description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로. 3분이면 끝나는 일본어 한자 학습 서비스.">
+    <meta property="og:url" th:content="${siteUrl} + '/'">
+    <meta property="og:image" th:content="${siteUrl} + '/maeilkanji.png'">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="매일 칸지 | 매일 3분 일본어 한자 루틴">
+    <meta name="twitter:description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로.">
+    <meta name="twitter:image" th:content="${siteUrl} + '/maeilkanji.png'">
+
+    <!-- 구조화 데이터: 검색 결과의 사이트 이름 표시용 -->
+    <script type="application/ld+json" th:inline="javascript">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "매일 칸지",
+          "alternateName": "MaeilKanji",
+          "url": /*[[${siteUrl} + '/']]*/ "",
+          "description": "레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로 받는 무료 일본어 한자 학습 서비스",
+          "inLanguage": "ko"
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/typography.css">

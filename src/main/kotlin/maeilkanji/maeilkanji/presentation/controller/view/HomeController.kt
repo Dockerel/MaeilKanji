@@ -16,10 +16,15 @@ class HomeController(
     private val memberService: MemberService,
 
     @Value("\${service.base-url}") private val baseUrl: String,
+    @Value("\${seo.google-site-verification:}") private val googleSiteVerification: String,
+    @Value("\${seo.naver-site-verification:}") private val naverSiteVerification: String,
 ) {
 
     @GetMapping("/")
-    fun showLandingPage(): String {
+    fun showLandingPage(model: Model): String {
+        model.addAttribute("siteUrl", baseUrl.trimEnd('/'))
+        model.addAttribute("googleSiteVerification", googleSiteVerification)
+        model.addAttribute("naverSiteVerification", naverSiteVerification)
         return "landing"
     }
 
