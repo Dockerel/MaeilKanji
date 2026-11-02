@@ -192,6 +192,18 @@
             display: none;
         }
 
+        .feedback-cta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px 16px;
+            border: 1px dashed var(--maeil-line);
+            border-radius: 12px;
+            background-color: white;
+            padding: 18px 20px;
+        }
+
         @media (max-width: 767.98px) {
             .lesson-main {
                 padding: 40px 0 64px;
@@ -280,6 +292,15 @@
                 <div class="text-center mt-5">
                     <h2 class="h4 fw-bold mb-2">오늘 학습 완료! 내일도 만나요 👋</h2>
                     <p class="text-muted-2 mb-0">내일 아침 새로운 한자 세트가 이메일로 발송됩니다.</p>
+                </div>
+
+                <div class="feedback-cta mt-4">
+                    <div>
+                        <p class="fw-bold mb-1">오늘 학습, 어떠셨나요?</p>
+                        <p class="small text-muted-2 mb-0">틀린 내용이나 바라는 점이 있다면 알려주세요.</p>
+                    </div>
+                    <a th:href="@{/feedback(context=${levelLabel + ' #' + content.id})}"
+                       class="btn btn-outline-primary fw-semibold flex-shrink-0">💬 피드백 보내기</a>
                 </div>
             </div>
         </div>

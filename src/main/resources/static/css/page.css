@@ -1,0 +1,290 @@
+/*
+ * 매일 칸지 보조 페이지(구독 해지 / 레벨 변경 / 피드백 등) 공통 스타일.
+ * 학습 페이지(fragments/daily-lesson.html)와 같은 컬러·카드 디자인을 쓴다.
+ * Bootstrap, typography.css 다음에 로드한다.
+ */
+
+:root {
+    --maeil-blue: #2563EB;
+    --maeil-blue-dark: #1E4DBC;
+    --maeil-light-blue: #F0F5FF;
+    --maeil-ink: #0F172A;
+    --maeil-muted: #64748B;
+    --maeil-line: #E2E8F0;
+    --maeil-bg: #F8FAFC;
+    --maeil-danger: #DC2626;
+    --maeil-green: #16A34A;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif !important;
+    color: var(--maeil-ink);
+    background-color: var(--maeil-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.text-maeil {
+    color: var(--maeil-blue) !important;
+}
+
+.text-muted-2 {
+    color: var(--maeil-muted);
+}
+
+/* ---------- 상단 nav ---------- */
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(180%) blur(8px);
+    border-bottom: 1px solid var(--maeil-line);
+}
+
+/* ---------- 본문 ---------- */
+.page-main {
+    flex: 1 0 auto;
+    padding: 64px 0 88px;
+}
+
+.section-label {
+    color: var(--maeil-blue);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+/* ---------- 카드 ---------- */
+.page-card {
+    border: 1px solid var(--maeil-line);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 48px -28px rgba(37, 99, 235, 0.4);
+    background-color: white;
+}
+
+.page-card-body {
+    padding: 28px;
+}
+
+.page-card-foot {
+    background-color: #FAFAFA;
+    border-top: 1px solid var(--maeil-line);
+    padding: 20px 28px;
+}
+
+.block-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--maeil-blue);
+    margin-bottom: 12px;
+}
+
+/* 상단 아이콘 원형 배지 */
+.status-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    background-color: var(--maeil-light-blue);
+    margin-bottom: 16px;
+}
+
+.status-icon.success {
+    background-color: #ECFDF5;
+}
+
+.status-icon.warn {
+    background-color: #FEF2F2;
+}
+
+/* 체크 리스트 */
+.check-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.check-list li {
+    position: relative;
+    padding: 6px 0 6px 26px;
+    font-size: 0.95rem;
+}
+
+.check-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    color: var(--maeil-blue);
+    font-weight: 900;
+}
+
+.info-box {
+    background-color: var(--maeil-bg);
+    border-left: 4px solid var(--maeil-blue);
+    border-radius: 8px;
+    padding: 16px 18px;
+}
+
+/* ---------- 버튼 ---------- */
+.btn-maeil {
+    background-color: var(--maeil-blue);
+    border-color: var(--maeil-blue);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 12px 24px;
+}
+
+.btn-maeil:hover,
+.btn-maeil:focus {
+    background-color: var(--maeil-blue-dark);
+    border-color: var(--maeil-blue-dark);
+    color: #fff;
+}
+
+.btn-maeil:disabled {
+    background-color: #94A3B8;
+    border-color: #94A3B8;
+}
+
+.btn-ghost {
+    background-color: white;
+    border: 1px solid var(--maeil-line);
+    color: var(--maeil-ink);
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 12px 24px;
+}
+
+.btn-ghost:hover {
+    background-color: var(--maeil-bg);
+    color: var(--maeil-ink);
+}
+
+.btn-danger-soft {
+    background-color: white;
+    border: 1px solid #FECACA;
+    color: var(--maeil-danger);
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 12px 24px;
+}
+
+.btn-danger-soft:hover {
+    background-color: var(--maeil-danger);
+    border-color: var(--maeil-danger);
+    color: #fff;
+}
+
+/* ---------- 선택 카드 (레벨 / 피드백 유형) ---------- */
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.choice-grid.two {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.choice-card {
+    position: relative;
+    display: block;
+    border: 1.5px solid var(--maeil-line);
+    border-radius: 12px;
+    padding: 16px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.12s, background-color 0.12s, box-shadow 0.12s;
+    height: 100%;
+    margin: 0;
+}
+
+.choice-card:hover {
+    border-color: #93B4F5;
+}
+
+.choice-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.choice-card .choice-title {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.choice-card .choice-desc {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--maeil-muted);
+    line-height: 1.5;
+}
+
+.choice-card:has(input:checked) {
+    border-color: var(--maeil-blue);
+    background-color: var(--maeil-light-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.choice-card:has(input:checked) .choice-title {
+    color: var(--maeil-blue);
+}
+
+.choice-card:has(input:focus-visible) {
+    outline: 2px solid var(--maeil-blue);
+    outline-offset: 2px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border-color: var(--maeil-line);
+    padding: 12px 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--maeil-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* ---------- footer ---------- */
+.site-footer {
+    flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+    .page-main {
+        padding: 40px 0 64px;
+    }
+
+    .page-card-body {
+        padding: 22px;
+    }
+
+    .page-card-foot {
+        padding: 18px 22px;
+    }
+
+    .choice-grid,
+    .choice-grid.two {
+        grid-template-columns: 1fr;
+    }
+}

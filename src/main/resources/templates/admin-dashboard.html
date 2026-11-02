@@ -513,11 +513,20 @@
                     </thead>
                     <tbody>`;
 
+            const FEEDBACK_REASON_LABEL = {
+                frequency: '메일 빈도',
+                content: '콘텐츠 불만',
+                difficulty: '난이도',
+                error: '오류 제보',
+                suggestion: '제안',
+                other: '기타',
+            };
+
             data.forEach(f => {
                 const date = f.createdAt ? f.createdAt.substring(0, 10) : '-';
                 html += `<tr>
                     <td class="text-break" style="min-width: 160px;"><small class="text-muted">${f.memberId}</small></td>
-                    <td>${f.reason}</td>
+                    <td>${FEEDBACK_REASON_LABEL[f.reason] || f.reason}</td>
                     <td>${f.comment || '-'}</td>
                     <td><small>${date}</small></td>
                 </tr>`;

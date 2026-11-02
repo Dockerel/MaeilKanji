@@ -1,109 +1,67 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>매일 칸지 | 레벨 변경</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/typography.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --maeil-blue: #2563EB;
-            --maeil-light-blue: #F0F5FF;
-        }
-        body {
-            font-family: 'Noto Sans KR', sans-serif !important;
-            background: var(--maeil-light-blue);
-        }
-        .text-maeil {
-            color: var(--maeil-blue) !important;
-        }
-        .content-card {
-            border: 1px solid #dee2e6;
-            border-left: 5px solid var(--maeil-blue);
-            border-radius: 10px;
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .notice {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-        .level-btn.active {
-            background-color: var(--maeil-blue);
-            color: #fff;
-        }
-        .level-btn {
-            flex: 1 1 0;
-            max-width: 140px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            background: #f8fafc;
-            color: var(--maeil-blue);
-            font-weight: bold;
-            padding: 12px 8px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.1s;
-        }
-        .level-btn:hover {
-            background-color: var(--maeil-blue);
-            color: #fff;
-        }
-    </style>
-</head>
+<head th:replace="~{fragments/page :: head('레벨 변경')}"></head>
 <body>
-<nav class="navbar navbar-light bg-white border-bottom">
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<main class="page-main">
     <div class="container px-4">
-        <a th:replace="~{fragments/brand :: brand}"></a>
-        <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold">서비스 소개</a>
-    </div>
-</nav>
-<main class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="content-card p-4">
-                <h4 class="fw-bold text-maeil mb-2">학습 레벨을 변경하시겠어요?</h4>
-                <p class="text-muted mb-4">난이도는 언제든 바꿀 수 있습니다. 변경 후, 새로운 레벨에 맞는 한자와 콘텐츠를 받게 됩니다.</p>
+        <div class="text-center mb-5">
+            <p class="section-label">Change Level</p>
+            <h1 class="section-title h2">학습 레벨을 변경하시겠어요?</h1>
+            <p class="text-muted-2 mt-2 mb-0">난이도는 언제든 바꿀 수 있어요. 다음 메일부터 새 레벨의 한자를 받게 됩니다.</p>
+        </div>
 
-                <div class="mb-4">
-                    <div class="d-flex justify-content-center mb-3 gap-2 gap-md-3">
-                        <button type="button" class="level-btn" th:classappend="${memberLevel == 'BEGINNER'} ? ' active'" th:onclick="|changeLevel('BEGINNER')|">초급</button>
-                        <button type="button" class="level-btn" th:classappend="${memberLevel == 'INTERMEDIATE'} ? ' active'" th:onclick="|changeLevel('INTERMEDIATE')|">중급</button>
-                        <button type="button" class="level-btn" th:classappend="${memberLevel == 'ADVANCED'} ? ' active'" th:onclick="|changeLevel('ADVANCED')|">고급</button>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form class="page-card" th:action="@{/change-level}" method="post">
+                    <input type="hidden" name="memberId" th:value="${memberId}">
+
+                    <div class="page-card-body">
+                        <p class="block-title">레벨 선택</p>
+                        <div class="choice-grid">
+                            <label class="choice-card">
+                                <input type="radio" name="newLevel" value="BEGINNER"
+                                       th:checked="${memberLevel == 'BEGINNER'}" required>
+                                <span class="choice-title">초급</span>
+                                <span class="choice-desc">한자의 기초부터 시작, 쉬운 예문과 단어 제공</span>
+                            </label>
+                            <label class="choice-card">
+                                <input type="radio" name="newLevel" value="INTERMEDIATE"
+                                       th:checked="${memberLevel == 'INTERMEDIATE'}">
+                                <span class="choice-title">중급</span>
+                                <span class="choice-desc">일상생활에서 자주 쓰이는 한자 중심</span>
+                            </label>
+                            <label class="choice-card">
+                                <input type="radio" name="newLevel" value="ADVANCED"
+                                       th:checked="${memberLevel == 'ADVANCED'}">
+                                <span class="choice-title">고급</span>
+                                <span class="choice-desc">뉴스·문학·공부에 자주 등장하는 고난도 한자 포함</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="notice p-3 mb-4">
-                    <span class="fw-bold text-maeil">레벨별 안내:</span>
-                    <ul class="text-muted small mb-0">
-                        <li>초급: 한자의 기초부터 시작, 쉬운 예문과 단어 제공</li>
-                        <li>중급: 일상생활에서 자주 쓰이는 한자 중심</li>
-                        <li>고급: 뉴스·문학·공부에 자주 등장하는 고난도 한자 포함</li>
-                    </ul>
-                </div>
-
-                <div class="d-flex gap-2">
-                    <form th:action="@{/change-level}" method="post" class="d-inline">
-                        <input type="hidden" name="memberId" th:value="${memberId}">
-                        <input type="hidden" name="newLevel" id="levelInput" th:value="${memberLevel}">
-                        <button type="submit" class="btn btn-maeil fw-semibold" style="background:var(--maeil-blue);color:#fff;">
-                            변경하기
-                        </button>
-                    </form>
-                </div>
+                    <div class="page-card-foot d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                        <a th:href="@{/}" class="btn btn-ghost">취소</a>
+                        <button type="submit" class="btn btn-maeil" id="submitBtn" disabled>변경하기</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+
 <script>
-    function changeLevel(level) {
-        document.getElementById('levelInput').value = level;
-        document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.level-btn[onclick*="' + level + '"]').classList.add('active');
-    }
+    // 레벨을 고르기 전에는 변경하기 버튼을 비활성화한다.
+    (function () {
+        const submitBtn = document.getElementById('submitBtn');
+        const radios = document.querySelectorAll('input[name="newLevel"]');
+        const sync = () => { submitBtn.disabled = ![...radios].some(r => r.checked); };
+        radios.forEach(r => r.addEventListener('change', sync));
+        sync();
+    })();
 </script>
 </body>
 </html>

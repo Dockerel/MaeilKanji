@@ -51,6 +51,17 @@ class HomeController(
         return "bye"
     }
 
+    @GetMapping("/feedback")
+    fun feedbackPage(
+        @RequestParam(value = "memberId", defaultValue = "") memberId: String,
+        @RequestParam(value = "context", defaultValue = "") context: String,
+        model: Model,
+    ): String {
+        model.addAttribute("memberId", memberId)
+        model.addAttribute("context", context)
+        return "feedback"
+    }
+
     @GetMapping("/thank-you-for-feedback")
     fun thankYouForFeedback(): String {
         return "thank-you-for-feedback"

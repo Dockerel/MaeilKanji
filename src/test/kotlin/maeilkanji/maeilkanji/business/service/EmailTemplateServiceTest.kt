@@ -21,7 +21,7 @@ private const val BASE_URL = "https://maeilkanji.test"
 
 private const val DAILY_TEMPLATE =
     "{{level}}|{{kanji1}}|{{yomi1}}|{{meaning1}}|{{kanji2}}|{{yomi2}}|{{meaning2}}|{{quiz}}|" +
-        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}|{{LOGO_URL}}"
+        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}|{{LOGO_URL}}|{{FEEDBACK_URL}}"
 
 class EmailTemplateServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerLeaf
@@ -96,8 +96,23 @@ class EmailTemplateServiceTest : BehaviorSpec({
                     "$BASE_URL/unsubscribe-confirm?memberId=$memberId",
                     "$BASE_URL/change-level-confirm?memberId=$memberId",
                     "$BASE_URL/maeilkanji.png",
+                    "$BASE_URL/feedback?memberId=$memberId&context=%EC%B4%88%EA%B8%89+%233",
                 ).joinToString("|")
                 result["template"]!! shouldNotContain "{{"
+            }
+        }
+    }
+
+    Given("읽기 표기에 괄호가 포함된 콘텐츠가 있을 때") {
+        every { dailyContentRepository.getBeginnerDailyContentById(5L) } returns
+            dailyContentDto(KanjiLevel.BEGINNER, id = 5L).copy(yomi1 = "(ぞう, ふ)", yomi2 = "（げん, へ）")
+
+        When("데일리 메일 템플릿을 생성하면") {
+            val parts = emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.BEGINNER, 5L, memberId)["template"]!!.split("|")
+
+            Then("학습 페이지와 같이 괄호를 제거한다") {
+                parts[2] shouldBe "ぞう, ふ"
+                parts[5] shouldBe "げん, へ"
             }
         }
     }

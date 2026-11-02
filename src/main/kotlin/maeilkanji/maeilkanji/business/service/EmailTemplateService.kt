@@ -7,6 +7,8 @@ import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Service
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.Clock
 import java.time.Year
 import java.time.ZoneId
@@ -77,6 +79,7 @@ class EmailTemplateService(
             .replace("{{SITE_ACCESS_URL}}", siteUrl)
             .replace("{{UNSUBSCRIBE_URL}}", "$baseUrl/unsubscribe-confirm?memberId=$memberId")
             .replace("{{LEVEL_CHANGE_URL}}", "$baseUrl/change-level-confirm?memberId=$memberId")
+            .replace("{{FEEDBACK_URL}}", feedbackUrl(memberId, "${content.level.korean} #$contentIndex"))
             .replace("{{YEAR}}", currentYear())
 
 
@@ -85,6 +88,9 @@ class EmailTemplateService(
 
     // 학습 페이지(fragments/daily-lesson.html)와 동일하게 읽기 표기의 괄호를 제거한다. 예: "(ぞう, ふ)" → "ぞう, ふ"
     private fun stripParentheses(yomi: String): String = yomi.replace(Regex("[()（）]"), "").trim()
+
+    private fun feedbackUrl(memberId: UUID, context: String): String =
+        "$baseUrl/feedback?memberId=$memberId&context=${URLEncoder.encode(context, StandardCharsets.UTF_8)}"
 
     private fun logoUrl(): String = "$baseUrl/maeilkanji.png"
 

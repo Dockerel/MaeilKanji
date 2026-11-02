@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: head('피드백 보내기')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<main class="page-main">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Feedback</p>
+            <h1 class="section-title h2">매일 칸지에 의견을 들려주세요</h1>
+            <p class="text-muted-2 mt-2 mb-0">오류 제보, 콘텐츠 제안, 사소한 불편까지 모두 환영해요.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form class="page-card" th:action="@{/feedback}" method="post">
+                    <input type="hidden" name="memberId" th:value="${memberId}">
+                    <input type="hidden" name="context" th:value="${context}">
+
+                    <div class="page-card-body">
+                        <p class="small text-muted-2 mb-3" th:if="${!#strings.isEmpty(context)}">
+                            📖 <strong class="text-maeil" th:text="${context}">초급 #3</strong> 학습에 대한 의견으로 전달돼요.
+                        </p>
+                        <p class="block-title">어떤 의견인가요?</p>
+                        <div class="choice-grid two mb-4">
+                            <label class="choice-card">
+                                <input type="radio" name="reason" value="error" checked>
+                                <span class="choice-title">🐞 콘텐츠 오류 제보</span>
+                                <span class="choice-desc">읽기·뜻·예문·정답이 틀렸어요</span>
+                            </label>
+                            <label class="choice-card">
+                                <input type="radio" name="reason" value="suggestion">
+                                <span class="choice-title">💡 기능·콘텐츠 제안</span>
+                                <span class="choice-desc">이런 게 있으면 좋겠어요</span>
+                            </label>
+                            <label class="choice-card">
+                                <input type="radio" name="reason" value="difficulty">
+                                <span class="choice-title">📏 난이도 의견</span>
+                                <span class="choice-desc">너무 쉽거나 어려워요</span>
+                            </label>
+                            <label class="choice-card">
+                                <input type="radio" name="reason" value="other">
+                                <span class="choice-title">💬 기타</span>
+                                <span class="choice-desc">자유롭게 남겨주세요</span>
+                            </label>
+                        </div>
+
+                        <label for="comment" class="block-title d-block">자세한 내용</label>
+                        <textarea id="comment" name="comment" class="form-control" rows="5" maxlength="240" required
+                                  placeholder="예) 오늘 예문의 읽기가 틀린 것 같아요."></textarea>
+                    </div>
+
+                    <div class="page-card-foot d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                        <a th:href="@{/}" class="btn btn-ghost">취소</a>
+                        <button type="submit" class="btn btn-maeil">피드백 보내기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+</body>
+</html>
