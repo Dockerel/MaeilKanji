@@ -3,99 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* 모든 OS에서 일관된 폰트, 인라인 CSS는 body에 직접 적용 */
-        body { font-family: 'Noto Sans KR', sans-serif, Arial, sans-serif; line-height: 1.6; color: #333; }
-        /* 메인 컬러 변수 선언 (인라인 CSS 사용 시 직접 hex 값으로 대체) */
-        .main-color { color: #2563EB; }
-        .bg-main-color { background-color: #2563EB; }
-        .bg-light-gray { background-color: #f4f4f4; }
-        .btn-style {
-            display: inline-block;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-decoration: none;
-            text-align: center;
-        }
-    </style>
+    <!--
+      학습 페이지(fragments/daily-lesson.html)와 같은 디자인.
+      메일 클라이언트 호환을 위해 table 레이아웃 + 인라인 스타일만 사용한다. (flex, CSS 변수 미지원)
+      컬러: blue #2563EB / light-blue #F0F5FF / ink #0F172A / muted #64748B / line #E2E8F0 / bg #F8FAFC
+    -->
 </head>
-<body style="word-break:keep-all;overflow-wrap:break-word;font-family:'Noto Sans KR', sans-serif, Arial, sans-serif; line-height:1.6; color:#333; max-width:600px; margin:0 auto; padding:20px; background-color:#ffffff;">
+<body style="margin:0;padding:0;background-color:#F8FAFC;word-break:keep-all;overflow-wrap:break-word;font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', Arial, sans-serif;line-height:1.6;color:#0F172A;">
 
-<div style="background-color:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);padding:0;overflow:hidden;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8FAFC;border-collapse:collapse;">
+    <tr>
+        <td align="center" style="padding:24px 16px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;border-collapse:collapse;">
 
-    <div style="background-color:#2563EB; padding: 20px 30px; text-align:center;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;">
-            <tr>
-                <td style="vertical-align:middle;padding-right:8px;">
-                    <div style="background-color:#ffffff;border-radius:8px;padding:3px;line-height:0;">
-                        <img src="{{LOGO_URL}}" alt="매일 칸지 로고" width="30" height="30" style="display:block;width:30px;height:30px;border:0;">
-                    </div>
-                </td>
-                <td style="vertical-align:middle;">
-                    <span style="font-size:24px;font-weight:bold;color:#ffffff;">매일 칸지</span>
-                </td>
-            </tr>
-        </table>
-        <p style="color:#D1E7FF; font-size:14px; margin:5px 0 0 0;">
-            <span style="font-weight:bold;">{{level}}</span> 학습자를 위한 오늘의 3분 학습
-        </p>
-<!--        <a href="{{LEVEL_CHANGE_URL}}"-->
-<!--           class="btn-style bg-light-gray"-->
-<!--           style="background-color:#f4f4f4; color:#2563EB; border-radius:8px; padding:10px 20px; font-weight:bold; text-decoration:none; font-size:15px; margin-top:12px; display:inline-block;">-->
-<!--            레벨 변경하기-->
-<!--        </a>-->
-    </div>
+                <!-- 브랜드 (학습 페이지 상단 nav) -->
+                <tr>
+                    <td style="padding:0 4px 20px 4px;border-bottom:1px solid #E2E8F0;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                            <tr>
+                                <td style="vertical-align:middle;padding-right:8px;line-height:0;">
+                                    <img src="{{LOGO_URL}}" alt="매일 칸지 로고" width="32" height="32" style="display:block;width:32px;height:32px;border:0;">
+                                </td>
+                                <td style="vertical-align:middle;">
+                                    <span style="font-size:20px;font-weight:bold;color:#2563EB;">매일 칸지</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-    <div style="padding: 30px;">
+                <!-- 타이틀 -->
+                <tr>
+                    <td align="center" style="padding:32px 8px 24px 8px;">
+                        <p style="margin:0 0 8px 0;color:#2563EB;font-weight:bold;font-size:13px;letter-spacing:0.08em;">TODAY'S LESSON</p>
+                        <p style="margin:0;font-size:24px;font-weight:900;letter-spacing:-0.02em;color:#0F172A;">
+                            <span style="color:#2563EB;">{{level}}</span> 학습자를 위한 오늘의 3분 학습
+                        </p>
+                        <p style="margin:8px 0 0 0;color:#64748B;font-size:15px;">[오늘의 퀴즈] 정답을 맞혀보세요!</p>
+<!--                        <a href="{{LEVEL_CHANGE_URL}}"-->
+<!--                           class="btn-style bg-light-gray"-->
+<!--                           style="background-color:#f4f4f4; color:#2563EB; border-radius:8px; padding:10px 20px; font-weight:bold; text-decoration:none; font-size:15px; margin-top:12px; display:inline-block;">-->
+<!--                            레벨 변경하기-->
+<!--                        </a>-->
+                    </td>
+                </tr>
 
-        <p style="font-size:18px; font-weight:bold; color:#2563EB; margin-top:0; margin-bottom: 20px; text-align:center;">
-            [오늘의 퀴즈] 정답을 맞혀보세요!
-        </p>
+                <!-- 학습 카드 -->
+                <tr>
+                    <td>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                               style="border-collapse:separate;background-color:#ffffff;border:1px solid #E2E8F0;border-radius:16px;box-shadow:0 24px 48px -28px rgba(37,99,235,0.4);">
 
-        <div style="margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:15px;">
-            <h3 style="font-size:20px; color:#333; margin:0 0 10px 0;">
-                오늘 배울 핵심 한자 2개!
-            </h3>
-            <p style="margin:5px 0;">
-                <span style="font-size:28px; font-weight:bold; color:#2563EB;">{{kanji1}}</span> ({{yomi1}}) : {{meaning1}}
-            </p>
-            <p style="margin:5px 0;">
-                <span style="font-size:28px; font-weight:bold; color:#2563EB;">{{kanji2}}</span> ({{yomi2}}) : {{meaning2}}
-            </p>
-        </div>
+                            <!-- 카드 헤더 -->
+                            <tr>
+                                <td style="padding:18px 24px;border-bottom:1px solid #E2E8F0;">
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                                        <tr>
+                                            <td style="font-weight:bold;font-size:16px;color:#0F172A;">
+                                                오늘의 한자
+                                                <span lang="ja" style="font-family:'Noto Serif JP', 'Hiragino Mincho ProN', serif;">{{kanji1}}</span> vs
+                                                <span lang="ja" style="font-family:'Noto Serif JP', 'Hiragino Mincho ProN', serif;">{{kanji2}}</span>
+                                            </td>
+                                            <td align="right" style="white-space:nowrap;">
+                                                <span style="display:inline-block;padding:3px 10px;border-radius:999px;background-color:#F0F5FF;color:#2563EB;font-size:13px;font-weight:bold;">{{level}}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
 
-        <div style="background-color:#f8f8f8; border-radius:8px; padding:20px; margin-bottom:30px; border: 1px solid #ddd;">
-            <p style="font-size:16px; font-weight:bold; color:#333; margin-top:0;">
-                🤔 오늘의 퀴즈:
-            </p>
-            <p style="font-size:18px; margin-top:5px; font-weight:bold; color:#555;">
-                Q. {{quiz}}
-            </p>
-        </div>
+                            <!-- 핵심 한자 2개 -->
+                            <tr>
+                                <td style="padding:24px 24px 16px 24px;">
+                                    <p style="margin:0 0 12px 0;font-size:14px;font-weight:bold;color:#2563EB;">오늘 배울 핵심 한자 2개!</p>
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                                        <tr>
+                                            <td style="vertical-align:middle;padding:0 12px 12px 0;">
+                                                <span lang="ja" style="font-family:'Noto Serif JP', 'Hiragino Mincho ProN', serif;font-size:32px;font-weight:900;line-height:1;color:#0F172A;">{{kanji1}}</span>
+                                            </td>
+                                            <td style="vertical-align:middle;padding:0 0 12px 0;">
+                                                <span lang="ja" style="font-size:13px;color:#64748B;">{{yomi1}}</span><br>
+                                                <strong style="font-size:15px;">{{meaning1}}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align:middle;padding:0 12px 0 0;">
+                                                <span lang="ja" style="font-family:'Noto Serif JP', 'Hiragino Mincho ProN', serif;font-size:32px;font-weight:900;line-height:1;color:#0F172A;">{{kanji2}}</span>
+                                            </td>
+                                            <td style="vertical-align:middle;padding:0;">
+                                                <span lang="ja" style="font-size:13px;color:#64748B;">{{yomi2}}</span><br>
+                                                <strong style="font-size:15px;">{{meaning2}}</strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
 
-        <div style="text-align:center; margin-top:30px;">
-            <p style="font-size:16px; margin-bottom:15px; color:#555;">
-                <strong>정답, 핵심 단어 4개, 실용 예문</strong>을 지금 확인하세요!
-            </p>
-            <br>
-            <a href="{{SITE_ACCESS_URL}}"
-               style="background-color:#2563EB; color:white; border-radius:8px; padding:15px 35px; font-weight:bold; text-decoration:none; font-size:18px; box-shadow:0 3px 6px rgba(0,0,0,0.2);">
-                ✅ 학습 완성하러 가기
-            </a>
-        </div>
+                            <!-- 오늘의 퀴즈 -->
+                            <tr>
+                                <td style="padding:20px 24px 24px 24px;background-color:#FAFAFA;border-top:1px solid #E2E8F0;border-radius:0 0 16px 16px;">
+                                    <p style="margin:0 0 8px 0;font-size:14px;font-weight:bold;color:#2563EB;">🤔 오늘의 퀴즈</p>
+                                    <p style="margin:0 0 16px 0;font-size:16px;font-weight:bold;color:#0F172A;">Q. {{quiz}}</p>
 
-    </div>
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                                           style="border-collapse:separate;background-color:#F0F5FF;border-radius:10px;">
+                                        <tr>
+                                            <td align="center" style="padding:18px 16px;">
+                                                <p style="margin:0 0 14px 0;font-size:15px;color:#2563EB;">
+                                                    <strong>정답, 핵심 단어 4개, 실용 예문</strong>을 지금 확인하세요!
+                                                </p>
+                                                <a href="{{SITE_ACCESS_URL}}"
+                                                   style="display:inline-block;background-color:#2563EB;color:#ffffff;border-radius:8px;padding:13px 32px;font-weight:bold;text-decoration:none;font-size:16px;">
+                                                    ✅ 학습 완성하러 가기
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
 
-    <div style="background-color:#f9f9f9; padding:20px; font-size:12px; color:#777; text-align:center; border-top:1px solid #eee;">
-        <p style="margin:0;">이 메일은 수신자님의 요청에 의해 매일 발송됩니다.</p>
-        <p style="margin:5px 0 0 0;">
-            <span style="display:inline-block;">수신 거부: <a href="{{UNSUBSCRIBE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
-            <span style="display:inline-block;">레벨 변경: <a href="{{LEVEL_CHANGE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
-        </p>
-        <p style="margin:5px 0 0 0;">&copy; {{YEAR}} MaeilKanji. All rights reserved.</p>
-    </div>
+                        </table>
+                    </td>
+                </tr>
 
-</div>
+                <!-- 푸터 -->
+                <tr>
+                    <td align="center" style="padding:28px 8px 8px 8px;font-size:12px;color:#64748B;">
+                        <p style="margin:0;">이 메일은 수신자님의 요청에 의해 매일 발송됩니다.</p>
+                        <p style="margin:5px 0 0 0;">
+                            <span style="display:inline-block;">수신 거부: <a href="{{UNSUBSCRIBE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
+                            <span style="display:inline-block;">레벨 변경: <a href="{{LEVEL_CHANGE_URL}}" style="color:#2563EB;">여기</a>를 클릭하세요.</span>
+                        </p>
+                        <p style="margin:5px 0 0 0;">&copy; {{YEAR}} MaeilKanji. All rights reserved.</p>
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

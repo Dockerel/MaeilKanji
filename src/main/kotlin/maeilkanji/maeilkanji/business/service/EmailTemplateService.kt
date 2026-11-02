@@ -68,10 +68,10 @@ class EmailTemplateService(
             .replace("{{LOGO_URL}}", logoUrl())
             .replace("{{level}}", content.level.korean)
             .replace("{{kanji1}}", content.kanji1)
-            .replace("{{yomi1}}", content.yomi1)
+            .replace("{{yomi1}}", stripParentheses(content.yomi1))
             .replace("{{meaning1}}", content.meaning1)
             .replace("{{kanji2}}", content.kanji2)
-            .replace("{{yomi2}}", content.yomi2)
+            .replace("{{yomi2}}", stripParentheses(content.yomi2))
             .replace("{{meaning2}}", content.meaning2)
             .replace("{{quiz}}", content.quiz)
             .replace("{{SITE_ACCESS_URL}}", siteUrl)
@@ -82,6 +82,9 @@ class EmailTemplateService(
 
         return mapOf("quiz" to content.quiz, "template" to fullTemplate)
     }
+
+    // 학습 페이지(fragments/daily-lesson.html)와 동일하게 읽기 표기의 괄호를 제거한다. 예: "(ぞう, ふ)" → "ぞう, ふ"
+    private fun stripParentheses(yomi: String): String = yomi.replace(Regex("[()（）]"), "").trim()
 
     private fun logoUrl(): String = "$baseUrl/maeilkanji.png"
 
