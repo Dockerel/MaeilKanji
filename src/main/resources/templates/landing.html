@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script>document.documentElement.classList.add('js');</script>
     <style>
         :root {
             --maeil-blue: #2563EB;
@@ -747,6 +748,148 @@
             }
         }
 
+        /* ---------- Motion ---------- */
+        .site-nav {
+            transition: box-shadow 0.25s ease;
+        }
+
+        .site-nav.is-scrolled {
+            box-shadow: 0 6px 20px -12px rgba(15, 23, 42, 0.25);
+        }
+
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes tile-in {
+            from {
+                opacity: 0;
+                scale: 0.92;
+            }
+            to {
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        @keyframes tile-float {
+            0%, 100% {
+                translate: 0 0;
+            }
+            50% {
+                translate: 0 -8px;
+            }
+        }
+
+        @keyframes badge-pop {
+            0% {
+                opacity: 0;
+                scale: 0.4;
+            }
+            70% {
+                opacity: 1;
+                scale: 1.12;
+            }
+            100% {
+                opacity: 1;
+                scale: 1;
+            }
+        }
+
+        @keyframes nudge-x {
+            0%, 100% {
+                translate: 0 0;
+            }
+            50% {
+                translate: 6px 0;
+            }
+        }
+
+        @keyframes nudge-y {
+            0%, 100% {
+                translate: 0 0;
+            }
+            50% {
+                translate: 0 6px;
+            }
+        }
+
+        .hero-in {
+            animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+            animation-delay: var(--d, 0s);
+        }
+
+        .kanji-tile {
+            animation: tile-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both,
+            tile-float 6s ease-in-out 1.1s infinite;
+        }
+
+        .kanji-tile:nth-of-type(2) {
+            animation-delay: 0.5s, 2.1s;
+        }
+
+        .vs-badge {
+            animation: badge-pop 0.5s ease-out 0.85s both;
+        }
+
+        .step-arrow {
+            display: inline-block;
+            animation: nudge-x 1.8s ease-in-out infinite;
+        }
+
+        .step-arrow.fa-arrow-down {
+            animation-name: nudge-y;
+        }
+
+        .level-card {
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .level-card:hover {
+            border-color: #BFD3FF;
+            transform: translateY(-3px);
+        }
+
+        .level-card.featured:hover {
+            border-color: var(--maeil-blue);
+        }
+
+        .answer-reveal[open] > :not(summary) {
+            animation: fade-up 0.4s ease-out both;
+        }
+
+        /* 스크롤 리빌: JS가 켜진 경우에만 숨김 처리 (JS 없으면 그대로 노출) */
+        .js .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            transition-delay: var(--d, 0s);
+        }
+
+        .js .reveal.is-visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .js .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
         @media (max-width: 767.98px) {
             .hero {
                 padding: 48px 0 64px;
@@ -782,15 +925,15 @@
     <div class="container px-4">
         <div class="row align-items-center g-5">
             <div class="col-lg-7 text-center text-lg-start">
-                <span class="hero-eyebrow mb-3"><i class="fa-regular fa-envelope"></i> 매일 아침, 메일로 오는 한자 한 세트</span>
-                <h1 class="display-5 mb-3">
+                <span class="hero-eyebrow mb-3 hero-in"><i class="fa-regular fa-envelope"></i> 매일 아침, 메일로 오는 한자 한 세트</span>
+                <h1 class="display-5 mb-3 hero-in" style="--d: .08s">
                     작심삼일 없이,<br><span class="text-maeil">매일 3분</span>으로 끝내는<br class="d-none d-md-inline"> 일본어 한자 루틴
                 </h1>
-                <p class="lead text-muted-2 mb-4">
+                <p class="lead text-muted-2 mb-4 hero-in" style="--d: .16s">
                     레벨에 맞는 <strong>핵심 한자 2개</strong>와 단어 4개, 실용 예문 1개.
                     메일로 퀴즈를 받고, 사이트에서 정답을 확인하면 오늘 공부 끝입니다.
                 </p>
-                <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center justify-content-lg-start mb-4">
+                <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center justify-content-lg-start mb-4 hero-in" style="--d: .24s">
                     <button type="button" class="btn btn-maeil btn-lg fw-semibold px-4" data-bs-toggle="modal"
                             data-bs-target="#subscribeModal">
                         무료로 구독 시작하기
@@ -799,7 +942,7 @@
                         실제 학습 페이지 보기
                     </a>
                 </div>
-                <div class="hero-meta justify-content-center justify-content-lg-start">
+                <div class="hero-meta justify-content-center justify-content-lg-start hero-in" style="--d: .32s">
                     <span><i class="fa-solid fa-check"></i>완전 무료</span>
                     <span><i class="fa-solid fa-check"></i>이메일 인증만으로 가입</span>
                     <span><i class="fa-solid fa-check"></i>언제든 원클릭 수신 거부</span>
@@ -819,7 +962,7 @@
                         <div class="meaning">줄다</div>
                     </div>
                 </div>
-                <p class="text-center small text-muted-2 mt-5 mb-0">중급 1일차 학습 한자</p>
+                <p class="text-center small text-muted-2 mt-5 mb-0 hero-in" style="--d: .9s">중급 1일차 학습 한자</p>
             </div>
         </div>
     </div>
@@ -827,26 +970,26 @@
 
 <section id="concept">
     <div class="container px-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <p class="section-label">Why Maeil Kanji</p>
             <h2 class="section-title">꾸준히 할 수 있게, 딱 필요한 만큼만</h2>
         </div>
         <div class="row g-4">
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.0s">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
                     <h5 class="fw-bold">내 레벨에 맞는 난이도</h5>
                     <p class="text-muted-2 mb-0">가입할 때 <strong>초급·중급·고급</strong> 중 하나를 고르면, 매일 그 레벨에 맞는 한자만 받습니다. 레벨은 메일에서 언제든 바꿀 수 있어요.</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.1s">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fa-solid fa-link"></i></div>
                     <h5 class="fw-bold">짝지어 외우는 연관 학습</h5>
                     <p class="text-muted-2 mb-0"><span class="jp">増</span>과 <span class="jp">減</span>처럼 반대되거나 서로 연관된 한자를 함께 보내, 하나를 보면 다른 하나가 떠오르게 만듭니다.</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.2s">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fa-regular fa-clock"></i></div>
                     <h5 class="fw-bold">3분이면 끝나는 분량</h5>
@@ -859,14 +1002,14 @@
 
 <section id="how-it-works" class="bg-soft">
     <div class="container px-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <p class="section-label">How it works</p>
             <h2 class="section-title">메일로 퀴즈, 사이트에서 정답</h2>
             <p class="text-muted-2 mt-2 mb-0">궁금증이 생겨야 오래 기억에 남습니다.</p>
         </div>
 
         <div class="row align-items-center g-4">
-            <div class="col-md-5">
+            <div class="col-md-5 reveal">
                 <span class="step-badge">STEP 1</span>
                 <h4 class="fw-bold mb-2">아침에 퀴즈 메일 도착</h4>
                 <p class="text-muted-2">오늘의 한자 2개와 퀴즈만 먼저 보여드립니다.</p>
@@ -899,12 +1042,12 @@
                 </div>
             </div>
 
-            <div class="col-md-2 text-center">
+            <div class="col-md-2 text-center reveal" style="--d: .15s">
                 <i class="fa-solid fa-arrow-right step-arrow d-none d-md-inline"></i>
                 <i class="fa-solid fa-arrow-down step-arrow d-md-none"></i>
             </div>
 
-            <div class="col-md-5">
+            <div class="col-md-5 reveal" style="--d: .3s">
                 <span class="step-badge">STEP 2</span>
                 <h4 class="fw-bold mb-2">사이트에서 정답 확인</h4>
                 <p class="text-muted-2">버튼을 누르면 정답과 함께 단어 4개, 예문까지 한 번에 정리됩니다.</p>
@@ -929,7 +1072,7 @@
 
 <section id="content-preview">
     <div class="container px-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <p class="section-label">Preview</p>
             <h2 class="section-title">실제로 받게 되는 학습 내용</h2>
             <p class="text-muted-2 mt-2 mb-0">중급 1일차 콘텐츠를 그대로 옮겨왔어요. 정답은 직접 눌러서 확인해 보세요.</p>
@@ -937,7 +1080,7 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-9">
-                <div class="content-card-preview">
+                <div class="content-card-preview reveal">
                     <div class="preview-head">
                         <span class="fw-bold">오늘의 한자 <span class="jp">増</span> vs <span class="jp">減</span></span>
                         <span class="level-pill">중급</span>
@@ -999,13 +1142,13 @@
 
 <section id="levels" class="bg-soft">
     <div class="container px-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <p class="section-label">Levels</p>
             <h2 class="section-title">나에게 맞는 레벨을 고르세요</h2>
             <p class="text-muted-2 mt-2 mb-0">매일 오전 7시, 출근 전에 메일함에 도착합니다.</p>
         </div>
         <div class="row g-4">
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.0s">
                 <div class="level-card">
                     <span class="level-pill align-self-start">초급</span>
                     <p class="goal">여행지 간판 읽기에 도전합니다</p>
@@ -1013,7 +1156,7 @@
                     <span class="time"><i class="fa-regular fa-clock"></i>매일 오전 7시 발송</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.1s">
                 <div class="level-card featured">
                     <span class="level-pill align-self-start">중급</span>
                     <p class="goal">일본 뉴스 기사 제목을 해석합니다</p>
@@ -1021,7 +1164,7 @@
                     <span class="time"><i class="fa-regular fa-clock"></i>매일 오전 7시 발송</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 reveal" style="--d: 0.2s">
                 <div class="level-card">
                     <span class="level-pill align-self-start">고급</span>
                     <p class="goal">전문가 리포트의 핵심 개념을 파악합니다</p>
@@ -1035,13 +1178,13 @@
 
 <section id="faq" class="faq">
     <div class="container px-4">
-        <div class="text-center mb-5">
+        <div class="text-center mb-5 reveal">
             <p class="section-label">FAQ</p>
             <h2 class="section-title">자주 묻는 질문</h2>
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="accordion" id="faqAccordion">
+                <div class="accordion reveal" id="faqAccordion">
                     <div class="accordion-item">
                         <h3 class="accordion-header">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -1093,7 +1236,7 @@
 </section>
 
 <section id="cta" class="cta text-center">
-    <div class="container px-4">
+    <div class="container px-4 reveal">
         <h2 class="fw-bold mb-3">내일 아침, 첫 번째 한자가 도착합니다</h2>
         <p class="lead mb-4">오늘 구독하고 하루 3분의 힘을 경험해 보세요.</p>
         <button type="button" class="btn btn-light btn-lg fw-semibold text-maeil px-4" data-bs-toggle="modal"
@@ -1214,6 +1357,30 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // --------------------------------------------------------
+    // 스크롤 애니메이션: 뷰포트 진입 시 .reveal 요소 노출, 스크롤 시 nav 그림자
+    (function () {
+        const revealTargets = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+            revealTargets.forEach(el => el.classList.add('is-visible'));
+        } else {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {threshold: 0.15, rootMargin: '0px 0px -40px 0px'});
+            revealTargets.forEach(el => observer.observe(el));
+        }
+
+        const nav = document.querySelector('.site-nav');
+        const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 8);
+        window.addEventListener('scroll', onScroll, {passive: true});
+        onScroll();
+    })();
+
     // --------------------------------------------------------
     // API 엔드포인트 경로 정의
     const BASE_API_URL = '/api/v1/members';
