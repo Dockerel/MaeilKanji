@@ -12,6 +12,9 @@ fun dailyContentDto(
     level: KanjiLevel = KanjiLevel.BEGINNER,
     id: Long? = 1L,
     quiz: String = "日 의 음독은?",
+    wrongAnswer1: String? = null,
+    wrongAnswer2: String? = null,
+    wrongAnswer3: String? = null,
 ) = DailyContentDto(
     level = level,
     id = id,
@@ -34,7 +37,16 @@ fun dailyContentDto(
     quiz = quiz,
     answer = "にち",
     explanation = "日 은 にち 로 읽는다.",
+    wrongAnswer1 = wrongAnswer1,
+    wrongAnswer2 = wrongAnswer2,
+    wrongAnswer3 = wrongAnswer3,
 )
+
+/** 오답 보기 3개가 있는 객관식 콘텐츠 */
+fun multipleChoiceContentDto(
+    level: KanjiLevel = KanjiLevel.BEGINNER,
+    id: Long = 1L,
+) = dailyContentDto(level = level, id = id, wrongAnswer1 = "げつ", wrongAnswer2 = "ひ", wrongAnswer3 = "か")
 
 fun memberDto(
     id: UUID = UUID.randomUUID(),
@@ -76,4 +88,7 @@ fun contentRequest(
     quiz = "日 의 음독은?",
     answer = "にち",
     explanation = "日 은 にち 로 읽는다.",
+    wrongAnswer1 = "げつ",
+    wrongAnswer2 = "ひ",
+    wrongAnswer3 = "か",
 )

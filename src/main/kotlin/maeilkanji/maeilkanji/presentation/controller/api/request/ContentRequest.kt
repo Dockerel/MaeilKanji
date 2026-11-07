@@ -25,6 +25,9 @@ data class ContentRequest(
     @field:NotBlank val quiz: String,
     @field:NotBlank val answer: String,
     @field:NotBlank val explanation: String,
+    @field:NotBlank val wrongAnswer1: String,
+    @field:NotBlank val wrongAnswer2: String,
+    @field:NotBlank val wrongAnswer3: String,
 ) {
     fun toDailyContentDto(): DailyContentDto {
         return DailyContentDto(
@@ -48,6 +51,9 @@ data class ContentRequest(
             quiz = quiz,
             answer = answer,
             explanation = explanation,
+            wrongAnswer1 = wrongAnswer1,
+            wrongAnswer2 = wrongAnswer2,
+            wrongAnswer3 = wrongAnswer3,
         )
     }
 }

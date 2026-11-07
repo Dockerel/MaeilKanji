@@ -33,6 +33,9 @@ class DailyContentMapper{
             dailyContentEntity.quiz,
             dailyContentEntity.answer,
             dailyContentEntity.explanation,
+            dailyContentEntity.wrongAnswer1,
+            dailyContentEntity.wrongAnswer2,
+            dailyContentEntity.wrongAnswer3,
         )
     }
 
@@ -59,6 +62,9 @@ class DailyContentMapper{
             dailyContentEntity.quiz,
             dailyContentEntity.answer,
             dailyContentEntity.explanation,
+            dailyContentEntity.wrongAnswer1,
+            dailyContentEntity.wrongAnswer2,
+            dailyContentEntity.wrongAnswer3,
         )
     }
 
@@ -85,6 +91,9 @@ class DailyContentMapper{
             dailyContentEntity.quiz,
             dailyContentEntity.answer,
             dailyContentEntity.explanation,
+            dailyContentEntity.wrongAnswer1,
+            dailyContentEntity.wrongAnswer2,
+            dailyContentEntity.wrongAnswer3,
         )
     }
 
@@ -110,6 +119,9 @@ class DailyContentMapper{
             quiz = dto.quiz,
             answer = dto.answer,
             explanation = dto.explanation,
+            wrongAnswer1 = dto.wrongAnswer1,
+            wrongAnswer2 = dto.wrongAnswer2,
+            wrongAnswer3 = dto.wrongAnswer3,
         )
     }
 
@@ -135,6 +147,9 @@ class DailyContentMapper{
             quiz = dto.quiz,
             answer = dto.answer,
             explanation = dto.explanation,
+            wrongAnswer1 = dto.wrongAnswer1,
+            wrongAnswer2 = dto.wrongAnswer2,
+            wrongAnswer3 = dto.wrongAnswer3,
         )
     }
 
@@ -160,6 +175,9 @@ class DailyContentMapper{
             quiz = dto.quiz,
             answer = dto.answer,
             explanation = dto.explanation,
+            wrongAnswer1 = dto.wrongAnswer1,
+            wrongAnswer2 = dto.wrongAnswer2,
+            wrongAnswer3 = dto.wrongAnswer3,
         )
     }
 

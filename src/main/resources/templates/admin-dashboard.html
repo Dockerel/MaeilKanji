@@ -176,6 +176,12 @@
                             <input type="text" class="form-control mt-1" name="answer" placeholder="정답" required>
                             <input type="text" class="form-control mt-1" name="explanation" placeholder="설명" required>
                         </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">오답 보기 (정답과 같은 형식: 읽기 (한자))</label>
+                            <input type="text" class="form-control" name="wrongAnswer1" placeholder="오답 1" required>
+                            <input type="text" class="form-control mt-1" name="wrongAnswer2" placeholder="오답 2" required>
+                            <input type="text" class="form-control mt-1" name="wrongAnswer3" placeholder="오답 3" required>
+                        </div>
 
                         <button type="submit" class="btn btn-maeil w-100">
                             <i class="fas fa-save me-1"></i> 저장
@@ -244,7 +250,7 @@
             <h5 class="fw-bold mb-1"><i class="fas fa-file-csv me-2 text-maeil"></i>CSV 일괄 등록</h5>
             <p class="text-muted small mb-3">
                 <code>/create_question</code> 으로 생성한 행을 붙여넣거나 CSV 파일을 선택하세요.
-                구분자는 <code>;</code>, 한 줄에 20개 컬럼, 헤더 행은 자동으로 건너뜁니다. 레벨이 섞여 있어도 됩니다.
+                구분자는 <code>;</code>, 한 줄에 23개 컬럼(마지막 3개는 오답 보기), 헤더 행은 자동으로 건너뜁니다. 레벨이 섞여 있어도 됩니다.
             </p>
 
             <div class="mb-2">
@@ -543,7 +549,7 @@
     // CSV 일괄 등록
     const BULK_COLUMNS = ['level', 'kanji1', 'yomi1', 'meaning1', 'kanji2', 'yomi2', 'meaning2', 'quiz',
         'word1', 'wordMeaning1', 'word2', 'wordMeaning2', 'word3', 'wordMeaning3', 'word4', 'wordMeaning4',
-        'sentence', 'sentenceMeaning', 'answer', 'explanation'];
+        'sentence', 'sentenceMeaning', 'answer', 'explanation', 'wrongAnswer1', 'wrongAnswer2', 'wrongAnswer3'];
     const BULK_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
     const BULK_MAX_FIELD_LENGTH = 255; // JPA String 기본 컬럼 길이 (varchar(255))
     // TEXT 컬럼 (65,535바이트, utf8mb4 최대 4바이트/자 기준)
@@ -583,7 +589,7 @@
                 const errors = [];
                 const content = {};
                 if (fields.length !== BULK_COLUMNS.length) {
-                    errors.push(`컬럼 수 ${fields.length}개 (20개 필요)`);
+                    errors.push(`컬럼 수 ${fields.length}개 (${BULK_COLUMNS.length}개 필요)`);
                 } else {
                     BULK_COLUMNS.forEach((col, i) => { content[col] = fields[i]; });
                     if (!BULK_LEVELS.includes(content.level)) errors.push(`잘못된 레벨: ${content.level}`);

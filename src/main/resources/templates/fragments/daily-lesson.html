@@ -235,6 +235,51 @@
             }
         }
 
+        .quiz-choices {
+            display: grid;
+            gap: 8px;
+        }
+
+        .quiz-choice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--maeil-line);
+            border-radius: 10px;
+            background-color: white;
+            color: var(--maeil-ink);
+            text-decoration: none;
+            transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+        }
+
+        .quiz-choice:hover,
+        .quiz-choice:focus-visible {
+            border-color: var(--maeil-blue);
+            background-color: var(--maeil-light-blue);
+            transform: translateY(-1px);
+        }
+
+        .choice-no {
+            flex-shrink: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-choice {
+                transition: none;
+            }
+        }
+
         .feedback-cta {
             display: flex;
             flex-wrap: wrap;
@@ -324,7 +369,16 @@
                     <div class="quiz-section">
                         <p class="block-title mb-2">✅ 미니 퀴즈</p>
                         <p class="mb-3" th:text="'Q. ' + ${content.quiz}">Q. '인구 증가'를 일본어로 어떻게 표현할까요?</p>
-                        <details class="answer-reveal">
+                        <!-- 객관식: 보기를 누르면 결과 페이지로 이동 -->
+                        <div class="quiz-choices" th:if="${quiz != null}">
+                            <a th:each="c, st : ${quiz.choices}" class="quiz-choice"
+                               th:href="@{/daily-content/{lp}/{id}/quiz(lp=${levelPath},id=${content.id},choice=${st.index})}">
+                                <span class="choice-no" th:text="${st.count}">1</span>
+                                <span class="jp ja-term" lang="ja" th:text="${c}">じんこうぞうか (人口増加)</span>
+                            </a>
+                        </div>
+                        <!-- 오답 보기가 없는 콘텐츠: 정답 공개 방식 -->
+                        <details class="answer-reveal" th:if="${quiz == null}">
                             <summary>정답 보기 <span class="reveal-hint fw-normal small">(눌러서 확인)</span></summary>
                             <p class="mt-2 mb-1 fw-bold jp ja-term" lang="ja" th:text="${content.answer}">じんこうぞうか (人口増加)</p>
                             <p class="small mb-0 text-dark" th:text="${content.explanation}">'인구 증가'는 일본어로 人口増加(じんこうぞうか)라고 표현합니다.</p>
@@ -372,6 +426,11 @@
         params.delete('memberId');
         var query = params.toString();
         window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+
+        // 퀴즈 보기 링크에 memberId 를 붙여 결과 페이지에서 응답을 기록할 수 있게 한다.
+        document.querySelectorAll('.quiz-choice').forEach(function (link) {
+            link.href = link.getAttribute('href') + '&memberId=' + encodeURIComponent(memberId);
+        });
 
         fetch('/api/v1/members/streak', {
             method: 'POST',

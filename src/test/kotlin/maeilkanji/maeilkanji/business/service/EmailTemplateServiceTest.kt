@@ -4,13 +4,16 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.domain.QuizChoices
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
 import maeilkanji.maeilkanji.fixture.dailyContentDto
+import maeilkanji.maeilkanji.fixture.multipleChoiceContentDto
 import org.springframework.core.io.ByteArrayResource
 import java.time.Clock
 import java.time.Instant
@@ -99,6 +102,50 @@ class EmailTemplateServiceTest : BehaviorSpec({
                     "$BASE_URL/feedback?memberId=$memberId&context=%EC%B4%88%EA%B8%89+%233",
                 ).joinToString("|")
                 result["template"]!! shouldNotContain "{{"
+            }
+        }
+    }
+
+    Given("오답 보기가 있는 고급 2번 콘텐츠가 있을 때") {
+        val content = multipleChoiceContentDto(KanjiLevel.ADVANCED, id = 2L)
+        every { dailyContentRepository.getAdvancedDailyContentById(2L) } returns content
+        val service = EmailTemplateService(
+            dailyContentRepository,
+            BASE_URL,
+            ByteArrayResource("".toByteArray()),
+            ByteArrayResource("{{QUIZ_CHOICES}}".toByteArray()),
+            ByteArrayResource("".toByteArray()),
+        ).apply { init() }
+
+        When("데일리 메일 템플릿을 생성하면") {
+            val template = service.generateDailyContentEmailTemplate(KanjiLevel.ADVANCED, 2L, memberId)["template"]!!
+            val quiz = QuizChoices.of(content)!!
+
+            Then("보기 4개를 결과 페이지 링크(보기 번호 + memberId)로 그린다") {
+                quiz.choices.forEachIndexed { index, choice ->
+                    template shouldContain "$BASE_URL/daily-content/advanced/2/quiz?choice=$index&memberId=$memberId"
+                    template shouldContain choice
+                }
+                template shouldNotContain "choice=4"
+            }
+        }
+    }
+
+    Given("오답 보기가 없는 콘텐츠가 있을 때") {
+        every { dailyContentRepository.getBeginnerDailyContentById(9L) } returns dailyContentDto(KanjiLevel.BEGINNER, id = 9L)
+        val service = EmailTemplateService(
+            dailyContentRepository,
+            BASE_URL,
+            ByteArrayResource("".toByteArray()),
+            ByteArrayResource("[{{QUIZ_CHOICES}}]".toByteArray()),
+            ByteArrayResource("".toByteArray()),
+        ).apply { init() }
+
+        When("데일리 메일 템플릿을 생성하면") {
+            val template = service.generateDailyContentEmailTemplate(KanjiLevel.BEGINNER, 9L, memberId)["template"]!!
+
+            Then("보기 영역을 비운다") {
+                template shouldBe "[]"
             }
         }
     }

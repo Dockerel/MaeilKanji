@@ -33,4 +33,8 @@ class BeginnerDailyContentEntity(
     val quiz: String,
     val answer: String,
     val explanation: String,
+    // 객관식 오답 보기. 도입 전 콘텐츠는 비어 있을 수 있다.
+    val wrongAnswer1: String? = null,
+    val wrongAnswer2: String? = null,
+    val wrongAnswer3: String? = null,
 )

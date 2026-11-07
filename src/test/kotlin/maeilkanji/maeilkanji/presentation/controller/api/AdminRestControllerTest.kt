@@ -209,7 +209,7 @@ class AdminRestControllerTest(
                     jsonPath("\$.id") { value(42) }
                 }
                 verify(exactly = 1) {
-                    adminService.saveDailyContent(KanjiLevel.INTERMEDIATE, match { it.kanji1 == "日" && it.id == null })
+                    adminService.saveDailyContent(KanjiLevel.INTERMEDIATE, match { it.kanji1 == "日" && it.id == null && it.wrongAnswer3 == "か" })
                 }
             }
         }
