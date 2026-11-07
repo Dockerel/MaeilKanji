@@ -63,12 +63,124 @@
     </div>
 </nav>
 
-<!-- 상단 nav 오른쪽 링크. 학습 페이지(daily-lesson)도 함께 쓴다. -->
-<div th:fragment="nav-links" class="d-flex align-items-center gap-3">
-    <a th:href="@{/lessons}" class="nav-text-link"><i class="fa-solid fa-book-open" aria-hidden="true"></i>한자 목록</a>
-    <a th:href="@{/ranking}" class="nav-text-link"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i>랭킹</a>
-    <a th:href="@{/me}" class="nav-text-link"><i class="fa-regular fa-circle-user" aria-hidden="true"></i>내 프로필</a>
-    <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold d-none d-sm-inline-block">서비스 소개</a>
+<!--
+  상단 nav 오른쪽 메뉴 버튼 + 오른쪽에서 슬라이드되는 메뉴 패널. 학습 페이지(daily-lesson)도 함께 쓴다.
+  page.css 를 쓰지 않는 페이지에서도 동작하도록 스타일·스크립트를 조각 안에 둔다.
+  .site-nav 의 backdrop-filter 가 position:fixed 기준을 nav 로 바꾸므로, 패널은 스크립트로 body 로 옮긴다.
+-->
+<div th:fragment="nav-links" class="nav-menu">
+    <style>
+        .nav-menu-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; padding: 0;
+            border: 1px solid var(--maeil-line, #E2E8F0); border-radius: 12px;
+            background: #fff; color: var(--maeil-ink, #0F172A);
+            font-size: 1.05rem; cursor: pointer;
+            transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+        }
+        .nav-menu-toggle:hover { border-color: var(--maeil-blue, #2563EB); color: var(--maeil-blue, #2563EB); }
+        .nav-menu-toggle:focus-visible { outline: 2px solid var(--maeil-blue, #2563EB); outline-offset: 2px; }
+
+        .nav-drawer-backdrop {
+            position: fixed; inset: 0; z-index: 1090;
+            background: rgba(15, 23, 42, .35);
+            opacity: 0; visibility: hidden;
+            transition: opacity .25s ease, visibility .25s ease;
+        }
+        .nav-drawer {
+            position: fixed; top: 0; right: 0; bottom: 0; z-index: 1100;
+            width: min(300px, 82vw);
+            display: flex; flex-direction: column;
+            background: #fff;
+            box-shadow: -12px 0 32px rgba(15, 23, 42, .12);
+            transform: translateX(100%); visibility: hidden;
+            transition: transform .3s cubic-bezier(.22, .61, .36, 1), visibility .3s;
+        }
+        .nav-menu-open .nav-drawer-backdrop { opacity: 1; visibility: visible; }
+        .nav-menu-open .nav-drawer { transform: translateX(0); visibility: visible; }
+        .nav-menu-open { overflow: hidden; }
+
+        .nav-drawer-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 16px 16px 24px;
+            border-bottom: 1px solid var(--maeil-line, #E2E8F0);
+        }
+        .nav-drawer-title { font-weight: 800; color: var(--maeil-ink, #0F172A); }
+        .nav-drawer-close {
+            width: 36px; height: 36px; border: 0; border-radius: 10px;
+            background: transparent; color: var(--maeil-muted, #64748B); font-size: 1.1rem; cursor: pointer;
+        }
+        .nav-drawer-close:hover { background: #F1F5F9; color: var(--maeil-ink, #0F172A); }
+
+        .nav-drawer-links { display: flex; flex-direction: column; gap: 4px; padding: 12px; }
+        .nav-drawer-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 14px; border-radius: 12px;
+            font-weight: 600; color: var(--maeil-ink, #0F172A); text-decoration: none;
+            transition: background-color .15s ease, color .15s ease;
+        }
+        .nav-drawer-link i { width: 20px; text-align: center; color: var(--maeil-muted, #64748B); }
+        .nav-drawer-link:hover { background: #F1F5F9; color: var(--maeil-ink, #0F172A); }
+        .nav-drawer-link.active { background: #F0F5FF; color: var(--maeil-blue, #2563EB); }
+        .nav-drawer-link.active i { color: var(--maeil-blue, #2563EB); }
+
+        .nav-drawer-foot { margin-top: auto; padding: 16px 24px 24px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .nav-drawer, .nav-drawer-backdrop { transition: none; }
+        }
+    </style>
+
+    <button type="button" class="nav-menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navDrawer">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+
+    <div class="nav-drawer-backdrop" data-nav-close></div>
+    <aside id="navDrawer" class="nav-drawer" aria-label="사이트 메뉴" aria-hidden="true">
+        <div class="nav-drawer-head">
+            <span class="nav-drawer-title">메뉴</span>
+            <button type="button" class="nav-drawer-close" aria-label="메뉴 닫기" data-nav-close>
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+        <nav class="nav-drawer-links">
+            <a th:href="@{/lessons}" class="nav-drawer-link" data-nav-match="/lessons,/kanji"><i class="fa-solid fa-book-open" aria-hidden="true"></i>한자 목록</a>
+            <a th:href="@{/ranking}" class="nav-drawer-link" data-nav-match="/ranking"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i>랭킹</a>
+            <a th:href="@{/me}" class="nav-drawer-link" data-nav-match="/me,/u/"><i class="fa-regular fa-circle-user" aria-hidden="true"></i>내 프로필</a>
+            <a th:href="@{/}" class="nav-drawer-link" data-nav-match="/about"><i class="fa-regular fa-compass" aria-hidden="true"></i>서비스 소개</a>
+        </nav>
+        <div class="nav-drawer-foot">
+            <a th:href="@{/feedback}" class="nav-drawer-link" style="padding-left:0"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i>의견 보내기</a>
+        </div>
+    </aside>
+
+    <script>
+        (function () {
+            const root = document.currentScript.closest('.nav-menu');
+            const toggle = root.querySelector('.nav-menu-toggle');
+            const backdrop = root.querySelector('.nav-drawer-backdrop');
+            const drawer = root.querySelector('.nav-drawer');
+            document.body.append(backdrop, drawer);
+
+            const path = location.pathname;
+            drawer.querySelectorAll('[data-nav-match]').forEach(a => {
+                if (a.dataset.navMatch.split(',').some(p => path.startsWith(p))) a.classList.add('active');
+            });
+
+            const setOpen = open => {
+                document.documentElement.classList.toggle('nav-menu-open', open);
+                toggle.setAttribute('aria-expanded', String(open));
+                drawer.setAttribute('aria-hidden', String(!open));
+                if (open) drawer.querySelector('.nav-drawer-close').focus();
+                else toggle.focus({preventScroll: true});
+            };
+            toggle.addEventListener('click', () => setOpen(true));
+            document.querySelectorAll('[data-nav-close]').forEach(el => el.addEventListener('click', () => setOpen(false)));
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && document.documentElement.classList.contains('nav-menu-open')) setOpen(false);
+            });
+        })();
+    </script>
 </div>
 
 <footer th:fragment="footer" class="site-footer bg-dark py-4">
