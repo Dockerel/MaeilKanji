@@ -13,6 +13,8 @@ class MemberMapper {
             memberEntity.email,
             memberEntity.memberStatus,
             memberEntity.level,
+            memberEntity.streak,
+            memberEntity.lastAccessedAt,
         )
     }
 

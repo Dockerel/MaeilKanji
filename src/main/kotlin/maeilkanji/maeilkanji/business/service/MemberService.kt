@@ -2,6 +2,7 @@ package maeilkanji.maeilkanji.business.service
 
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.MemberStatus
+import maeilkanji.maeilkanji.business.domain.StreakPolicy
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.FeedbackRepository
 import maeilkanji.maeilkanji.business.repository.MemberRepository
@@ -12,6 +13,9 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Clock
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -29,6 +33,8 @@ class MemberService(
 
     private val memberRepository: MemberRepository,
     private val feedbackRepository: FeedbackRepository,
+
+    private val clock: Clock = Clock.system(ZoneId.of("Asia/Seoul")),
 ) {
 
     fun sendVerificationCode(request: SendVerificationCodeServiceRequest): SendVerificationCodeResponse {
@@ -131,6 +137,22 @@ class MemberService(
     fun feedback(request: FeedbackServiceRequest): FeedbackResponse {
         feedbackRepository.save(request.memberId, request.reason, request.comment)
         return FeedbackResponse("Successfully feedback.")
+    }
+
+    /**
+     * 학습 페이지 접속을 기록하고 갱신된 스트릭을 반환한다. 규칙은 [StreakPolicy] 참고.
+     */
+    @Transactional
+    fun recordStudyAccess(memberIdString: String): StreakResponse {
+        val memberId = UUID.fromString(memberIdString)
+        val findMember = memberRepository.findById(memberId)
+        val now = LocalDateTime.now(clock)
+
+        findMember.streak = StreakPolicy.next(findMember.streak, findMember.lastAccessedAt, now)
+        findMember.lastAccessedAt = now
+        memberRepository.update(memberId, findMember)
+
+        return StreakResponse(findMember.streak)
     }
 
     @Transactional

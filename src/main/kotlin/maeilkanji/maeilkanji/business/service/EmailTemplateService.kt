@@ -60,10 +60,11 @@ class EmailTemplateService(
     fun generateDailyContentEmailTemplate(level: KanjiLevel, contentIndex: Long, memberId: UUID): Map<String, String> {
         val content = getContentByLevelAndContentIndex(level, contentIndex)
 
+        // memberId 는 학습 페이지에서 스트릭 기록용으로 사용한다.
         val siteUrl = when (content.level) {
-            KanjiLevel.BEGINNER -> "$baseUrl/daily-content/beginner/$contentIndex"
-            KanjiLevel.INTERMEDIATE -> "$baseUrl/daily-content/intermediate/$contentIndex"
-            KanjiLevel.ADVANCED -> "$baseUrl/daily-content/advanced/$contentIndex"
+            KanjiLevel.BEGINNER -> "$baseUrl/daily-content/beginner/$contentIndex?memberId=$memberId"
+            KanjiLevel.INTERMEDIATE -> "$baseUrl/daily-content/intermediate/$contentIndex?memberId=$memberId"
+            KanjiLevel.ADVANCED -> "$baseUrl/daily-content/advanced/$contentIndex?memberId=$memberId"
         }
 
         val fullTemplate = dailyContentTemplate

@@ -35,12 +35,16 @@ class MemberRepositoryImpl(
         val memberEntity = findMemberEntityByEmailOptional(email)!!
         memberEntity.memberStatus = findMember.memberStatus
         memberEntity.level = findMember.level
+        memberEntity.streak = findMember.streak
+        memberEntity.lastAccessedAt = findMember.lastAccessedAt
     }
 
     override fun update(memberId: UUID, findMember: MemberDto) {
         val memberEntity = findMemberEntityByIdOptional(memberId)!!
         memberEntity.memberStatus = findMember.memberStatus
         memberEntity.level = findMember.level
+        memberEntity.streak = findMember.streak
+        memberEntity.lastAccessedAt = findMember.lastAccessedAt
     }
 
     override fun save(memberSignupDto: MemberSignupDto) {

@@ -213,6 +213,28 @@
             }
         }
 
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background-color: #FFF7ED;
+            color: #C2410C;
+            font-weight: 700;
+            animation: answer-fade-up 0.4s ease-out both;
+        }
+
+        .streak-badge[hidden] {
+            display: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .streak-badge {
+                animation: none;
+            }
+        }
+
         .feedback-cta {
             display: flex;
             flex-wrap: wrap;
@@ -311,6 +333,9 @@
                 </div>
 
                 <div class="text-center mt-5">
+                    <p id="streak-badge" class="streak-badge mb-3" hidden>
+                        🔥 <span><span id="streak-count">1</span>일 연속 학습 중</span>
+                    </p>
                     <h2 class="h4 fw-bold mb-2">오늘 학습 완료! 내일도 만나요 👋</h2>
                     <p class="text-muted-2 mb-0">내일 아침 새로운 한자 세트가 이메일로 발송됩니다.</p>
                 </div>
@@ -335,5 +360,32 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 메일 링크(?memberId=...)로 들어오면 접속을 기록하고 연속 학습 일수를 보여준다.
+    // 메일 보안 스캐너의 링크 미리 열기(GET)는 JS 를 실행하지 않으므로 POST 로 기록한다.
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        var memberId = params.get('memberId');
+        if (!memberId) return;
+
+        // 주소를 공유해도 다른 사람이 내 스트릭을 올리지 않도록 memberId 를 주소창에서 지운다.
+        params.delete('memberId');
+        var query = params.toString();
+        window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+
+        fetch('/api/v1/members/streak', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({memberId: memberId})
+        })
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (data) {
+                if (!data || !data.streak) return;
+                document.getElementById('streak-count').textContent = data.streak;
+                document.getElementById('streak-badge').hidden = false;
+            })
+            .catch(function () { /* 스트릭 기록 실패는 학습에 영향 없음 */ });
+    })();
+</script>
 </body>
 </html>

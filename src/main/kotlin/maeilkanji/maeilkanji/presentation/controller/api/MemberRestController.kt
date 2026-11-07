@@ -43,6 +43,12 @@ class MemberRestController(
         return ResponseEntity.ok(response)
     }
 
+    @PostMapping("/streak")
+    fun recordStreak(@Valid @RequestBody request: StreakRequest): ResponseEntity<StreakResponse> {
+        val response = memberService.recordStudyAccess(request.memberId)
+        return ResponseEntity.ok(response)
+    }
+
     @PostMapping("/feedback")
     fun feedback(@RequestBody request: FeedbackRequest): ResponseEntity<FeedbackResponse> {
         val response = memberService.feedback(request.toServiceRequest())

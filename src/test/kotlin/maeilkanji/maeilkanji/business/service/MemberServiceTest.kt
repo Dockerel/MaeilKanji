@@ -28,6 +28,10 @@ import maeilkanji.maeilkanji.fixture.memberDto
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.ValueOperations
 import org.springframework.http.HttpStatus
+import java.time.Clock
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -232,6 +236,28 @@ class MemberServiceTest : BehaviorSpec({
 
             Then("BOUNCED 로 갱신한다") {
                 verify(exactly = 1) { memberRepository.update(memberId, match { it.memberStatus == MemberStatus.BOUNCED }) }
+            }
+        }
+    }
+
+    Given("어제 학습 페이지에 접속한 회원이") {
+        // 2026-11-07 08:00 KST
+        val fixedClock = Clock.fixed(Instant.parse("2026-11-06T23:00:00Z"), ZoneId.of("Asia/Seoul"))
+        val service = MemberService(redisTemplate, mailService, emailTemplateService, memberRepository, feedbackRepository, fixedClock)
+        val memberId = UUID.randomUUID()
+        val yesterday = LocalDateTime.of(2026, 11, 6, 21, 0)
+        every { memberRepository.findById(memberId) } returns memberDto(id = memberId, streak = 3, lastAccessedAt = yesterday)
+
+        When("오늘 접속을 기록하면") {
+            val response = service.recordStudyAccess(memberId.toString())
+
+            Then("스트릭을 1 올리고 마지막 접속 시각을 한국 시간 기준 현재로 갱신한다") {
+                response.streak shouldBe 4
+                verify(exactly = 1) {
+                    memberRepository.update(memberId, match {
+                        it.streak == 4 && it.lastAccessedAt == LocalDateTime.of(2026, 11, 7, 8, 0)
+                    })
+                }
             }
         }
     }

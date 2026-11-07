@@ -5,6 +5,7 @@ import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.service.dto.DailyContentDto
 import maeilkanji.maeilkanji.business.service.dto.MemberDto
 import maeilkanji.maeilkanji.presentation.controller.api.request.ContentRequest
+import java.time.LocalDateTime
 import java.util.UUID
 
 fun dailyContentDto(
@@ -40,7 +41,16 @@ fun memberDto(
     email: String = "user@test.com",
     memberStatus: MemberStatus = MemberStatus.ACTIVE,
     level: KanjiLevel = KanjiLevel.BEGINNER,
-) = MemberDto(id = id, email = email, memberStatus = memberStatus, level = level)
+    streak: Int = 0,
+    lastAccessedAt: LocalDateTime? = null,
+) = MemberDto(
+    id = id,
+    email = email,
+    memberStatus = memberStatus,
+    level = level,
+    streak = streak,
+    lastAccessedAt = lastAccessedAt,
+)
 
 fun contentRequest(
     level: String = "BEGINNER",

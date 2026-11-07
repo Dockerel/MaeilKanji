@@ -21,12 +21,14 @@ import maeilkanji.maeilkanji.business.service.response.FeedbackResponse
 import maeilkanji.maeilkanji.business.service.response.SendVerificationCodeResponse
 import maeilkanji.maeilkanji.business.service.response.SignupResponse
 import maeilkanji.maeilkanji.business.service.response.StopMailResponse
+import maeilkanji.maeilkanji.business.service.response.StreakResponse
 import maeilkanji.maeilkanji.business.service.response.VerifyEmailVerificationCodeResponse
 import maeilkanji.maeilkanji.presentation.controller.api.request.ChangeLevelRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.FeedbackRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.SendVerificationCodeRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.SignupRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.StopMailRequest
+import maeilkanji.maeilkanji.presentation.controller.api.request.StreakRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.VerifyVerificationCodeRequest
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -266,6 +268,34 @@ class MemberRestControllerTest(
                     content { string("멤버 Id는 필수입니다.") }
                 }
                 verify(exactly = 0) { memberService.stopMail(any()) }
+            }
+        }
+    }
+
+    Given("스트릭 기록 요청에서") {
+        val memberId = "11111111-2222-3333-4444-555555555555"
+
+        When("memberId 가 있으면") {
+            every { memberService.recordStudyAccess(memberId) } returns StreakResponse(4)
+            val result = postJson("/streak", StreakRequest(memberId))
+
+            Then("200 과 갱신된 스트릭을 반환한다") {
+                result.andExpect {
+                    status { isOk() }
+                    jsonPath("\$.streak") { value(4) }
+                }
+            }
+        }
+
+        When("memberId 가 비어 있으면") {
+            val result = postJson("/streak", StreakRequest(""))
+
+            Then("400 을 반환하고 서비스를 호출하지 않는다") {
+                result.andExpect {
+                    status { isBadRequest() }
+                    content { string("멤버 Id는 필수입니다.") }
+                }
+                verify(exactly = 0) { memberService.recordStudyAccess(any()) }
             }
         }
     }

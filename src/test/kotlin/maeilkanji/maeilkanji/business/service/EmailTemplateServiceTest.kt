@@ -92,7 +92,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
                 result["quiz"] shouldBe "Q3"
                 result["template"] shouldBe listOf(
                     "초급", "日", "にち", "날 일", "月", "げつ", "달 월", "Q3",
-                    "$BASE_URL/daily-content/beginner/3",
+                    "$BASE_URL/daily-content/beginner/3?memberId=$memberId",
                     "$BASE_URL/unsubscribe-confirm?memberId=$memberId",
                     "$BASE_URL/change-level-confirm?memberId=$memberId",
                     "$BASE_URL/maeilkanji.png",
@@ -126,7 +126,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
 
             Then("중급 접근 URL 과 레벨명을 사용한다") {
                 template.split("|")[0] shouldBe "중급"
-                template.split("|")[8] shouldBe "$BASE_URL/daily-content/intermediate/1"
+                template.split("|")[8] shouldBe "$BASE_URL/daily-content/intermediate/1?memberId=$memberId"
             }
         }
 
@@ -134,7 +134,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
             val template = emailTemplateService.generateDailyContentEmailTemplate(KanjiLevel.ADVANCED, 1L, memberId)["template"]!!
 
             Then("고급 저장소를 조회하고 고급 접근 URL 을 사용한다") {
-                template.split("|")[8] shouldBe "$BASE_URL/daily-content/advanced/1"
+                template.split("|")[8] shouldBe "$BASE_URL/daily-content/advanced/1?memberId=$memberId"
                 verify(exactly = 1) { dailyContentRepository.getAdvancedDailyContentById(1L) }
             }
         }
