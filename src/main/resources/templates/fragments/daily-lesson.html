@@ -369,9 +369,10 @@
                     <div class="quiz-section">
                         <p class="block-title mb-2">✅ 미니 퀴즈</p>
                         <p class="mb-3" th:text="'Q. ' + ${content.quiz}">Q. '인구 증가'를 일본어로 어떻게 표현할까요?</p>
-                        <!-- 객관식: 보기를 누르면 결과 페이지로 이동 -->
+                        <!-- 객관식: 보기를 누르면 오늘의 5문제가 1번 답이 선택된 채 시작된다 -->
+                        <p class="small text-muted-2 mb-2" th:if="${quiz != null}">보기를 고르면 오늘의 5문제가 이어집니다.</p>
                         <div class="quiz-choices" th:if="${quiz != null}">
-                            <a th:each="c, st : ${quiz.choices}" class="quiz-choice"
+                            <a th:each="c, st : ${quiz.choices}" class="quiz-choice quiz-link"
                                th:href="@{/daily-content/{lp}/{id}/quiz(lp=${levelPath},id=${content.id},choice=${st.index})}">
                                 <span class="choice-no" th:text="${st.count}">1</span>
                                 <span class="jp ja-term" lang="ja" th:text="${c}">じんこうぞうか (人口増加)</span>
@@ -427,9 +428,11 @@
         var query = params.toString();
         window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
 
-        // 퀴즈 보기 링크에 memberId 를 붙여 결과 페이지에서 응답을 기록할 수 있게 한다.
-        document.querySelectorAll('.quiz-choice').forEach(function (link) {
-            link.href = link.getAttribute('href') + '&memberId=' + encodeURIComponent(memberId);
+        // 퀴즈 링크에 memberId 를 붙여 퀴즈 페이지에서 기록할 수 있게 한다.
+        document.querySelectorAll('.quiz-link').forEach(function (link) {
+            var url = new URL(link.href, window.location.origin);
+            url.searchParams.set('memberId', memberId);
+            link.href = url.pathname + url.search;
         });
 
         fetch('/api/v1/members/streak', {

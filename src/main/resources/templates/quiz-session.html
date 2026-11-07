@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<!--
+  오늘의 5문제 페이지. (/daily-content/{level}/{id}/quiz[?choice=N&memberId=...])
+  문제는 서버에서 만들어(QuizSessionFactory) JSON 으로 넘기고, 진행·피드백은 이 페이지의 JS 가 처리한다.
+  마지막 문제를 마치면 답안을 POST 해서 서버 채점 결과와 오늘의 통계를 받는다.
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: head('오늘의 퀴즈')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<style>
+    .quiz-main {
+        padding: 32px 0 72px;
+    }
+
+    .quiz-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .quiz-progress {
+        flex: 1;
+        height: 12px;
+        border-radius: 999px;
+        background-color: var(--maeil-line);
+        overflow: hidden;
+    }
+
+    .quiz-progress-fill {
+        height: 100%;
+        width: 0;
+        border-radius: 999px;
+        background-color: var(--maeil-green);
+        transition: width 0.35s ease-out;
+    }
+
+    .quiz-count {
+        font-weight: 700;
+        color: var(--maeil-muted);
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .quiz-card {
+        background-color: white;
+        border: 1px solid var(--maeil-line);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 24px 48px -28px rgba(37, 99, 235, 0.4);
+        animation: quiz-fade-up 0.3s ease-out both;
+    }
+
+    .type-chip {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background-color: var(--maeil-light-blue);
+        color: var(--maeil-blue);
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .quiz-prompt {
+        font-weight: 900;
+        font-size: 1.2rem;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+    }
+
+    .quiz-jp {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.35rem;
+        line-height: 2.3;
+        margin: 8px 0;
+    }
+
+    .quiz-jp.word {
+        font-size: 2rem;
+        font-weight: 900;
+        text-align: center;
+        margin: 16px 0;
+    }
+
+    .quiz-hint {
+        color: var(--maeil-muted);
+        font-size: 0.92rem;
+        margin-bottom: 16px;
+    }
+
+    rt {
+        font-size: 0.5em;
+        color: var(--maeil-muted);
+    }
+
+    .blank {
+        display: inline-block;
+        min-width: 4em;
+        height: 1.2em;
+        border-bottom: 3px solid var(--maeil-blue);
+        vertical-align: middle;
+        margin: 0 4px;
+    }
+
+    .option-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .option-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        text-align: left;
+        padding: 12px 16px;
+        border: 2px solid var(--maeil-line);
+        border-bottom-width: 4px;
+        border-radius: 12px;
+        background-color: white;
+        color: var(--maeil-ink);
+        font-size: 1rem;
+        transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
+    }
+
+    .option-btn:hover:not(:disabled),
+    .option-btn:focus-visible {
+        border-color: var(--maeil-blue);
+    }
+
+    .option-btn:active:not(:disabled) {
+        transform: translateY(2px);
+    }
+
+    .option-btn.selected {
+        border-color: var(--maeil-blue);
+        background-color: var(--maeil-light-blue);
+    }
+
+    .option-btn.correct {
+        border-color: var(--maeil-green);
+        background-color: #F0FDF4;
+    }
+
+    .option-btn.wrong {
+        border-color: var(--maeil-danger);
+        background-color: #FEF2F2;
+    }
+
+    .option-btn:disabled {
+        cursor: default;
+    }
+
+    .option-no {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 2px solid var(--maeil-line);
+        color: var(--maeil-muted);
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .option-text {
+        font-family: 'Noto Serif JP', 'Noto Sans KR', serif;
+        line-height: 2;
+    }
+
+    /* 문장 만들기 */
+    .arrange-answer {
+        min-height: 72px;
+        border-bottom: 2px solid var(--maeil-line);
+        border-top: 2px solid var(--maeil-line);
+        padding: 10px 0;
+        margin: 12px 0 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-content: flex-start;
+    }
+
+    .arrange-bank {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .tile {
+        padding: 4px 12px;
+        border: 2px solid var(--maeil-line);
+        border-bottom-width: 4px;
+        border-radius: 12px;
+        background-color: white;
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.1rem;
+        line-height: 2.2;
+        color: var(--maeil-ink);
+        transition: transform 0.1s;
+    }
+
+    .tile:active:not(:disabled) {
+        transform: translateY(2px);
+    }
+
+    .tile.used {
+        visibility: hidden;
+    }
+
+    .tile:disabled {
+        cursor: default;
+    }
+
+    /* 피드백 */
+    .feedback {
+        margin-top: 20px;
+        border-radius: 12px;
+        padding: 16px 18px;
+        animation: quiz-fade-up 0.25s ease-out both;
+    }
+
+    .feedback.correct {
+        background-color: #F0FDF4;
+        color: #166534;
+    }
+
+    .feedback.wrong {
+        background-color: #FEF2F2;
+        color: #991B1B;
+    }
+
+    .feedback-title {
+        font-weight: 900;
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+    }
+
+    .feedback .quiz-jp {
+        font-size: 1.1rem;
+        color: var(--maeil-ink);
+        margin: 4px 0;
+    }
+
+    .combo {
+        display: inline-block;
+        margin-left: 6px;
+        color: #C2410C;
+        animation: quiz-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .quiz-action {
+        margin-top: 20px;
+    }
+
+    .quiz-action .btn {
+        width: 100%;
+        padding: 12px;
+        font-weight: 700;
+        border-radius: 12px;
+    }
+
+    /* 결과 */
+    .result-score {
+        font-size: 3.5rem;
+        font-weight: 900;
+        line-height: 1;
+        color: var(--maeil-blue);
+        animation: quiz-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .result-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .result-list li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--maeil-line);
+        font-size: 0.95rem;
+    }
+
+    .result-list li:last-child {
+        border-bottom: 0;
+    }
+
+    .result-rate {
+        margin-left: auto;
+        color: var(--maeil-muted);
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .stats-box {
+        border-radius: 12px;
+        background-color: var(--maeil-light-blue);
+        padding: 16px 18px;
+    }
+
+    .streak-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background-color: #FFF7ED;
+        color: #C2410C;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    [hidden] {
+        display: none !important;
+    }
+
+    @keyframes quiz-fade-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: none; }
+    }
+
+    @keyframes quiz-pop {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .quiz-card, .feedback, .combo, .result-score {
+            animation: none;
+        }
+
+        .quiz-progress-fill, .option-btn, .tile {
+            transition: none;
+        }
+    }
+</style>
+
+<main class="quiz-main">
+    <div class="container px-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="quiz-top" id="quiz-top">
+                    <div class="quiz-progress" role="progressbar" aria-label="진행도" aria-valuemin="0" aria-valuemax="5">
+                        <div class="quiz-progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="quiz-count" id="quiz-count">1 / 5</span>
+                </div>
+
+                <div id="quiz-root"></div>
+
+                <noscript>
+                    <div class="quiz-card">
+                        퀴즈를 풀려면 JavaScript 를 켜 주세요.
+                        <a th:href="@{/daily-content/{lp}/{id}(lp=${levelPath},id=${quizSession.contentId})}">오늘의 학습 보기</a>
+                    </div>
+                </noscript>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+
+<script th:inline="javascript">
+    (function () {
+        var quiz = /*[[${quizSession}]]*/ null;
+        var initialChoice = /*[[${initialChoice}]]*/ null;
+        var levelLabel = /*[[${levelLabel}]]*/ '초급';
+        var lessonUrl = /*[[@{/daily-content/{lp}/{id}(lp=${levelPath},id=${quizSession.contentId})}]]*/ '/';
+
+        var root = document.getElementById('quiz-root');
+        var questions = quiz.questions;
+        var total = questions.length;
+        var index = 0;
+        var answers = [];
+        var results = [];
+        var combo = 0;
+
+        var params = new URLSearchParams(window.location.search);
+        var memberId = params.get('memberId');
+        // 주소를 공유해도 다른 사람 기록이 내 것으로 남지 않도록 memberId·choice 를 주소창에서 지운다.
+        if (memberId || params.has('choice')) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+        }
+        if (memberId) lessonUrl += '?memberId=' + encodeURIComponent(memberId);
+
+        function el(tag, className, html) {
+            var node = document.createElement(tag);
+            if (className) node.className = className;
+            if (html !== undefined) node.innerHTML = html;
+            return node;
+        }
+
+        function escapeText(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setProgress(done) {
+            document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+            document.getElementById('quiz-count').textContent = Math.min(index + 1, total) + ' / ' + total;
+        }
+
+        function renderQuestion() {
+            var q = questions[index];
+            setProgress(index);
+            root.innerHTML = '';
+
+            var card = el('section', 'quiz-card');
+            card.appendChild(el('span', 'type-chip', escapeText((index + 1) + '. ' + q.typeLabel)));
+            card.appendChild(el('p', 'quiz-prompt', escapeText(q.prompt)));
+            if (q.promptHtml) {
+                var jp = el('p', 'quiz-jp' + (q.type === 'WORD_TO_KOREAN' ? ' word' : ''), q.promptHtml);
+                jp.lang = 'ja';
+                card.appendChild(jp);
+            }
+            if (q.hint) card.appendChild(el('p', 'quiz-hint', escapeText(q.hint)));
+
+            var action = el('div', 'quiz-action');
+            var checkBtn = el('button', 'btn btn-maeil', '확인');
+            checkBtn.type = 'button';
+            checkBtn.disabled = true;
+            action.appendChild(checkBtn);
+
+            var getAnswer = q.type === 'ARRANGE'
+                ? renderArrange(card, q, checkBtn)
+                : renderChoices(card, q, checkBtn);
+
+            card.appendChild(action);
+            root.appendChild(card);
+
+            checkBtn.addEventListener('click', function () {
+                if (checkBtn.dataset.state === 'next') {
+                    next();
+                    return;
+                }
+                var answer = getAnswer();
+                var correct = isCorrect(q, answer);
+                answers.push(answer);
+                results.push(correct);
+                combo = correct ? combo + 1 : 0;
+                showFeedback(card, q, answer, correct, action);
+                checkBtn.textContent = index + 1 < total ? '계속' : '결과 보기';
+                checkBtn.dataset.state = 'next';
+                checkBtn.classList.toggle('btn-maeil', correct);
+                checkBtn.classList.toggle('btn-danger', !correct);
+                setProgress(index + 1);
+                checkBtn.focus();
+            });
+
+            // 메일에서 1번 보기를 누르고 들어온 경우: 그 보기를 고른 채 바로 채점
+            if (index === 0 && initialChoice !== null) {
+                var preset = card.querySelectorAll('.option-btn')[initialChoice];
+                if (preset) {
+                    preset.click();
+                    checkBtn.click();
+                }
+                initialChoice = null;
+            }
+        }
+
+        function renderChoices(card, q, checkBtn) {
+            var list = el('div', 'option-list');
+            var selected = null;
+            q.options.forEach(function (option, i) {
+                var btn = el('button', 'option-btn');
+                btn.type = 'button';
+                btn.appendChild(el('span', 'option-no', String(i + 1)));
+                var text = el('span', 'option-text', option.html);
+                text.lang = q.type === 'WORD_TO_KOREAN' ? 'ko' : 'ja';
+                btn.appendChild(text);
+                btn.addEventListener('click', function () {
+                    if (checkBtn.dataset.state === 'next') return;
+                    list.querySelectorAll('.option-btn').forEach(function (b) { b.classList.remove('selected'); });
+                    btn.classList.add('selected');
+                    selected = i;
+                    checkBtn.disabled = false;
+                });
+                list.appendChild(btn);
+            });
+            card.appendChild(list);
+            return function () { return [selected]; };
+        }
+
+        function renderArrange(card, q, checkBtn) {
+            var answerArea = el('div', 'arrange-answer');
+            answerArea.setAttribute('aria-label', '내가 만든 문장');
+            var bank = el('div', 'arrange-bank');
+            var picked = [];
+
+            function refresh() {
+                checkBtn.disabled = picked.length === 0;
+            }
+
+            q.options.forEach(function (option, i) {
+                var source = el('button', 'tile', option.html);
+                source.type = 'button';
+                source.lang = 'ja';
+                source.addEventListener('click', function () {
+                    if (checkBtn.dataset.state === 'next' || source.classList.contains('used')) return;
+                    source.classList.add('used');
+                    picked.push(i);
+                    var placed = el('button', 'tile', option.html);
+                    placed.type = 'button';
+                    placed.lang = 'ja';
+                    placed.addEventListener('click', function () {
+                        if (checkBtn.dataset.state === 'next') return;
+                        picked.splice(picked.indexOf(i), 1);
+                        placed.remove();
+                        source.classList.remove('used');
+                        refresh();
+                    });
+                    answerArea.appendChild(placed);
+                    refresh();
+                });
+                bank.appendChild(source);
+            });
+
+            card.appendChild(answerArea);
+            card.appendChild(bank);
+            return function () { return picked.slice(); };
+        }
+
+        function isCorrect(q, answer) {
+            if (q.type === 'ARRANGE') {
+                var texts = answer.map(function (i) { return q.options[i].text; });
+                return texts.join('\u0000') === q.answerTexts.join('\u0000');
+            }
+            return answer.length === 1 && answer[0] === q.answerIndex;
+        }
+
+        function showFeedback(card, q, answer, correct, action) {
+            card.querySelectorAll('.option-btn, .tile').forEach(function (b) { b.disabled = true; });
+            if (q.type !== 'ARRANGE') {
+                var buttons = card.querySelectorAll('.option-btn');
+                buttons[q.answerIndex].classList.add('correct');
+                if (!correct) buttons[answer[0]].classList.add('wrong');
+            }
+
+            var box = el('div', 'feedback ' + (correct ? 'correct' : 'wrong'));
+            var title = correct ? '정답이에요! 🎉' : '아쉬워요, 오답이에요';
+            var titleEl = el('p', 'feedback-title', escapeText(title));
+            if (correct && combo >= 2) titleEl.appendChild(el('span', 'combo', '🔥 ' + combo + '연속 정답'));
+            box.appendChild(titleEl);
+
+            if (!correct && q.type === 'ARRANGE') {
+                box.appendChild(el('p', 'small mb-0', '정답 문장'));
+            }
+            if (q.explanationHtml) {
+                var jp = el('p', 'quiz-jp', q.explanationHtml);
+                jp.lang = 'ja';
+                box.appendChild(jp);
+            }
+            box.appendChild(el('p', 'small mb-0', escapeText(q.explanation)));
+            card.insertBefore(box, action);
+        }
+
+        function next() {
+            index += 1;
+            if (index < total) {
+                renderQuestion();
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } else {
+                renderResult();
+            }
+        }
+
+        function postJson(url, body) {
+            return fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            }).then(function (res) { return res.ok ? res.json() : null; });
+        }
+
+        function scoreMessage(score) {
+            if (score === total) return '만점이에요! 완벽한 하루 🎉';
+            if (score >= total - 1) return '아주 잘했어요! 하나만 더 맞히면 만점!';
+            if (score >= Math.ceil(total / 2)) return '좋아요! 틀린 문제의 해설을 한 번 더 확인해 보세요.';
+            return '괜찮아요! 틀린 문제가 가장 오래 기억에 남아요.';
+        }
+
+        function renderResult() {
+            setProgress(total);
+            document.getElementById('quiz-count').textContent = '완료';
+            var score = results.filter(Boolean).length;
+
+            root.innerHTML = '';
+            var card = el('section', 'quiz-card text-center');
+            card.appendChild(el('p', 'section-label mb-2', escapeText(levelLabel + ' · 오늘의 퀴즈 결과')));
+            card.appendChild(el('p', 'result-score mb-2', score + '<span class="fs-4 text-muted-2"> / ' + total + '</span>'));
+            card.appendChild(el('p', 'fw-bold mb-3', escapeText(scoreMessage(score))));
+
+            var streak = el('p', 'streak-badge mb-3');
+            streak.hidden = true;
+            card.appendChild(streak);
+
+            var stats = el('div', 'stats-box text-start mb-3');
+            stats.hidden = true;
+            card.appendChild(stats);
+
+            var list = el('ul', 'result-list text-start mb-4');
+            var rateEls = [];
+            questions.forEach(function (q, i) {
+                var li = el('li');
+                li.appendChild(el('span', '', results[i] ? '✅' : '❌'));
+                li.appendChild(el('span', '', escapeText((i + 1) + '. ' + q.typeLabel)));
+                var rate = el('span', 'result-rate', '');
+                rateEls.push(rate);
+                li.appendChild(rate);
+                list.appendChild(li);
+            });
+            card.appendChild(list);
+
+            var lesson = el('a', 'btn btn-maeil w-100', '📖 오늘의 학습 전체 보기');
+            lesson.href = lessonUrl;
+            card.appendChild(lesson);
+            root.appendChild(card);
+
+            postJson('/api/v1/quiz/sessions', {
+                level: quiz.level, contentId: quiz.contentId, answers: answers, memberId: memberId
+            }).then(function (data) {
+                if (!data || data.participantCount === 0) return;
+                var lines = '<p class="fw-bold mb-1">오늘 ' + data.participantCount + '명 참여 · 평균 ' + data.averageScore + '점</p>';
+                if (memberId && data.topPercent !== null && data.topPercent <= 50) {
+                    lines += '<p class="small mb-0">상위 ' + data.topPercent + '%의 점수예요! 👏</p>';
+                } else {
+                    lines += '<p class="small text-muted-2 mb-0">문제별 정답률을 확인해 보세요.</p>';
+                }
+                stats.innerHTML = lines;
+                stats.hidden = false;
+                data.questionCorrectRates.forEach(function (rate, i) {
+                    if (rate !== null && rateEls[i]) rateEls[i].textContent = '정답률 ' + rate + '%';
+                });
+            }).catch(function () { /* 통계 조회 실패는 결과 표시에 영향 없음 */ });
+
+            if (memberId) {
+                postJson('/api/v1/members/streak', {memberId: memberId}).then(function (data) {
+                    if (!data || !data.streak) return;
+                    streak.textContent = '🔥 ' + data.streak + '일 연속 학습 중';
+                    streak.hidden = false;
+                }).catch(function () { /* 스트릭 기록 실패는 결과 표시에 영향 없음 */ });
+            }
+        }
+
+        renderQuestion();
+    })();
+</script>
+</body>
+</html>

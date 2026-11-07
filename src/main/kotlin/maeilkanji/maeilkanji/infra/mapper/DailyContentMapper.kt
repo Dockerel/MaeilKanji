@@ -36,6 +36,7 @@ class DailyContentMapper{
             dailyContentEntity.wrongAnswer1,
             dailyContentEntity.wrongAnswer2,
             dailyContentEntity.wrongAnswer3,
+            dailyContentEntity.sentenceTiles,
         )
     }
 
@@ -65,6 +66,7 @@ class DailyContentMapper{
             dailyContentEntity.wrongAnswer1,
             dailyContentEntity.wrongAnswer2,
             dailyContentEntity.wrongAnswer3,
+            dailyContentEntity.sentenceTiles,
         )
     }
 
@@ -94,6 +96,7 @@ class DailyContentMapper{
             dailyContentEntity.wrongAnswer1,
             dailyContentEntity.wrongAnswer2,
             dailyContentEntity.wrongAnswer3,
+            dailyContentEntity.sentenceTiles,
         )
     }
 
@@ -122,6 +125,7 @@ class DailyContentMapper{
             wrongAnswer1 = dto.wrongAnswer1,
             wrongAnswer2 = dto.wrongAnswer2,
             wrongAnswer3 = dto.wrongAnswer3,
+            sentenceTiles = dto.sentenceTiles,
         )
     }
 
@@ -150,6 +154,7 @@ class DailyContentMapper{
             wrongAnswer1 = dto.wrongAnswer1,
             wrongAnswer2 = dto.wrongAnswer2,
             wrongAnswer3 = dto.wrongAnswer3,
+            sentenceTiles = dto.sentenceTiles,
         )
     }
 
@@ -178,6 +183,7 @@ class DailyContentMapper{
             wrongAnswer1 = dto.wrongAnswer1,
             wrongAnswer2 = dto.wrongAnswer2,
             wrongAnswer3 = dto.wrongAnswer3,
+            sentenceTiles = dto.sentenceTiles,
         )
     }
 

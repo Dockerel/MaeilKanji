@@ -2,8 +2,8 @@ package maeilkanji.maeilkanji.presentation.controller.api
 
 import jakarta.validation.Valid
 import maeilkanji.maeilkanji.business.service.QuizService
-import maeilkanji.maeilkanji.business.service.response.SubmitQuizAnswerResponse
-import maeilkanji.maeilkanji.presentation.controller.api.request.SubmitQuizAnswerRequest
+import maeilkanji.maeilkanji.business.service.response.SubmitQuizSessionResponse
+import maeilkanji.maeilkanji.presentation.controller.api.request.SubmitQuizSessionRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -16,9 +16,9 @@ class QuizRestController(
     private val quizService: QuizService,
 ) {
 
-    @PostMapping("/answers")
-    fun submitAnswer(@Valid @RequestBody request: SubmitQuizAnswerRequest): ResponseEntity<SubmitQuizAnswerResponse> {
-        val response = quizService.submitAnswer(request.toServiceRequest())
+    @PostMapping("/sessions")
+    fun submitSession(@Valid @RequestBody request: SubmitQuizSessionRequest): ResponseEntity<SubmitQuizSessionResponse> {
+        val response = quizService.submitSession(request.toServiceRequest())
         return ResponseEntity.ok(response)
     }
 

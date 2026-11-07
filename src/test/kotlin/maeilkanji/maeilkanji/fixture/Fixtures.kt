@@ -15,6 +15,7 @@ fun dailyContentDto(
     wrongAnswer1: String? = null,
     wrongAnswer2: String? = null,
     wrongAnswer3: String? = null,
+    sentenceTiles: String? = null,
 ) = DailyContentDto(
     level = level,
     id = id,
@@ -40,6 +41,7 @@ fun dailyContentDto(
     wrongAnswer1 = wrongAnswer1,
     wrongAnswer2 = wrongAnswer2,
     wrongAnswer3 = wrongAnswer3,
+    sentenceTiles = sentenceTiles,
 )
 
 /** 오답 보기 3개가 있는 객관식 콘텐츠 */
@@ -91,4 +93,42 @@ fun contentRequest(
     wrongAnswer1 = "げつ",
     wrongAnswer2 = "ひ",
     wrongAnswer3 = "か",
+    sentenceTiles = "毎日|勉強します|。",
 )
+
+/**
+ * 5문제 세션을 만들 수 있는 콘텐츠. id 마다 한자·단어 뜻·예문 블록이 달라 서로의 오답 보기가 된다.
+ * 예문: <ruby>{한자}曜日</ruby>に<ruby>友達</ruby>と<ruby>会</ruby>いました。
+ */
+fun quizContentDto(id: Long, level: KanjiLevel = KanjiLevel.BEGINNER): DailyContentDto {
+    val kanji = QUIZ_KANJI[((id - 1) % QUIZ_KANJI.size).toInt()]
+    return DailyContentDto(
+        level = level,
+        id = id,
+        kanji1 = kanji,
+        yomi1 = "(よみ$id)",
+        meaning1 = "뜻$id",
+        kanji2 = "友",
+        yomi2 = "(とも)",
+        meaning2 = "벗",
+        word1 = "${kanji}曜日(ようび$id)",
+        wordMeaning1 = "요일$id",
+        word2 = "${kanji}色(いろ$id)",
+        wordMeaning2 = "색$id",
+        word3 = "友達(ともだち)",
+        wordMeaning3 = "친구$id",
+        word4 = "友人(ゆうじん)",
+        wordMeaning4 = "벗$id",
+        sentence = "<ruby><rb>${kanji}曜日</rb><rt>ようび</rt></ruby>に<ruby><rb>友達</rb><rt>ともだち</rt></ruby>と<ruby><rb>会</rb><rt>あ</rt></ruby>いました。",
+        sentenceMeaning = "요일$id 에 친구와 만났습니다.",
+        quiz = "'요일$id'은 일본어로?",
+        answer = "ようび$id (${kanji}曜日)",
+        explanation = "해설$id",
+        wrongAnswer1 = "오답A$id",
+        wrongAnswer2 = "오답B$id",
+        wrongAnswer3 = "오답C$id",
+        sentenceTiles = "${kanji}曜日|に|友達|と|会いました|。",
+    )
+}
+
+private val QUIZ_KANJI = listOf("月", "火", "水", "木", "金", "土", "日", "春", "夏", "秋")

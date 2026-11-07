@@ -27,4 +27,5 @@ data class DailyContentDto(
     val wrongAnswer1: String? = null,
     val wrongAnswer2: String? = null,
     val wrongAnswer3: String? = null,
+    val sentenceTiles: String? = null,
 )

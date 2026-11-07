@@ -3,21 +3,21 @@ package maeilkanji.maeilkanji.business.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
-import maeilkanji.maeilkanji.business.domain.QuizChoices
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
 import maeilkanji.maeilkanji.business.repository.MemberRepository
-import maeilkanji.maeilkanji.business.repository.QuizAnswerRepository
-import maeilkanji.maeilkanji.business.service.dto.QuizStatsDto
-import maeilkanji.maeilkanji.business.service.request.SubmitQuizAnswerServiceRequest
-import maeilkanji.maeilkanji.fixture.dailyContentDto
+import maeilkanji.maeilkanji.business.repository.QuizQuestionAnswerRepository
+import maeilkanji.maeilkanji.business.service.dto.QuizSessionStatsDto
+import maeilkanji.maeilkanji.business.service.request.SubmitQuizSessionServiceRequest
 import maeilkanji.maeilkanji.fixture.memberDto
-import maeilkanji.maeilkanji.fixture.multipleChoiceContentDto
+import maeilkanji.maeilkanji.fixture.quizContentDto
 import org.springframework.http.HttpStatus
 import java.util.UUID
 
@@ -26,102 +26,130 @@ class QuizServiceTest : BehaviorSpec({
 
     val dailyContentRepository = mockk<DailyContentRepository>()
     val memberRepository = mockk<MemberRepository>()
-    val quizAnswerRepository = mockk<QuizAnswerRepository>(relaxUnitFun = true)
-    val quizService = QuizService(dailyContentRepository, memberRepository, quizAnswerRepository)
+    val quizQuestionAnswerRepository = mockk<QuizQuestionAnswerRepository>(relaxUnitFun = true)
+    val quizService = QuizService(dailyContentRepository, memberRepository, quizQuestionAnswerRepository)
 
     val level = KanjiLevel.INTERMEDIATE
-    val content = multipleChoiceContentDto(level, id = 5L)
-    val answerIndex = QuizChoices.of(content)!!.answerIndex
-    val wrongIndex = (answerIndex + 1) % 4
+    val pool = (1L..10L).map { quizContentDto(it, level) }
     val memberId = UUID.randomUUID()
 
-    every { dailyContentRepository.getIntermediateDailyContentById(5L) } returns content
-    every { quizAnswerRepository.getStats(level, 5L) } returns QuizStatsDto(totalCount = 8, correctCount = 5)
+    every { dailyContentRepository.findAllIntermediate() } returns pool
     every { memberRepository.findById(memberId) } returns memberDto(id = memberId)
+    // 3명 참여: 5점, 3점, 2점 / 문제별 정답자 수
+    every { quizQuestionAnswerRepository.getStats(level, 5L, 5) } returns
+        QuizSessionStatsDto(memberScores = listOf(5, 3, 2), questionCorrectCounts = listOf(3, 2, 2, 1, 2))
 
-    Given("회원이 처음 응답할 때") {
-        every { quizAnswerRepository.exists(memberId, level, 5L) } returns false
+    val session = quizService.createSession(level, 5L)!!
+    val q = session.questions
+    val arrangeAnswer = q[4].answerTexts!!.map { text -> q[4].options.indexOfFirst { it.text == text } }
+    val perfect = listOf(listOf(q[0].answerIndex!!), listOf(q[1].answerIndex!!), listOf(q[2].answerIndex!!), listOf(q[3].answerIndex!!), arrangeAnswer)
+    val threeCorrect = perfect.take(3) + listOf(listOf((q[3].answerIndex!! + 1) % 4), arrangeAnswer.reversed())
 
-        When("정답을 고르면") {
-            val response = quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, answerIndex, memberId.toString()))
-
-            Then("정답으로 채점해 기록하고 정답률(반올림)을 반환한다") {
-                response.correct shouldBe true
-                response.answerIndex shouldBe answerIndex
-                response.totalCount shouldBe 8
-                response.correctRate shouldBe 63
-                verify(exactly = 1) { quizAnswerRepository.save(memberId, level, 5L, answerIndex, true) }
+    Given("세션 생성에서") {
+        When("없는 콘텐츠 id 면") {
+            Then("404 예외가 발생한다") {
+                val e = shouldThrow<MaeilKanjiException> { quizService.createSession(level, 99L) }
+                e.status shouldBe HttpStatus.NOT_FOUND
             }
         }
 
-        When("오답을 고르면") {
-            val response = quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, wrongIndex, memberId.toString()))
+        When("예문 블록이 없는 콘텐츠면") {
+            every { dailyContentRepository.findAllIntermediate() } returns pool.map { if (it.id == 5L) it.copy(sentenceTiles = null) else it }
 
-            Then("오답으로 기록한다") {
-                response.correct shouldBe false
-                verify(exactly = 1) { quizAnswerRepository.save(memberId, level, 5L, wrongIndex, false) }
+            Then("null 을 반환한다") {
+                quizService.createSession(level, 5L).shouldBeNull()
             }
         }
     }
 
-    Given("이미 응답한 회원이") {
-        every { quizAnswerRepository.exists(memberId, level, 5L) } returns true
+    Given("회원이 처음 제출할 때") {
+        every { quizQuestionAnswerRepository.exists(memberId, level, 5L) } returns false
+
+        When("3문제를 맞히면") {
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, threeCorrect, memberId.toString()))
+
+            Then("문제별 결과를 기록하고 점수·통계를 반환한다") {
+                response.results shouldBe listOf(true, true, true, false, false)
+                response.score shouldBe 3
+                response.questionCount shouldBe 5
+                response.participantCount shouldBe 3
+                response.averageScore shouldBe 3.3
+                response.topPercent shouldBe 67 // 3점 이상 2명 / 3명
+                response.questionCorrectRates shouldBe listOf(100, 67, 67, 33, 67)
+                verify(exactly = 1) { quizQuestionAnswerRepository.saveAll(memberId, level, 5L, listOf(true, true, true, false, false)) }
+            }
+        }
+    }
+
+    Given("이미 제출한 회원이") {
+        every { quizQuestionAnswerRepository.exists(memberId, level, 5L) } returns true
 
         When("다시 풀면") {
-            val response = quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, answerIndex, memberId.toString()))
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, memberId.toString()))
 
-            Then("채점은 하지만 집계에 다시 기록하지 않는다") {
-                response.correct shouldBe true
-                verify(exactly = 0) { quizAnswerRepository.save(any(), any(), any(), any(), any()) }
+            Then("채점은 하지만 다시 기록하지 않는다") {
+                response.score shouldBe 5
+                response.topPercent shouldBe 34 // 5점 이상 1명 / 3명, 올림
+                verify(exactly = 0) { quizQuestionAnswerRepository.saveAll(any(), any(), any(), any()) }
             }
         }
     }
 
     Given("memberId 없이 (공유 링크 방문자)") {
-        When("응답하면") {
-            val response = quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, answerIndex, null))
+        When("제출하면") {
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, null))
 
-            Then("기록하지 않고 채점과 정답률만 반환한다") {
-                response.correct shouldBe true
-                response.correctRate shouldBe 63
+            Then("기록하지 않고 채점과 통계만 반환한다") {
+                response.score shouldBe 5
                 verify(exactly = 0) { memberRepository.findById(any()) }
-                verify(exactly = 0) { quizAnswerRepository.save(any(), any(), any(), any(), any()) }
+                verify(exactly = 0) { quizQuestionAnswerRepository.saveAll(any(), any(), any(), any()) }
             }
         }
     }
 
-    Given("아직 아무도 응답하지 않았을 때") {
-        every { quizAnswerRepository.getStats(level, 5L) } returns QuizStatsDto(0, 0)
+    Given("아직 아무도 참여하지 않았을 때") {
+        every { quizQuestionAnswerRepository.getStats(level, 5L, 5) } returns QuizSessionStatsDto(emptyList(), List(5) { 0 })
 
-        When("방문자가 응답하면") {
-            val response = quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, answerIndex, null))
+        When("방문자가 제출하면") {
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, null))
 
-            Then("정답률은 null 이다") {
-                response.correctRate shouldBe null
+            Then("평균·상위%·정답률은 null 이다") {
+                response.participantCount shouldBe 0
+                response.averageScore.shouldBeNull()
+                response.topPercent.shouldBeNull()
+                response.questionCorrectRates shouldBe List(5) { null }
             }
         }
     }
 
-    Given("잘못된 요청으로") {
-        When("보기 번호가 범위를 벗어나면 (경계값)") {
-            Then("400 예외가 발생하고 기록하지 않는다") {
-                val e = shouldThrow<MaeilKanjiException> {
-                    quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 5L, 4, memberId.toString()))
-                }
-                e.status shouldBe HttpStatus.BAD_REQUEST
-                verify(exactly = 0) { quizAnswerRepository.save(any(), any(), any(), any(), any()) }
+    Given("답안 개수가 문제 수와 다르면") {
+        Then("400 예외가 발생하고 기록하지 않는다") {
+            val e = shouldThrow<MaeilKanjiException> {
+                quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect.dropLast(1), memberId.toString()))
             }
+            e.status shouldBe HttpStatus.BAD_REQUEST
+            verify(exactly = 0) { quizQuestionAnswerRepository.saveAll(any(), any(), any(), any()) }
         }
+    }
 
-        When("오답 보기가 없는 콘텐츠이면") {
-            every { dailyContentRepository.getIntermediateDailyContentById(6L) } returns dailyContentDto(level, id = 6L)
+    Given("세션을 만들 수 없는 콘텐츠로 제출하면") {
+        every { dailyContentRepository.findAllIntermediate() } returns pool.map { if (it.id == 5L) it.copy(wrongAnswer1 = null) else it }
 
-            Then("400 예외가 발생한다") {
-                val e = shouldThrow<MaeilKanjiException> {
-                    quizService.submitAnswer(SubmitQuizAnswerServiceRequest(level, 6L, 0, null))
-                }
-                e.status shouldBe HttpStatus.BAD_REQUEST
+        Then("400 예외가 발생한다") {
+            val e = shouldThrow<MaeilKanjiException> {
+                quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, null))
             }
+            e.status shouldBe HttpStatus.BAD_REQUEST
+        }
+    }
+
+    Given("통계 계산에서") {
+        Then("세션 점수 분포로 상위 %를 구한다") {
+            val stats = QuizSessionStatsDto(listOf(5, 5, 4, 3), List(5) { 0 })
+            stats.topPercent(5) shouldBe 50
+            stats.topPercent(4) shouldBe 75
+            stats.topPercent(0) shouldBe 100
+            stats.averageScore.shouldNotBeNull() shouldBe 4.3
         }
     }
 })

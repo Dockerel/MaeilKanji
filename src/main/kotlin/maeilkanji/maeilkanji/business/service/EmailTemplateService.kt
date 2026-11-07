@@ -91,7 +91,7 @@ class EmailTemplateService(
     }
 
     /**
-     * 메일용 객관식 보기 버튼. 누르면 결과 페이지(/daily-content/{level}/{id}/quiz)로 이동한다.
+     * 메일용 객관식 보기 버튼. 누르면 오늘의 5문제 페이지(/daily-content/{level}/{id}/quiz)로 이동한다.
      * 메일 클라이언트 호환을 위해 table + 인라인 스타일만 쓴다.
      */
     private fun quizChoicesHtml(content: DailyContentDto, memberId: UUID): String {
@@ -100,7 +100,7 @@ class EmailTemplateService(
             val url = "$baseUrl/daily-content/${content.level.path}/${content.id}/quiz?choice=$index&memberId=$memberId"
             """<tr><td style="padding:0 0 8px 0;"><a href="$url" style="display:block;background-color:#ffffff;border:1px solid #E2E8F0;border-radius:10px;padding:12px 16px;color:#0F172A;text-decoration:none;font-size:15px;"><strong style="color:#2563EB;">${index + 1}.</strong>&nbsp; <span lang="ja">${HtmlUtils.htmlEscape(choice)}</span></a></td></tr>"""
         }.joinToString("")
-        return """<p style="margin:0 0 10px 0;font-size:13px;color:#64748B;">정답이라고 생각하는 보기를 눌러보세요!</p>""" +
+        return """<p style="margin:0 0 10px 0;font-size:13px;color:#64748B;">정답이라고 생각하는 보기를 누르면 오늘의 5문제가 시작돼요!</p>""" +
             """<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:0 0 12px 0;">$rows</table>"""
     }
 

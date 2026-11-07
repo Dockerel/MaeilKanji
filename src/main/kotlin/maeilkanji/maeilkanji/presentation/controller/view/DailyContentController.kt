@@ -52,11 +52,12 @@ class DailyContentController(
     }
 
     /**
-     * 퀴즈 결과 페이지. 채점 결과는 서버에서 바로 보여준다.
-     * 응답 기록과 정답률 조회는 페이지의 JS 가 POST 로 한다. (메일 스캐너의 링크 미리 열기는 집계하지 않기 위해)
+     * 오늘의 5문제 페이지. 메일/학습 페이지의 1번 문제 보기를 누르면 ?choice=N 으로 들어와 1번 답이 선택된 채 시작한다.
+     * 채점 피드백은 페이지에서 바로 보여주고, 기록·통계·스트릭은 마지막에 JS 가 POST 로 처리한다.
+     * (메일 스캐너의 링크 미리 열기는 집계하지 않기 위해)
      */
     @GetMapping("/{levelPath}/{contentId}/quiz")
-    fun showQuizResult(
+    fun showQuiz(
         @PathVariable levelPath: String,
         @PathVariable contentId: Long,
         @RequestParam(required = false) choice: Int?,
@@ -64,19 +65,15 @@ class DailyContentController(
     ): String {
         val level = KanjiLevel.fromPath(levelPath)
             ?: throw MaeilKanjiException("Unknown level: $levelPath", HttpStatus.NOT_FOUND)
-        val content = quizService.findContent(level, contentId)
-        val quizChoices = QuizChoices.of(content)
-        if (quizChoices == null || choice == null || !quizChoices.isValidChoice(choice)) {
-            return "redirect:/daily-content/${level.path}/$contentId"
-        }
+        val quizSession = quizService.createSession(level, contentId)
+            ?: return "redirect:/daily-content/${level.path}/$contentId"
+        val firstQuestion = quizSession.questions.first()
 
-        model.addAttribute("content", content)
+        model.addAttribute("quizSession", quizSession)
+        model.addAttribute("initialChoice", choice?.takeIf { it in firstQuestion.options.indices })
         model.addAttribute("levelLabel", level.korean)
         model.addAttribute("levelPath", level.path)
-        model.addAttribute("quiz", quizChoices)
-        model.addAttribute("choice", choice)
-        model.addAttribute("correct", quizChoices.isCorrect(choice))
-        return "quiz-result"
+        return "quiz-session"
     }
 
     private fun addLessonAttributes(model: Model, content: DailyContentDto) {

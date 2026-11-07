@@ -1,6 +1,7 @@
 package maeilkanji.maeilkanji.business.service
 
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.domain.SentenceTiles
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
@@ -116,6 +117,12 @@ class AdminService(
 
     @Transactional
     fun saveDailyContent(level: KanjiLevel, content: DailyContentDto): Long {
+        if (content.sentenceTiles != null && !SentenceTiles.isValid(content.sentence, content.sentenceTiles)) {
+            throw MaeilKanjiException(
+                "예문 블록이 예문과 맞지 않습니다. (${content.kanji1}/${content.kanji2}) 블록을 이어 붙이면 루비를 뺀 예문과 같아야 합니다.",
+                HttpStatus.BAD_REQUEST
+            )
+        }
         return when (level) {
             KanjiLevel.BEGINNER -> dailyContentRepository.saveBeginner(content)
             KanjiLevel.INTERMEDIATE -> dailyContentRepository.saveIntermediate(content)

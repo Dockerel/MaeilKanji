@@ -326,6 +326,29 @@ class AdminServiceTest : BehaviorSpec({
         }
     }
 
+    Given("예문 블록이 예문과 맞지 않는 콘텐츠를") {
+        val content = dailyContentDto(KanjiLevel.BEGINNER, id = null).copy(sentenceTiles = "毎日|勉強した|。")
+
+        When("저장하면") {
+            Then("400 예외가 발생하고 저장하지 않는다") {
+                val e = shouldThrow<MaeilKanjiException> { adminService.saveDailyContent(KanjiLevel.BEGINNER, content) }
+                e.status shouldBe HttpStatus.BAD_REQUEST
+                verify(exactly = 0) { dailyContentRepository.saveBeginner(any()) }
+            }
+        }
+    }
+
+    Given("예문 블록이 예문과 맞는 콘텐츠를") {
+        val content = dailyContentDto(KanjiLevel.BEGINNER, id = null).copy(sentenceTiles = "毎日|勉強します|。")
+        every { dailyContentRepository.saveBeginner(content) } returns 7L
+
+        When("저장하면") {
+            Then("저장한다") {
+                adminService.saveDailyContent(KanjiLevel.BEGINNER, content) shouldBe 7L
+            }
+        }
+    }
+
     Given("콘텐츠를 삭제할 때") {
         When("INTERMEDIATE 레벨이면") {
             adminService.deleteDailyContent(KanjiLevel.INTERMEDIATE, 5L)

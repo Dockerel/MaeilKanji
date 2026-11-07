@@ -37,4 +37,7 @@ class AdvancedDailyContentEntity(
     val wrongAnswer1: String? = null,
     val wrongAnswer2: String? = null,
     val wrongAnswer3: String? = null,
+    // 예문 블록 ("大学|の|前|..."). 빈칸 채우기·문장 만들기 문제에 쓴다.
+    @Column(columnDefinition = "TEXT")
+    val sentenceTiles: String? = null,
 )
