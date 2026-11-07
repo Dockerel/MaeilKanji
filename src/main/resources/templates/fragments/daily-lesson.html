@@ -360,10 +360,160 @@
         }
 
         .lesson-more {
+            display: grid;
+            gap: 12px;
+            border: 1px solid var(--maeil-line);
+            border-radius: 16px;
+            background-color: white;
+            padding: 24px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .more-eyebrow {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--maeil-blue);
+        }
+
+        .more-kanji-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .more-kanji,
+        .more-level,
+        .more-pager-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
             border: 1px solid var(--maeil-line);
             border-radius: 12px;
             background-color: white;
+            color: var(--maeil-ink);
+            text-decoration: none;
+            transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+        }
+
+        .more-kanji:hover, .more-kanji:focus-visible,
+        .more-level:hover, .more-level:focus-visible,
+        .more-pager-link:hover, .more-pager-link:focus-visible {
+            border-color: var(--maeil-blue);
+            background-color: var(--maeil-light-blue);
+            transform: translateY(-1px);
+        }
+
+        .more-kanji-glyph {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background-color: var(--maeil-light-blue);
+            color: var(--maeil-blue);
+            font-size: 2rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .more-kanji-text {
+            flex-grow: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .more-kanji-meaning {
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .more-kanji-sub {
+            font-size: 0.8rem;
+            color: var(--maeil-muted);
+        }
+
+        .more-arrow {
+            flex-shrink: 0;
+            color: var(--maeil-muted);
+            transition: transform 0.15s, color 0.15s;
+        }
+
+        .more-kanji:hover .more-arrow,
+        .more-level:hover .more-arrow {
+            color: var(--maeil-blue);
+            transform: translateX(3px);
+        }
+
+        .more-level-icon {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #F1F5F9;
+            font-size: 1.3rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .more-pager {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .more-pager-link {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 2px;
+        }
+
+        .more-pager-label {
+            font-size: 0.8rem;
+            color: var(--maeil-muted);
+        }
+
+        .more-pager-no {
+            font-weight: 700;
+        }
+
+        .more-subscribe {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px 16px;
+            margin-top: 4px;
             padding: 18px 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--maeil-blue), var(--maeil-blue-dark));
+            color: white;
+        }
+
+        .more-subscribe .btn-light {
+            color: var(--maeil-blue);
+        }
+
+        @media (max-width: 575.98px) {
+            .lesson-more {
+                padding: 20px 16px;
+            }
+
+            .more-kanji-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .more-kanji, .more-level, .more-pager-link, .more-arrow {
+                transition: none;
+            }
         }
 
         @media (max-width: 767.98px) {
@@ -486,28 +636,57 @@
 
                 <!-- 검색으로 들어온 방문자를 위한 이어보기: 한자 페이지, 앞뒤 학습, 레벨 목록, 구독 -->
                 <nav class="lesson-more mt-4" aria-label="학습 이어보기">
-                    <p class="fw-bold mb-2">더 알아보기</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <a th:each="k : ${ {content.kanji1, content.kanji2} }"
-                           th:href="@{/kanji/{k}(k=${k})}" class="btn btn-sm btn-outline-secondary">
-                            <span class="jp" lang="ja" th:text="${k}">増</span> 한자 자세히 보기
-                        </a>
-                        <a th:href="@{/lessons/{lp}(lp=${levelPath})}" class="btn btn-sm btn-outline-secondary"
-                           th:text="${levelLabel} + ' 학습 전체 목록'">중급 학습 전체 목록</a>
+                    <div class="more-head">
+                        <p class="more-eyebrow mb-1">MORE</p>
+                        <h2 class="h5 fw-bold mb-0">더 알아보기</h2>
                     </div>
-                    <div class="d-flex justify-content-between gap-2">
+
+                    <!-- 오늘의 한자 상세 페이지 -->
+                    <div class="more-kanji-grid">
+                        <a th:each="k : ${ { {content.kanji1, content.meaning1}, {content.kanji2, content.meaning2} } }"
+                           th:href="@{/kanji/{k}(k=${k[0]})}" class="more-kanji">
+                            <span class="more-kanji-glyph jp" lang="ja" th:text="${k[0]}">増</span>
+                            <span class="more-kanji-text">
+                                <span class="more-kanji-meaning" th:text="${k[1]}">늘다, 증가하다</span>
+                                <span class="more-kanji-sub">음독·훈독·예문 자세히 보기</span>
+                            </span>
+                            <span class="more-arrow" aria-hidden="true">→</span>
+                        </a>
+                    </div>
+
+                    <a th:href="@{/lessons/{lp}(lp=${levelPath})}" class="more-level">
+                        <span class="more-level-icon" aria-hidden="true">📚</span>
+                        <span class="flex-grow-1">
+                            <strong th:text="${levelLabel} + ' 학습 전체 목록'">중급 학습 전체 목록</strong><br>
+                            <span class="small text-muted-2">지난 학습을 모아서 복습해 보세요</span>
+                        </span>
+                        <span class="more-arrow" aria-hidden="true">→</span>
+                    </a>
+
+                    <!-- 앞뒤 학습: 없는 쪽은 빈 칸으로 두어 좌우 위치를 유지한다 -->
+                    <div class="more-pager" th:if="${neighbors.previousId != null or neighbors.nextId != null}">
                         <a th:if="${neighbors.previousId != null}"
                            th:href="@{/daily-content/{lp}/{id}(lp=${levelPath},id=${neighbors.previousId})}"
-                           class="small" rel="prev">← 이전 학습</a>
+                           class="more-pager-link" rel="prev">
+                            <span class="more-pager-label">← 이전 학습</span>
+                            <span class="more-pager-no" th:text="'#' + ${neighbors.previousId}">#11</span>
+                        </a>
                         <span th:if="${neighbors.previousId == null}"></span>
                         <a th:if="${neighbors.nextId != null}"
                            th:href="@{/daily-content/{lp}/{id}(lp=${levelPath},id=${neighbors.nextId})}"
-                           class="small" rel="next">다음 학습 →</a>
+                           class="more-pager-link text-end" rel="next">
+                            <span class="more-pager-label">다음 학습 →</span>
+                            <span class="more-pager-no" th:text="'#' + ${neighbors.nextId}">#13</span>
+                        </a>
                     </div>
-                    <p class="small text-muted-2 mt-3 mb-0">
-                        이런 학습을 매일 아침 메일로 받아보세요.
-                        <a href="/#cta" class="fw-semibold">무료 구독하기</a>
-                    </p>
+
+                    <div class="more-subscribe">
+                        <div>
+                            <p class="fw-bold mb-1">✉️ 매일 아침, 한자 2개씩</p>
+                            <p class="small mb-0">이런 학습을 매일 아침 메일로 받아보세요.</p>
+                        </div>
+                        <a href="/#cta" class="btn btn-light fw-semibold flex-shrink-0">무료 구독하기</a>
+                    </div>
                 </nav>
             </div>
         </div>
