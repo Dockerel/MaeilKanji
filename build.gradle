@@ -73,6 +73,9 @@ dependencies {
 
     // RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    // Claude API (매일 자정 학습 문제 자동 생성)
+    implementation 'com.anthropic:anthropic-java:3.2.0'
 }
 
 

@@ -47,6 +47,7 @@ src/main/resources/.DS_Store
 # Kubernetes secrets
 k8s/secret.yaml
 k8s/app-secret.yaml
+k8s/api-key.txt
 
 # Claude Code personal settings
 .claude/settings.local.json
