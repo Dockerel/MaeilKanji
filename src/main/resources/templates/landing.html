@@ -7,6 +7,7 @@
     <meta name="description" content="레벨별 핵심 한자 2개, 단어 4개, 예문 1개를 매일 아침 이메일로. 3분이면 끝나는 일본어 한자 학습 서비스, 매일 칸지.">
     <meta name="keywords" content="일본어 한자, 일본어 공부, 한자 학습, JLPT 한자, 일본어 단어, 매일 칸지, 일본어 메일 학습">
     <meta name="robots" content="index, follow">
+    <meta th:if="${!#strings.isEmpty(adsenseClientId)}" name="google-adsense-account" th:content="${adsenseClientId}">
     <link rel="canonical" th:href="${siteUrl} + '/'">
     <meta th:if="${!#strings.isEmpty(googleSiteVerification)}" name="google-site-verification" th:content="${googleSiteVerification}">
     <meta th:if="${!#strings.isEmpty(naverSiteVerification)}" name="naver-site-verification" th:content="${naverSiteVerification}">
@@ -1901,11 +1902,7 @@
     </div>
 </section>
 
-<footer class="bg-dark py-4">
-    <div class="container text-center">
-        <p class="text-white-50 small mb-0">© <span th:text="${currentYear}">2026</span> 매일 칸지. All rights reserved.</p>
-    </div>
-</footer>
+<footer th:replace="~{fragments/page :: footer}"></footer>
 
 <div class="modal fade subscribe-modal" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel"
      aria-hidden="true">

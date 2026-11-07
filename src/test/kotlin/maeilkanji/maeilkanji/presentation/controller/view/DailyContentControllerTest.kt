@@ -10,6 +10,8 @@ import maeilkanji.maeilkanji.business.domain.KanjiLevel
 import maeilkanji.maeilkanji.business.domain.QuizSessionFactory
 import maeilkanji.maeilkanji.business.service.AdminService
 import maeilkanji.maeilkanji.business.service.DailyContentService
+import maeilkanji.maeilkanji.business.service.KanjiLibraryService
+import maeilkanji.maeilkanji.business.service.dto.LessonNeighbors
 import maeilkanji.maeilkanji.business.service.QuizService
 import maeilkanji.maeilkanji.fixture.dailyContentDto
 import maeilkanji.maeilkanji.fixture.multipleChoiceContentDto
@@ -23,18 +25,20 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
-@WebMvcTest(DailyContentController::class)
+@WebMvcTest(DailyContentController::class, properties = ["service.base-url=https://example.com/"])
 @Import(DailyContentControllerTest.MockConfig::class)
 class DailyContentControllerTest(
     mockMvc: MockMvc,
     dailyContentService: DailyContentService,
     quizService: QuizService,
+    kanjiLibraryService: KanjiLibraryService,
 ) : BehaviorSpec({
     extensions(SpringExtension)
     isolationMode = IsolationMode.InstancePerLeaf
 
     // 컨텍스트 캐시로 mock 빈이 공유되므로 leaf 마다 초기화
-    clearMocks(dailyContentService, quizService)
+    clearMocks(dailyContentService, quizService, kanjiLibraryService)
+    every { kanjiLibraryService.neighbors(any(), any()) } returns LessonNeighbors(previousId = 2L, nextId = null)
 
     val content = multipleChoiceContentDto(KanjiLevel.BEGINNER, id = 3L)
 
@@ -47,6 +51,26 @@ class DailyContentControllerTest(
                 status { isOk() }
                 (0..3).forEach { content { string(containsString("/daily-content/beginner/3/quiz?choice=$it")) } }
                 content { string(not(containsString("answer-reveal\""))) }
+            }
+        }
+    }
+
+    Given("검색엔진이 학습 페이지를 읽을 때") {
+        every { dailyContentService.findBeginnerDailyContent(3L) } returns content
+        val result = mockMvc.get("/daily-content/beginner/3")
+
+        Then("설명·canonical·구조화 데이터와 이어보기 링크를 넣는다") {
+            result.andExpect {
+                status { isOk() }
+                content { string(containsString("<meta name=\"description\"")) }
+                content { string(containsString("<link rel=\"canonical\" href=\"https://example.com/daily-content/beginner/3\"")) }
+                content { string(containsString("\"@type\":\"LearningResource\"")) }
+                content { string(containsString("/kanji/")) }
+                content { string(containsString("/lessons/beginner")) }
+                content { string(containsString("<a href=\"/daily-content/beginner/2\"")) }
+                content { string(containsString("rel=\"prev\"")) }
+                content { string(not(containsString("rel=\"next\""))) }
+                content { string(containsString("/privacy")) }
             }
         }
     }
@@ -127,6 +151,9 @@ class DailyContentControllerTest(
 
         @Bean
         fun quizService(): QuizService = mockk()
+
+        @Bean
+        fun kanjiLibraryService(): KanjiLibraryService = mockk()
 
         // WebMvcConfig(관리자 인증 인터셉터)가 슬라이스에 포함되므로 필요
         @Bean

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- /kanji/{한자}: 학습에 나온 한자 하나의 읽기·뜻·단어·예문 모음 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: seoHead(
+        ${entry.kanji} + ' 읽는 법, 뜻, 단어 (' + ${#strings.listJoin(entry.meanings, ' / ')} + ')',
+        '일본어 한자 ' + ${entry.kanji} + '의 음독·훈독 ' + ${#strings.listJoin(entry.readings, ' ')} + ', 뜻 ' + ${#strings.listJoin(entry.meanings, ' / ')} + '. ' + ${entry.kanji} + ' 한자가 들어간 단어 ' + ${#lists.size(entry.words)} + '개와 후리가나 예문.',
+        '/kanji/' + ${entry.kanji})}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<main class="page-main">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Kanji</p>
+            <p class="kanji-glyph jp mb-2" lang="ja" th:text="${entry.kanji}">上</p>
+            <h1 class="section-title h3">
+                <span class="jp" lang="ja" th:text="${entry.kanji}">上</span> 읽는 법과 뜻
+            </h1>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <section class="page-card mb-4">
+                    <div class="page-card-body">
+                        <h2 class="block-title">읽기 (음독, 훈독)</h2>
+                        <p class="jp mb-3" lang="ja" th:text="${#strings.listJoin(entry.readings, ' ')}">(じょう, うえ)</p>
+                        <h2 class="block-title">뜻</h2>
+                        <p class="mb-3" th:text="${#strings.listJoin(entry.meanings, ' / ')}">위, 오르다</p>
+                        <th:block th:if="${!#lists.isEmpty(entry.pairedKanji)}">
+                            <h2 class="block-title">함께 익히는 한자</h2>
+                            <p class="mb-0 d-flex flex-wrap gap-2">
+                                <a th:each="p : ${entry.pairedKanji}" th:href="@{/kanji/{k}(k=${p})}"
+                                   class="btn btn-sm btn-ghost jp" lang="ja" th:text="${p}">下</a>
+                            </p>
+                        </th:block>
+                    </div>
+                </section>
+
+                <section class="page-card mb-4" th:if="${!#lists.isEmpty(entry.words)}">
+                    <div class="page-card-body">
+                        <h2 class="block-title" th:text="${entry.kanji} + ' 한자가 들어간 단어'">上 한자가 들어간 단어</h2>
+                        <ul class="word-table list-unstyled mb-0">
+                            <li th:each="w : ${entry.words}">
+                                <span class="jp" lang="ja">
+                                    <strong th:text="${#strings.contains(w.word, '(')} ? ${#strings.substringBefore(w.word, '(')} : ${w.word}">上着</strong>
+                                    <th:block th:if="${#strings.contains(w.word, '(')}" th:text="'(' + ${#strings.substringAfter(w.word, '(')}">(うわぎ)</th:block>
+                                </span>
+                                <span class="text-muted-2" th:text="${w.meaning}">겉옷</span>
+                                <span class="level-tag" th:text="${w.level.korean}">초급</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="page-card mb-4" th:if="${!#lists.isEmpty(entry.sentences)}">
+                    <div class="page-card-body">
+                        <h2 class="block-title">예문</h2>
+                        <div th:each="s, st : ${entry.sentences}" class="example mb-3">
+                            <p class="jp mb-1" lang="ja" th:utext="${sentenceHtml[st.index]}">
+                                <ruby>上着<rt>うわぎ</rt></ruby>を<ruby>脱<rt>ぬ</rt></ruby>ぎました。
+                            </p>
+                            <p class="small text-muted-2 mb-0">
+                                <span th:text="${s.meaning}">겉옷을 벗었습니다.</span>
+                                <a th:href="@{/daily-content/{p}/{id}(p=${s.level.path},id=${s.lessonId})}"
+                                   th:text="'(' + ${s.level.korean} + ' #' + ${s.lessonId} + ' 학습)'">(초급 #1 학습)</a>
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="page-card mb-4">
+                    <div class="page-card-body">
+                        <h2 class="block-title" th:text="${entry.kanji} + ' 한자를 배우는 학습'">上 한자를 배우는 학습</h2>
+                        <ul class="lesson-list list-unstyled mb-0">
+                            <li th:each="l : ${entry.lessons}">
+                                <a th:href="@{/daily-content/{p}/{id}(p=${l.level.path},id=${l.id})}">
+                                    <span class="lesson-no" th:text="${l.level.korean} + ' #' + ${l.id}">초급 #1</span>
+                                    <span class="jp fw-bold" lang="ja" th:text="${l.kanji1} + ' · ' + ${l.kanji2}">上 · 下</span>
+                                    <span class="small text-muted-2" th:text="${l.meaning1} + ' / ' + ${l.meaning2}">위 / 아래</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <div class="info-box text-center">
+                    이런 한자 학습을 매일 아침 메일로 받아보세요. <a href="/#cta" class="fw-semibold">무료 구독하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+</body>
+</html>

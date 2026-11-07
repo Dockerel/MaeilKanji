@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!-- 개인정보처리방침. 수집 항목·위탁·보관 내용을 바꾸면 이 문서와 시행일도 함께 고친다. -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: seoHead('개인정보처리방침',
+        '매일 칸지가 수집하는 개인정보 항목과 이용 목적, 보관 기간, 처리 위탁, 쿠키와 광고, 이용자 권리를 안내합니다.',
+        '/privacy')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<main class="page-main">
+    <div class="container px-4">
+        <div class="text-center mb-5">
+            <p class="section-label">Privacy Policy</p>
+            <h1 class="section-title h2">개인정보처리방침</h1>
+            <p class="text-muted-2 mt-2 mb-0">시행일: 2026년 11월 8일</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="page-card">
+                    <div class="page-card-body policy">
+                        <p>
+                            매일 칸지(이하 "서비스")는 이용자의 개인정보를 소중히 다루며, 「개인정보 보호법」 등 관련 법령을 지킵니다.
+                            이 방침은 서비스가 어떤 개인정보를 어떤 목적으로 처리하는지 안내합니다.
+                        </p>
+
+                        <h2>1. 수집하는 개인정보 항목</h2>
+                        <ul>
+                            <li><strong>구독 시 (필수)</strong>: 이메일 주소, 학습 레벨</li>
+                            <li><strong>학습 이용 시 (자동 생성)</strong>: 학습 페이지 접속일, 연속 학습일, 퀴즈 정답 여부</li>
+                            <li><strong>프로필 설정 시 (선택)</strong>: 닉네임, 자기소개, 아바타·테마·대표 배지</li>
+                            <li><strong>피드백 작성 시 (선택)</strong>: 선택한 사유, 작성한 의견</li>
+                            <li><strong>자동 수집</strong>: 회원 식별 쿠키, 접속 IP와 브라우저 정보 등 접속 기록</li>
+                        </ul>
+                        <p>이메일 인증 코드는 인증 확인을 위해 3분 동안만 임시로 보관한 뒤 자동으로 삭제합니다.</p>
+
+                        <h2>2. 이용 목적</h2>
+                        <ul>
+                            <li>매일 학습 메일 발송과 구독·레벨 변경·구독 해지 처리</li>
+                            <li>학습 기록(연속 학습일, 학습 잔디, 배지) 제공과 랭킹 표시</li>
+                            <li>문의·피드백 응대와 서비스 개선</li>
+                            <li>부정 이용 방지와 서비스 안정성 확보</li>
+                        </ul>
+
+                        <h2>3. 공개되는 정보</h2>
+                        <p>
+                            닉네임을 설정하면 닉네임, 자기소개, 아바타, 배지, 연속 학습일이 공개 프로필(/u/닉네임)과 랭킹에 표시됩니다.
+                            닉네임을 설정하지 않으면 랭킹에 익명으로 표시됩니다. 이메일 주소는 공개하지 않습니다.
+                        </p>
+
+                        <h2>4. 보관 기간과 파기</h2>
+                        <p>
+                            개인정보는 이용 목적을 달성할 때까지 보관합니다. 구독을 해지하면 메일 발송이 중단되며,
+                            다시 구독할 때 학습 기록을 이어 갈 수 있도록 기록은 보관됩니다.
+                            개인정보 삭제를 요청하시면 지체 없이 파기합니다. 법령에 따라 보관해야 하는 정보는 해당 기간 동안 보관합니다.
+                        </p>
+
+                        <h2>5. 처리 위탁과 국외 이전</h2>
+                        <p>서비스는 메일 발송을 위해 아래와 같이 개인정보 처리를 위탁하며, 이 과정에서 개인정보가 국외로 이전됩니다.</p>
+                        <ul>
+                            <li><strong>수탁자</strong>: Resend, Inc. (미국)</li>
+                            <li><strong>위탁 업무</strong>: 학습 메일·인증 메일 발송</li>
+                            <li><strong>이전 항목</strong>: 이메일 주소, 메일 본문</li>
+                            <li><strong>이전 시기와 방법</strong>: 메일 발송 시 네트워크를 통해 전송</li>
+                            <li><strong>보관 기간</strong>: 수탁자의 발송 기록 보관 정책에 따름</li>
+                        </ul>
+                        <p>국외 이전을 원하지 않으시면 구독을 해지할 수 있습니다. 이 경우 학습 메일을 받을 수 없습니다.</p>
+
+                        <h2>6. 쿠키와 광고</h2>
+                        <p>
+                            서비스는 회원을 식별해 학습 기록과 프로필을 보여 주기 위해 쿠키(MK_MEMBER, 최대 1년)를 사용합니다.
+                            브라우저 설정에서 쿠키를 거부할 수 있으나, 이 경우 프로필 등 일부 기능을 이용할 수 없습니다.
+                        </p>
+                        <p>
+                            서비스는 Google AdSense 등 제3자 광고를 게재할 수 있습니다. Google을 포함한 제3자 광고 사업자는 쿠키를 사용해
+                            이용자가 이 사이트와 다른 사이트를 방문한 기록을 바탕으로 광고를 게재할 수 있습니다.
+                            맞춤 광고는 <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google 광고 설정</a>에서 끌 수 있으며,
+                            자세한 내용은 <a href="https://policies.google.com/technologies/ads?hl=ko" target="_blank" rel="noopener">Google 광고 정책</a>에서 확인할 수 있습니다.
+                        </p>
+                        <p>
+                            페이지 표시를 위해 Google Fonts, jsDelivr, cdnjs에서 글꼴과 스타일을 불러오며, 이때 접속 IP 등이 해당 사업자에게 전달될 수 있습니다.
+                        </p>
+
+                        <h2>7. 이용자의 권리</h2>
+                        <p>
+                            이용자는 언제든 자신의 개인정보 열람, 정정, 삭제, 처리 정지를 요청할 수 있습니다.
+                            구독 해지는 학습 메일 하단의 구독 해지 링크로 바로 할 수 있고, 프로필은 내 프로필 편집 화면에서 고칠 수 있습니다.
+                            그 밖의 요청은 아래 문의처로 보내 주시면 지체 없이 처리합니다.
+                        </p>
+
+                        <h2>8. 안전성 확보 조치</h2>
+                        <ul>
+                            <li>모든 통신을 HTTPS로 암호화합니다.</li>
+                            <li>데이터베이스와 관리자 기능에 대한 접근을 제한합니다.</li>
+                            <li>관리자 로그인은 이메일 인증 코드로만 할 수 있습니다.</li>
+                        </ul>
+
+                        <h2>9. 개인정보 보호책임자와 문의처</h2>
+                        <p>
+                            개인정보 보호책임자: 매일 칸지 운영자<br>
+                            <th:block th:if="${!#strings.isEmpty(contactEmail)}">
+                                이메일: <a th:href="'mailto:' + ${contactEmail}" th:text="${contactEmail}">contact@example.com</a>
+                            </th:block>
+                            <th:block th:if="${#strings.isEmpty(contactEmail)}">
+                                문의: <a th:href="@{/feedback}">피드백 페이지</a>
+                            </th:block>
+                        </p>
+                        <p>
+                            개인정보 침해 신고·상담은 개인정보침해신고센터(국번 없이 118, privacy.kisa.or.kr),
+                            개인정보분쟁조정위원회(1833-6972, www.kopico.go.kr)에도 할 수 있습니다.
+                        </p>
+
+                        <h2>10. 방침 변경</h2>
+                        <p>이 방침을 바꾸는 경우 시행 7일 전부터 이 페이지에 알립니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+</body>
+</html>
