@@ -1,11 +1,14 @@
 package maeilkanji.maeilkanji.business.service
 
+import maeilkanji.maeilkanji.business.domain.Badge
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.domain.LearningStats
 import maeilkanji.maeilkanji.business.domain.MemberStatus
 import maeilkanji.maeilkanji.business.domain.StreakPolicy
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.FeedbackRepository
 import maeilkanji.maeilkanji.business.repository.MemberRepository
+import maeilkanji.maeilkanji.business.repository.StudyDayRepository
 import maeilkanji.maeilkanji.business.service.dto.MemberSignupDto
 import maeilkanji.maeilkanji.business.service.request.*
 import maeilkanji.maeilkanji.business.service.response.*
@@ -33,6 +36,7 @@ class MemberService(
 
     private val memberRepository: MemberRepository,
     private val feedbackRepository: FeedbackRepository,
+    private val studyDayRepository: StudyDayRepository,
 
     private val clock: Clock = Clock.system(ZoneId.of("Asia/Seoul")),
 ) {
@@ -141,6 +145,7 @@ class MemberService(
 
     /**
      * 학습 페이지 접속을 기록하고 갱신된 스트릭을 반환한다. 규칙은 [StreakPolicy] 참고.
+     * 학습일(잔디)·최장 스트릭도 함께 갱신하고, 이번 접속으로 새로 얻은 배지를 알려준다.
      */
     @Transactional
     fun recordStudyAccess(memberIdString: String): StreakResponse {
@@ -148,11 +153,29 @@ class MemberService(
         val findMember = memberRepository.findById(memberId)
         val now = LocalDateTime.now(clock)
 
+        backfillStudyDays(memberId, findMember.streak, findMember.lastAccessedAt)
+        val before = LearningStats(maxStreak = findMember.maxStreak, studyDays = studyDayRepository.count(memberId))
+
         findMember.streak = StreakPolicy.next(findMember.streak, findMember.lastAccessedAt, now)
         findMember.lastAccessedAt = now
+        findMember.maxStreak = maxOf(findMember.maxStreak, findMember.streak)
         memberRepository.update(memberId, findMember)
+        studyDayRepository.saveIfAbsent(memberId, now.toLocalDate())
 
-        return StreakResponse(findMember.streak)
+        val after = LearningStats(maxStreak = findMember.maxStreak, studyDays = studyDayRepository.count(memberId))
+        val newBadges = Badge.newlyEarned(before, after).map { BadgeResponse.of(it) }
+        return StreakResponse(findMember.streak, findMember.maxStreak, newBadges)
+    }
+
+    /**
+     * 학습일 기록(study_day) 도입 전부터 스트릭이 있던 회원: 마지막 접속일로 끝나는 연속 [streak]일을 채워 둔다.
+     * 스트릭 정의상 그 날들은 모두 학습한 날이다.
+     */
+    private fun backfillStudyDays(memberId: UUID, streak: Int, lastAccessedAt: LocalDateTime?) {
+        if (lastAccessedAt == null || streak <= 0) return
+        if (studyDayRepository.count(memberId) > 0) return
+        val lastDay = lastAccessedAt.toLocalDate()
+        (0 until streak).forEach { studyDayRepository.saveIfAbsent(memberId, lastDay.minusDays(it.toLong())) }
     }
 
     @Transactional

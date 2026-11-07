@@ -320,6 +320,29 @@
         font-size: 0.9rem;
     }
 
+    .new-badges {
+        display: grid;
+        gap: 8px;
+    }
+
+    .new-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+        padding: 10px 16px;
+        border-radius: 14px;
+        background: linear-gradient(120deg, #FEF3C7, #FFF7ED);
+        border: 1px solid #FCD34D;
+        color: #92400E;
+        text-decoration: none;
+        animation: quiz-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    .new-badge-emoji {
+        font-size: 2rem;
+    }
+
     [hidden] {
         display: none !important;
     }
@@ -335,7 +358,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .quiz-card, .feedback, .combo, .result-score {
+        .quiz-card, .feedback, .combo, .result-score, .new-badge {
             animation: none;
         }
 
@@ -584,6 +607,22 @@
             }).then(function (res) { return res.ok ? res.json() : null; });
         }
 
+        // 새로 얻은 배지 카드. 여러 응답(퀴즈 기록·스트릭)에서 와도 한 상자에 이어 붙인다.
+        function showNewBadges(container, badges) {
+            if (!badges || !badges.length) return;
+            badges.forEach(function (b) {
+                if (container.querySelector('[data-code="' + b.code + '"]')) return;
+                var item = el('a', 'new-badge');
+                item.href = '/me';
+                item.dataset.code = b.code;
+                item.appendChild(el('span', 'new-badge-emoji', escapeText(b.emoji)));
+                item.appendChild(el('span', '', '<small>새 배지 획득!</small><br><strong>' +
+                    escapeText(b.title + ' · ' + b.description) + '</strong>'));
+                container.appendChild(item);
+            });
+            container.hidden = false;
+        }
+
         function scoreMessage(score) {
             if (score === total) return '만점이에요! 완벽한 하루 🎉';
             if (score >= total - 1) return '아주 잘했어요! 하나만 더 맞히면 만점!';
@@ -606,6 +645,10 @@
             streak.hidden = true;
             card.appendChild(streak);
 
+            var badgeBox = el('div', 'new-badges mb-3');
+            badgeBox.hidden = true;
+            card.appendChild(badgeBox);
+
             var stats = el('div', 'stats-box text-start mb-3');
             stats.hidden = true;
             card.appendChild(stats);
@@ -626,11 +669,23 @@
             var lesson = el('a', 'btn btn-maeil w-100', '📖 오늘의 학습 전체 보기');
             lesson.href = lessonUrl;
             card.appendChild(lesson);
+
+            if (memberId) {
+                var links = el('div', 'd-flex gap-2 mt-2');
+                var profile = el('a', 'btn btn-outline-primary flex-fill fw-semibold', '🌱 내 학습 잔디');
+                profile.href = '/me';
+                var ranking = el('a', 'btn btn-outline-primary flex-fill fw-semibold', '🏆 스트릭 랭킹');
+                ranking.href = '/ranking';
+                links.appendChild(profile);
+                links.appendChild(ranking);
+                card.appendChild(links);
+            }
             root.appendChild(card);
 
             postJson('/api/v1/quiz/sessions', {
                 level: quiz.level, contentId: quiz.contentId, answers: answers, memberId: memberId
             }).then(function (data) {
+                if (data) showNewBadges(badgeBox, data.newBadges);
                 if (!data || data.participantCount === 0) return;
                 var lines = '<p class="fw-bold mb-1">오늘 ' + data.participantCount + '명 참여 · 평균 ' + data.averageScore + '점</p>';
                 if (memberId && data.topPercent !== null && data.topPercent <= 50) {
@@ -650,6 +705,7 @@
                     if (!data || !data.streak) return;
                     streak.textContent = '🔥 ' + data.streak + '일 연속 학습 중';
                     streak.hidden = false;
+                    showNewBadges(badgeBox, data.newBadges);
                 }).catch(function () { /* 스트릭 기록 실패는 결과 표시에 영향 없음 */ });
             }
         }

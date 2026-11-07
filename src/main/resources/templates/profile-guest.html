@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- 회원 쿠키 없이 /me, /me/edit 에 들어온 경우. 메일 링크로 한 번 들어오면 쿠키가 발급된다. -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: head('내 프로필')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+
+<main class="page-main">
+    <div class="container px-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="page-card">
+                    <div class="page-card-body text-center">
+                        <div class="status-icon">👤</div>
+                        <h1 class="section-title h4 mb-2">메일의 학습 링크로 들어와 주세요</h1>
+                        <p class="text-muted-2 mb-0">
+                            매일 칸지는 로그인이 없어요.<br>
+                            오늘 받은 학습 메일의 <strong>학습 완성하러 가기</strong> 버튼으로 한 번 들어오면<br class="d-none d-sm-inline">
+                            이 브라우저에서 내 프로필과 잔디를 볼 수 있어요.
+                        </p>
+                    </div>
+                    <div class="page-card-foot d-flex flex-wrap gap-2 justify-content-center">
+                        <a th:href="@{/ranking}" class="btn btn-ghost">🏆 랭킹 구경하기</a>
+                        <a th:href="@{/}" class="btn btn-maeil">아직 구독 전이라면</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package maeilkanji.maeilkanji.business.repository
 
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.service.dto.QuizSessionRecordDto
 import maeilkanji.maeilkanji.business.service.dto.QuizSessionStatsDto
 import java.util.*
 
@@ -12,5 +13,7 @@ interface QuizQuestionAnswerRepository {
     fun saveAll(memberId: UUID, level: KanjiLevel, contentId: Long, results: List<Boolean>)
 
     fun getStats(level: KanjiLevel, contentId: Long, questionCount: Int): QuizSessionStatsDto
+
+    fun findSessionsByMember(memberId: UUID): List<QuizSessionRecordDto>
 
 }

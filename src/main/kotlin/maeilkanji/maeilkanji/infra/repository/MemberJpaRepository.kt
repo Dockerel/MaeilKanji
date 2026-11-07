@@ -18,4 +18,8 @@ interface MemberJpaRepository : JpaRepository<MemberEntity, UUID> {
 
     fun findAllByMemberStatusAndLevel(memberStatus: MemberStatus, level: KanjiLevel): List<MemberEntity>
 
+    fun findByNickname(nickname: String): MemberEntity?
+
+    fun existsByNickname(nickname: String): Boolean
+
 }

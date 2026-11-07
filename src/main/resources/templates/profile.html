@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<!--
+  프로필 페이지. 공개 프로필(/u/{닉네임})과 내 프로필(/me)이 함께 쓴다. (ProfileController)
+  owner 가 true 면 꾸미기 버튼·잠금 해제 안내를 보여준다.
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: head(${profile.displayName} + ' 프로필')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+<link rel="stylesheet" href="/css/profile.css">
+
+<main class="page-main" style="padding-top: 32px;">
+    <div class="container px-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+
+                <!-- 닉네임 미설정 안내 -->
+                <div class="info-box mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2"
+                     th:if="${owner and profile.nickname == null}">
+                    <span class="small">닉네임을 정하면 <strong>랭킹에 이름이 표시</strong>되고 프로필을 공유할 수 있어요.</span>
+                    <a th:href="@{/me/edit}" class="btn btn-sm btn-maeil" style="padding: 6px 14px;">닉네임 정하기</a>
+                </div>
+
+                <!-- 헤더 카드 -->
+                <section class="page-card mb-3">
+                    <div class="profile-banner" th:classappend="'theme-' + ${profile.theme.cssName}"></div>
+                    <div class="profile-head">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="profile-avatar" th:text="${profile.avatar.emoji}" aria-hidden="true">🙂</div>
+                            <div class="d-flex gap-2 pt-3" th:if="${owner}">
+                                <button type="button" class="btn btn-sm btn-ghost" id="share-btn" style="padding: 6px 12px;"
+                                        th:if="${profile.nickname != null}"
+                                        th:data-url="@{/u/{n}(n=${profile.nickname})}">🔗 공유</button>
+                                <a th:href="@{/me/edit}" class="btn btn-sm btn-maeil" style="padding: 6px 14px;">🎨 꾸미기</a>
+                            </div>
+                        </div>
+                        <h1 class="profile-name">
+                            <span th:text="${profile.displayName}">익명의 학습자</span>
+                            <span class="featured-badge" th:if="${profile.featuredBadge != null}"
+                                  th:title="${profile.featuredBadge.description}">
+                                <span th:text="${profile.featuredBadge.emoji}">🌱</span>
+                                <span th:text="${profile.featuredBadge.title}">새싹</span>
+                            </span>
+                        </h1>
+                        <p class="profile-bio" th:if="${profile.bio != null}" th:text="${profile.bio}">매일 한자 두 개씩!</p>
+                        <p class="small text-muted-2 mt-2 mb-0">
+                            배지 <strong th:text="${profile.earnedBadgeCount}">0</strong>개 ·
+                            누적 <strong th:text="${profile.studyDays}">0</strong>일 학습
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 통계 -->
+                <section class="stat-grid mb-3">
+                    <div class="stat-tile hot">
+                        <p class="stat-label mb-1">🔥 현재 스트릭</p>
+                        <p class="stat-value mb-0"><span th:text="${profile.currentStreak}">0</span><span class="stat-unit">일</span></p>
+                        <p class="stat-sub mb-0" th:with="r=${profile.currentStreakRank}">
+                            <a th:if="${r != null}" th:href="@{/ranking(type='current_streak')}" th:text="'랭킹 ' + ${r} + '위'">랭킹 1위</a>
+                            <span th:if="${r == null}">오늘 학습하면 시작!</span>
+                        </p>
+                    </div>
+                    <div class="stat-tile">
+                        <p class="stat-label mb-1">🏔️ 최장 스트릭</p>
+                        <p class="stat-value mb-0"><span th:text="${profile.maxStreak}">0</span><span class="stat-unit">일</span></p>
+                        <p class="stat-sub mb-0" th:with="r=${profile.maxStreakRank}">
+                            <a th:if="${r != null}" th:href="@{/ranking(type='max_streak')}" th:text="'랭킹 ' + ${r} + '위'">랭킹 1위</a>
+                            <span th:if="${r == null}">-</span>
+                        </p>
+                    </div>
+                    <div class="stat-tile">
+                        <p class="stat-label mb-1">🌿 누적 학습일</p>
+                        <p class="stat-value mb-0"><span th:text="${profile.studyDays}">0</span><span class="stat-unit">일</span></p>
+                        <p class="stat-sub mb-0" th:with="r=${profile.studyDaysRank}">
+                            <a th:if="${r != null}" th:href="@{/ranking(type='study_days')}" th:text="'랭킹 ' + ${r} + '위'">랭킹 1위</a>
+                            <span th:if="${r == null}">-</span>
+                        </p>
+                    </div>
+                    <div class="stat-tile">
+                        <p class="stat-label mb-1">✏️ 퀴즈</p>
+                        <p class="stat-value mb-0"><span th:text="${profile.quizSessions}">0</span><span class="stat-unit">회</span></p>
+                        <p class="stat-sub mb-0">
+                            만점 <span th:text="${profile.perfectSessions}">0</span>회<span th:if="${profile.averageQuizRate != null}"
+                                th:text="' · 평균 ' + ${profile.averageQuizRate} + '%'"> · 평균 80%</span>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 학습 잔디 -->
+                <section class="page-card mb-3">
+                    <div class="page-card-body">
+                        <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2 mb-3">
+                            <p class="block-title mb-0">🌱 학습 잔디</p>
+                            <span class="small text-muted-2">최근 1년 동안 <strong th:text="${profile.heatmap.activeDays}">0</strong>일 학습</span>
+                        </div>
+                        <div class="heatmap-scroll" id="heatmap-scroll">
+                            <div class="heatmap" role="img"
+                                 th:aria-label="'최근 1년 동안 ' + ${profile.heatmap.activeDays} + '일 학습'">
+                                <div class="heatmap-weekdays" aria-hidden="true">
+                                    <span></span>
+                                    <span th:each="label : ${weekdayLabels}" th:text="${label}"></span>
+                                </div>
+                                <div class="heatmap-week" th:each="week : ${profile.heatmap.weeks}" aria-hidden="true">
+                                    <span class="heatmap-month" th:text="${week.monthLabel}"></span>
+                                    <span th:each="cell : ${week.days}" class="grass"
+                                          th:classappend="${cell.future ? 'future' : 'l' + cell.level} + ${cell.today ? ' today' : ''}"
+                                          th:title="${#temporals.format(cell.date, 'yyyy년 M월 d일')} + ' · ' + ${cell.level == 0 ? '기록 없음' : cell.level == 1 ? '학습 페이지 방문' : cell.level == 2 ? '퀴즈 완료' : cell.level == 3 ? '퀴즈 60% 이상' : '퀴즈 만점'}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="heatmap-legend" aria-hidden="true">
+                            <span class="me-1">적게</span>
+                            <span class="grass"></span><span class="grass l1"></span><span class="grass l2"></span>
+                            <span class="grass l3"></span><span class="grass l4"></span>
+                            <span class="ms-1">많이</span>
+                        </div>
+                        <p class="small text-muted-2 mt-2 mb-0">
+                            학습 페이지 방문 → 퀴즈 완료 → 60% 이상 → 만점 순으로 진해져요.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 다음 잠금 해제 (본인만) -->
+                <section class="unlock-box mb-3" th:if="${owner and profile.nextTheme != null}">
+                    <p class="fw-bold mb-0">
+                        🎨 최장 스트릭 <span th:text="${profile.daysToNextTheme}">3</span>일 더 하면
+                        '<span th:text="${profile.nextTheme.label}">벚꽃</span>' 테마가 열려요!
+                    </p>
+                    <div class="unlock-bar" role="progressbar"
+                         th:aria-valuenow="${profile.maxStreak}" aria-valuemin="0" th:aria-valuemax="${profile.nextTheme.requiredMaxStreak}">
+                        <div th:style="'width:' + ${profile.maxStreak * 100 / profile.nextTheme.requiredMaxStreak} + '%'"></div>
+                    </div>
+                </section>
+
+                <!-- 배지 -->
+                <section class="page-card">
+                    <div class="page-card-body">
+                        <div class="d-flex justify-content-between align-items-baseline mb-3">
+                            <p class="block-title mb-0">🏅 배지</p>
+                            <span class="small text-muted-2">
+                                <strong th:text="${profile.earnedBadgeCount}">0</strong> / <span th:text="${#lists.size(profile.badges)}">20</span>
+                            </span>
+                        </div>
+                        <div th:each="category : ${badgeCategories}" class="mb-3">
+                            <p class="small fw-bold text-muted-2 mb-2" th:text="${category.label}">연속 학습</p>
+                            <div class="badge-grid">
+                                <div th:each="status : ${profile.badges}" th:if="${status.badge.category == category}"
+                                     class="badge-item" th:classappend="${status.earned ? 'earned' : 'locked'}"
+                                     th:title="${status.earned ? '획득' : '미획득'} + ' · ' + ${status.badge.description}">
+                                    <div class="badge-emoji" th:text="${status.badge.emoji}" aria-hidden="true">🌱</div>
+                                    <div class="badge-title" th:text="${status.badge.title}">새싹</div>
+                                    <div class="badge-desc" th:text="${status.badge.description}">3일 연속 학습</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="text-center mt-4">
+                    <a th:href="@{/ranking}" class="btn btn-ghost">🏆 스트릭 랭킹 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+
+<script>
+    (function () {
+        // 잔디는 최근 날짜가 오른쪽 끝. 좁은 화면에서는 오른쪽 끝부터 보이게 한다.
+        var scroll = document.getElementById('heatmap-scroll');
+        if (scroll) scroll.scrollLeft = scroll.scrollWidth;
+
+        var share = document.getElementById('share-btn');
+        if (share) {
+            share.addEventListener('click', function () {
+                var url = window.location.origin + share.dataset.url;
+                var done = function () { share.textContent = '✅ 링크 복사됨'; };
+                if (navigator.share) {
+                    navigator.share({title: document.title, url: url}).catch(function () {});
+                } else if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(done);
+                } else {
+                    window.prompt('프로필 주소', url);
+                }
+            });
+        }
+    })();
+</script>
+</body>
+</html>

@@ -10,4 +10,5 @@ import java.util.*
 interface QuizQuestionAnswerJpaRepository : JpaRepository<QuizQuestionAnswerEntity, UUID> {
     fun existsByMemberIdAndLevelAndContentId(memberId: UUID, level: KanjiLevel, contentId: Long): Boolean
     fun findAllByLevelAndContentId(level: KanjiLevel, contentId: Long): List<QuizQuestionAnswerEntity>
+    fun findAllByMemberId(memberId: UUID): List<QuizQuestionAnswerEntity>
 }

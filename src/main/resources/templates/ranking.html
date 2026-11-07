@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!-- 스트릭 랭킹 (/ranking?type=current_streak|max_streak|study_days). ProfileController / RankingService -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/page :: head('스트릭 랭킹')}"></head>
+<body>
+<nav th:replace="~{fragments/page :: nav}"></nav>
+<link rel="stylesheet" href="/css/profile.css">
+
+<main class="page-main" style="padding-top: 32px;">
+    <div class="container px-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <p class="section-label">RANKING</p>
+                <h1 class="section-title h3 mb-1">🏆 스트릭 랭킹</h1>
+                <p class="text-muted-2 mb-3">매일 학습한 날이 쌓일수록 순위가 올라가요.</p>
+
+                <nav class="rank-tabs mb-3" aria-label="랭킹 종류">
+                    <a th:each="t : ${rankingTypes}" th:href="@{/ranking(type=${t.path})}" th:text="${t.label}"
+                       th:classappend="${t == ranking.type} ? 'active'"
+                       th:attr="aria-current=${t == ranking.type ? 'page' : null}">현재 스트릭</a>
+                </nav>
+
+                <p class="small text-muted-2 mb-3" th:switch="${ranking.type.name()}">
+                    <span th:case="'CURRENT_STREAK'">오늘 또는 어제까지 이어지고 있는 연속 학습 일수예요. 하루 쉬면 0일로 돌아가요.</span>
+                    <span th:case="'MAX_STREAK'">지금까지 가장 길게 이어간 연속 학습 일수예요.</span>
+                    <span th:case="*">학습 페이지를 방문한 날의 총합이에요.</span>
+                </p>
+
+                <!-- 내 순위 -->
+                <div class="page-card mb-3" th:if="${ranking.myEntry != null}" th:with="e=${ranking.myEntry}">
+                    <div class="rank-row me">
+                        <span class="rank-no" th:text="${e.rank}">12</span>
+                        <span class="rank-avatar" th:text="${e.avatar.emoji}" aria-hidden="true">🙂</span>
+                        <span class="rank-name">
+                            내 순위 <span class="text-muted-2 small fw-normal" th:text="'/ ' + ${ranking.totalRanked} + '명'">/ 40명</span>
+                        </span>
+                        <span class="rank-value" th:text="${e.value} + ${ranking.type.unit}">5일 연속</span>
+                    </div>
+                </div>
+
+                <section class="page-card">
+                    <ol class="rank-list" th:unless="${#lists.isEmpty(ranking.entries)}">
+                        <li class="rank-row" th:each="e : ${ranking.entries}" th:classappend="${e.me} ? 'me'">
+                            <span class="rank-no" th:classappend="${e.rank <= 3} ? 'top'"
+                                  th:text="${e.rank == 1 ? '🥇' : e.rank == 2 ? '🥈' : e.rank == 3 ? '🥉' : e.rank}"
+                                  th:aria-label="${e.rank} + '위'">1</span>
+                            <span class="rank-avatar" th:text="${e.avatar.emoji}" aria-hidden="true">🙂</span>
+                            <span class="rank-name">
+                                <a th:if="${e.nickname != null}" th:href="@{/u/{n}(n=${e.nickname})}" th:text="${e.nickname}">칸지왕</a>
+                                <span th:if="${e.nickname == null}" class="anon" th:text="${e.displayName}">익명의 학습자</span>
+                                <span th:if="${e.featuredBadge != null}" th:text="${e.featuredBadge.emoji}"
+                                      th:title="${e.featuredBadge.title}">🌱</span>
+                                <span class="me-chip" th:if="${e.me}">나</span>
+                            </span>
+                            <span class="rank-value" th:text="${e.value} + ${ranking.type.unit}">30일 연속</span>
+                        </li>
+                    </ol>
+                    <div class="page-card-body text-center" th:if="${#lists.isEmpty(ranking.entries)}">
+                        <p class="fs-1 mb-2">🌱</p>
+                        <p class="fw-bold mb-1">아직 순위에 오른 학습자가 없어요.</p>
+                        <p class="text-muted-2 small mb-0">오늘 학습 메일의 링크로 들어오면 1등이 될 수 있어요!</p>
+                    </div>
+                </section>
+
+                <p class="small text-muted-2 text-center mt-3 mb-0">
+                    닉네임은 <a th:href="@{/me/edit}">프로필 꾸미기</a>에서 정할 수 있어요. 상위 100명까지 보여줘요.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/page :: footer}"></footer>
+</body>
+</html>

@@ -25,6 +25,9 @@ infra/            → JPA entities, JpaRepository interfaces, repository impleme
 - **DTO flow**: request DTOs in `presentation/controller/api/request/`, service request/response types in `business/service/request/` and `business/service/response/`, service-level DTOs in `business/service/dto/`.
 - **Async email**: `DailyContentEmailPublisher` publishes to RabbitMQ; `DailyContentEmailConsumer` consumes and sends via `MailService` (Resend SMTP, sender `MAIL_FROM`).
 - **Schedulers**: `DailyContentScheduler`, `DailyContentIndexScheduler` — check `@Scheduled` usage.
+- **Gamification** (no login): mail links carry `?memberId=`; `POST /api/v1/members/streak` and `GET /me?memberId=` issue the `MK_MEMBER` cookie (`MemberSessionCookie`), which identifies the member for `/me`, `/me/edit`, `PUT /api/v1/profile/me` and "my rank" on `/ranking`. Public profiles live at `/u/{nickname}`.
+  - `study_day` table = one row per study date (heatmap, 누적 학습일). Badges (`Badge`) are computed from stats, not stored. Avatars/themes (`ProfileDecoration.kt`) unlock by `member.maxStreak`.
+  - `RankingService` ranks all members in memory (current streak uses `StreakPolicy.current`, which is 0 once a day is skipped).
 
 ## Infrastructure
 

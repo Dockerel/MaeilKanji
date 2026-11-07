@@ -24,7 +24,7 @@ private const val BASE_URL = "https://maeilkanji.test"
 
 private const val DAILY_TEMPLATE =
     "{{level}}|{{kanji1}}|{{yomi1}}|{{meaning1}}|{{kanji2}}|{{yomi2}}|{{meaning2}}|{{quiz}}|" +
-        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}|{{LOGO_URL}}|{{FEEDBACK_URL}}"
+        "{{SITE_ACCESS_URL}}|{{UNSUBSCRIBE_URL}}|{{LEVEL_CHANGE_URL}}|{{LOGO_URL}}|{{FEEDBACK_URL}}|{{PROFILE_URL}}"
 
 class EmailTemplateServiceTest : BehaviorSpec({
     isolationMode = IsolationMode.InstancePerLeaf
@@ -100,6 +100,7 @@ class EmailTemplateServiceTest : BehaviorSpec({
                     "$BASE_URL/change-level-confirm?memberId=$memberId",
                     "$BASE_URL/maeilkanji.png",
                     "$BASE_URL/feedback?memberId=$memberId&context=%EC%B4%88%EA%B8%89+%233",
+                    "$BASE_URL/me?memberId=$memberId",
                 ).joinToString("|")
                 result["template"]!! shouldNotContain "{{"
             }

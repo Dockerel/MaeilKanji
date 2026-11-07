@@ -33,18 +33,12 @@ class MemberRepositoryImpl(
 
     override fun update(email: String, findMember: MemberDto) {
         val memberEntity = findMemberEntityByEmailOptional(email)!!
-        memberEntity.memberStatus = findMember.memberStatus
-        memberEntity.level = findMember.level
-        memberEntity.streak = findMember.streak
-        memberEntity.lastAccessedAt = findMember.lastAccessedAt
+        copyMutableFields(memberEntity, findMember)
     }
 
     override fun update(memberId: UUID, findMember: MemberDto) {
         val memberEntity = findMemberEntityByIdOptional(memberId)!!
-        memberEntity.memberStatus = findMember.memberStatus
-        memberEntity.level = findMember.level
-        memberEntity.streak = findMember.streak
-        memberEntity.lastAccessedAt = findMember.lastAccessedAt
+        copyMutableFields(memberEntity, findMember)
     }
 
     override fun save(memberSignupDto: MemberSignupDto) {
@@ -67,6 +61,27 @@ class MemberRepositoryImpl(
         level: KanjiLevel
     ): List<MemberDto> {
         return memberJpaRepository.findAllByMemberStatusAndLevel(memberStatus, level).map { memberMapper.convert(it) }
+    }
+
+    override fun findByNickname(nickname: String): MemberDto? {
+        return memberJpaRepository.findByNickname(nickname)?.let { memberMapper.convert(it) }
+    }
+
+    override fun existsByNickname(nickname: String): Boolean {
+        return memberJpaRepository.existsByNickname(nickname)
+    }
+
+    private fun copyMutableFields(memberEntity: MemberEntity, member: MemberDto) {
+        memberEntity.memberStatus = member.memberStatus
+        memberEntity.level = member.level
+        memberEntity.streak = member.streak
+        memberEntity.lastAccessedAt = member.lastAccessedAt
+        memberEntity.maxStreak = member.maxStreak
+        memberEntity.nickname = member.nickname
+        memberEntity.bio = member.bio
+        memberEntity.avatar = member.avatar?.name
+        memberEntity.profileTheme = member.profileTheme?.name
+        memberEntity.featuredBadge = member.featuredBadge?.name
     }
 
     private fun findMemberEntityByIdOptional(memberId: UUID): MemberEntity {

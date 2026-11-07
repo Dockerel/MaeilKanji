@@ -17,5 +17,7 @@ interface MemberRepository {
     fun findById(memberId: UUID): MemberDto
     fun findAllByMemberStatusAndLevel(memberStatus: MemberStatus, level: KanjiLevel): List<MemberDto>
     fun findAll(): List<MemberDto>
+    fun findByNickname(nickname: String): MemberDto?
+    fun existsByNickname(nickname: String): Boolean
 
 }

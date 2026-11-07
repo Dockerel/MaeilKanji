@@ -27,9 +27,16 @@
 <nav th:fragment="nav" class="site-nav">
     <div class="container px-4 py-2 d-flex align-items-center justify-content-between">
         <a th:replace="~{fragments/brand :: brand}"></a>
-        <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold">서비스 소개</a>
+        <div th:replace="~{fragments/page :: nav-links}"></div>
     </div>
 </nav>
+
+<!-- 상단 nav 오른쪽 링크. 학습 페이지(daily-lesson)도 함께 쓴다. -->
+<div th:fragment="nav-links" class="d-flex align-items-center gap-3">
+    <a th:href="@{/ranking}" class="nav-text-link">🏆 랭킹</a>
+    <a th:href="@{/me}" class="nav-text-link">👤 내 프로필</a>
+    <a th:href="@{/}" class="btn btn-sm btn-outline-primary fw-semibold d-none d-sm-inline-block">서비스 소개</a>
+</div>
 
 <footer th:fragment="footer" class="site-footer bg-dark py-4">
     <div class="container text-center">

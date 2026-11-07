@@ -43,6 +43,20 @@ body {
     border-bottom: 1px solid var(--maeil-line);
 }
 
+/* ---------- 상단 nav 링크 ---------- */
+.nav-text-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--maeil-muted);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-text-link:hover,
+.nav-text-link.active {
+    color: var(--maeil-blue);
+}
+
 /* ---------- 본문 ---------- */
 .page-main {
     flex: 1 0 auto;

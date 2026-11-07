@@ -84,6 +84,8 @@ class EmailTemplateService(
             .replace("{{UNSUBSCRIBE_URL}}", "$baseUrl/unsubscribe-confirm?memberId=$memberId")
             .replace("{{LEVEL_CHANGE_URL}}", "$baseUrl/change-level-confirm?memberId=$memberId")
             .replace("{{FEEDBACK_URL}}", feedbackUrl(memberId, "${content.level.korean} #$contentIndex"))
+            // /me 는 memberId 로 회원 쿠키를 발급하고 내 프로필로 보낸다. (ProfileController)
+            .replace("{{PROFILE_URL}}", "$baseUrl/me?memberId=$memberId")
             .replace("{{YEAR}}", currentYear())
 
 

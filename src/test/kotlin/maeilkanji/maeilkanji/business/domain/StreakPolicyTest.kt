@@ -51,4 +51,25 @@ class StreakPolicyTest : BehaviorSpec({
             }
         }
     }
+
+    Given("현재 스트릭(랭킹·프로필용)은") {
+        When("오늘이나 어제 접속했으면") {
+            Then("저장된 값을 그대로 쓴다") {
+                StreakPolicy.current(5, now.minusHours(1), now) shouldBe 5
+                StreakPolicy.current(5, LocalDateTime.of(2026, 11, 6, 0, 1), now) shouldBe 5
+            }
+        }
+
+        When("이틀 전이 마지막 접속이면 (경계값)") {
+            Then("스트릭이 끊긴 것이므로 0 이다") {
+                StreakPolicy.current(5, LocalDateTime.of(2026, 11, 5, 23, 59), now) shouldBe 0
+            }
+        }
+
+        When("접속 이력이 없으면") {
+            Then("0 이다") {
+                StreakPolicy.current(0, null, now) shouldBe 0
+            }
+        }
+    }
 })

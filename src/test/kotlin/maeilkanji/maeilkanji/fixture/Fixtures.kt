@@ -57,6 +57,8 @@ fun memberDto(
     level: KanjiLevel = KanjiLevel.BEGINNER,
     streak: Int = 0,
     lastAccessedAt: LocalDateTime? = null,
+    maxStreak: Int = 0,
+    nickname: String? = null,
 ) = MemberDto(
     id = id,
     email = email,
@@ -64,6 +66,8 @@ fun memberDto(
     level = level,
     streak = streak,
     lastAccessedAt = lastAccessedAt,
+    maxStreak = maxStreak,
+    nickname = nickname,
 )
 
 fun contentRequest(

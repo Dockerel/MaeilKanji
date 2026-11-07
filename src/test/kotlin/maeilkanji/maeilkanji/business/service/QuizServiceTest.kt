@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import maeilkanji.maeilkanji.business.domain.KanjiLevel
+import maeilkanji.maeilkanji.business.domain.LearningStats
 import maeilkanji.maeilkanji.business.exception.MaeilKanjiException
 import maeilkanji.maeilkanji.business.repository.DailyContentRepository
 import maeilkanji.maeilkanji.business.repository.MemberRepository
@@ -27,7 +28,8 @@ class QuizServiceTest : BehaviorSpec({
     val dailyContentRepository = mockk<DailyContentRepository>()
     val memberRepository = mockk<MemberRepository>()
     val quizQuestionAnswerRepository = mockk<QuizQuestionAnswerRepository>(relaxUnitFun = true)
-    val quizService = QuizService(dailyContentRepository, memberRepository, quizQuestionAnswerRepository)
+    val profileService = mockk<ProfileService>()
+    val quizService = QuizService(dailyContentRepository, memberRepository, quizQuestionAnswerRepository, profileService)
 
     val level = KanjiLevel.INTERMEDIATE
     val pool = (1L..10L).map { quizContentDto(it, level) }
@@ -64,6 +66,7 @@ class QuizServiceTest : BehaviorSpec({
 
     Given("회원이 처음 제출할 때") {
         every { quizQuestionAnswerRepository.exists(memberId, level, 5L) } returns false
+        every { profileService.learningStats(memberId) } returns LearningStats()
 
         When("3문제를 맞히면") {
             val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, threeCorrect, memberId.toString()))
@@ -77,6 +80,35 @@ class QuizServiceTest : BehaviorSpec({
                 response.topPercent shouldBe 67 // 3점 이상 2명 / 3명
                 response.questionCorrectRates shouldBe listOf(100, 67, 67, 33, 67)
                 verify(exactly = 1) { quizQuestionAnswerRepository.saveAll(memberId, level, 5L, listOf(true, true, true, false, false)) }
+            }
+        }
+    }
+
+    Given("회원이 첫 퀴즈를 만점으로 제출하면") {
+        every { quizQuestionAnswerRepository.exists(memberId, level, 5L) } returns false
+        every { profileService.learningStats(memberId) } returnsMany listOf(
+            LearningStats(),
+            LearningStats(quizSessions = 1, perfectSessions = 1, levelsPlayed = setOf(level)),
+        )
+
+        When("제출하면") {
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, memberId.toString()))
+
+            Then("기록 전후로 새로 얻은 퀴즈 배지를 반환한다") {
+                response.newBadges.map { it.code } shouldBe listOf("QUIZ_FIRST", "PERFECT_1")
+            }
+        }
+    }
+
+    Given("이미 제출한 회원의 배지는") {
+        every { quizQuestionAnswerRepository.exists(memberId, level, 5L) } returns true
+
+        When("다시 풀어도") {
+            val response = quizService.submitSession(SubmitQuizSessionServiceRequest(level, 5L, perfect, memberId.toString()))
+
+            Then("새 배지가 없고 배지 계산도 하지 않는다") {
+                response.newBadges shouldBe emptyList()
+                verify(exactly = 0) { profileService.learningStats(any()) }
             }
         }
     }

@@ -279,10 +279,12 @@ class MemberRestControllerTest(
             every { memberService.recordStudyAccess(memberId) } returns StreakResponse(4)
             val result = postJson("/streak", StreakRequest(memberId))
 
-            Then("200 과 갱신된 스트릭을 반환한다") {
+            Then("200 과 갱신된 스트릭을 반환하고 회원 쿠키를 발급한다") {
                 result.andExpect {
                     status { isOk() }
                     jsonPath("\$.streak") { value(4) }
+                    cookie { value("MK_MEMBER", memberId) }
+                    cookie { httpOnly("MK_MEMBER", true) }
                 }
             }
         }

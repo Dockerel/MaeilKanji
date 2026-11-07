@@ -28,6 +28,7 @@ class SeoControllerTest(
                 content { contentTypeCompatibleWith("text/plain") }
                 content { string(containsString("Disallow: /admin")) }
                 content { string(containsString("Disallow: /api/")) }
+                content { string(containsString("Disallow: /me")) }
                 content { string(containsString("Sitemap: https://example.com/sitemap.xml")) }
             }
         }

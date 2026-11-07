@@ -29,6 +29,7 @@ class SeoController(
         Disallow: /bye
         Disallow: /feedback
         Disallow: /thank-you-for-feedback
+        Disallow: /me
 
         Sitemap: $baseUrl/sitemap.xml
     """.trimIndent() + "\n"
