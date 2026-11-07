@@ -109,7 +109,8 @@ object QuizSessionFactory {
             promptHtml = tiles.mapIndexed { i, tile ->
                 if (i == target) """<span class="blank" aria-label="빈칸"></span>""" else tile.html
             }.joinToString(""),
-            hint = "$sourceLabel · ${source.sentenceMeaning}",
+            source = sourceLabel,
+            hint = source.sentenceMeaning,
             options = options.map { QuizOption(it.text, it.html) },
             answerIndex = options.indexOf(answer),
             explanation = source.sentenceMeaning,

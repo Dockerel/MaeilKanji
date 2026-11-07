@@ -16,7 +16,9 @@ data class QuizQuestion(
     val prompt: String,
     // 질문에 딸린 일본어 (루비 HTML). 단어 / 빈칸이 있는 예문
     val promptHtml: String? = null,
-    // 보조 설명. 예: 예문의 한국어 뜻, 출처(어제 배운 예문)
+    // 출처 라벨. 예: 어제 배운 예문
+    val source: String? = null,
+    // 보조 설명. 예: 예문의 한국어 뜻
     val hint: String? = null,
     val options: List<QuizOption>,
     // 4지선다 정답 위치

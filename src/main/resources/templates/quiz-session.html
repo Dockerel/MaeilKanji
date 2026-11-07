@@ -91,6 +91,18 @@
         margin-bottom: 16px;
     }
 
+    .quiz-source {
+        display: inline-block;
+        padding: 1px 9px;
+        margin-right: 6px;
+        border-radius: 6px;
+        background-color: var(--maeil-blue);
+        color: white;
+        font-size: 0.78rem;
+        font-weight: 700;
+        vertical-align: 1px;
+    }
+
     rt {
         font-size: 0.5em;
         color: var(--maeil-muted);
@@ -204,6 +216,7 @@
         font-size: 1.1rem;
         line-height: 2.2;
         color: var(--maeil-ink);
+        position: relative;
         transition: transform 0.1s;
     }
 
@@ -401,6 +414,7 @@
         var levelLabel = /*[[${levelLabel}]]*/ '초급';
         var lessonUrl = /*[[@{/daily-content/{lp}/{id}(lp=${levelPath},id=${quizSession.contentId})}]]*/ '/';
 
+        var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         var root = document.getElementById('quiz-root');
         var questions = quiz.questions;
         var total = questions.length;
@@ -448,7 +462,12 @@
                 jp.lang = 'ja';
                 card.appendChild(jp);
             }
-            if (q.hint) card.appendChild(el('p', 'quiz-hint', escapeText(q.hint)));
+            if (q.source || q.hint) {
+                var hint = el('p', 'quiz-hint');
+                if (q.source) hint.appendChild(el('span', 'quiz-source', escapeText(q.source)));
+                if (q.hint) hint.appendChild(document.createTextNode(q.hint));
+                card.appendChild(hint);
+            }
 
             var action = el('div', 'quiz-action');
             var checkBtn = el('button', 'btn btn-maeil', '확인');
@@ -526,25 +545,64 @@
                 checkBtn.disabled = picked.length === 0;
             }
 
+            // FLIP: 바꾸기 전 위치를 재고, DOM 을 바꾼 뒤 새 위치에서 이전 위치로 거꾸로 이어 붙여 미끄러지게 한다.
+            // flyFrom 은 새로 나타나는 블록이 날아올 출발 블록(눌린 블록)이다.
+            function moveTiles(mutate) {
+                var tiles = Array.prototype.slice.call(card.querySelectorAll('.tile'));
+                var before = new Map();
+                tiles.forEach(function (t) {
+                    before.set(t, t.getBoundingClientRect());
+                    if (t.getAnimations) t.getAnimations().forEach(function (a) { a.cancel(); });
+                });
+                var fly = mutate();
+                if (reduceMotion || !Element.prototype.animate) return;
+
+                card.querySelectorAll('.tile').forEach(function (t) {
+                    if (t.classList.contains('used')) return;
+                    var from = t === fly.to ? before.get(fly.from) : before.get(t);
+                    if (!from) return;
+                    var to = t.getBoundingClientRect();
+                    var dx = from.left - to.left;
+                    var dy = from.top - to.top;
+                    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+                    var flying = t === fly.to;
+                    if (flying) t.style.zIndex = 2;
+                    var anim = t.animate([
+                        { transform: 'translate(' + dx + 'px,' + dy + 'px)' + (flying ? ' scale(1.06)' : '') },
+                        { transform: 'none' }
+                    ], {
+                        duration: flying ? 320 : 240,
+                        easing: 'cubic-bezier(0.22, 1, 0.36, 1)'
+                    });
+                    anim.onfinish = anim.oncancel = function () { t.style.zIndex = ''; };
+                });
+            }
+
             q.options.forEach(function (option, i) {
                 var source = el('button', 'tile', option.html);
                 source.type = 'button';
                 source.lang = 'ja';
                 source.addEventListener('click', function () {
                     if (checkBtn.dataset.state === 'next' || source.classList.contains('used')) return;
-                    source.classList.add('used');
-                    picked.push(i);
                     var placed = el('button', 'tile', option.html);
                     placed.type = 'button';
                     placed.lang = 'ja';
                     placed.addEventListener('click', function () {
                         if (checkBtn.dataset.state === 'next') return;
-                        picked.splice(picked.indexOf(i), 1);
-                        placed.remove();
-                        source.classList.remove('used');
+                        moveTiles(function () {
+                            picked.splice(picked.indexOf(i), 1);
+                            placed.remove();
+                            source.classList.remove('used');
+                            return { from: placed, to: source };
+                        });
                         refresh();
                     });
-                    answerArea.appendChild(placed);
+                    moveTiles(function () {
+                        source.classList.add('used');
+                        picked.push(i);
+                        answerArea.appendChild(placed);
+                        return { from: source, to: placed };
+                    });
                     refresh();
                 });
                 bank.appendChild(source);

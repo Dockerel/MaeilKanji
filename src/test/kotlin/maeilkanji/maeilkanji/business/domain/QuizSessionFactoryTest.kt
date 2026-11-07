@@ -45,9 +45,9 @@ class QuizSessionFactoryTest : BehaviorSpec({
             }
 
             Then("빈칸 문제는 어제·그저께 예문에서 kanji1 블록을 비운다") {
-                q[2].hint!! shouldContain "어제 배운 예문"
+                q[2].source shouldBe "어제 배운 예문"
                 q[2].options[q[2].answerIndex!!].text shouldBe "木曜日" // 4번 콘텐츠
-                q[3].hint!! shouldContain "그저께 배운 예문"
+                q[3].source shouldBe "그저께 배운 예문"
                 q[3].options[q[3].answerIndex!!].text shouldBe "水曜日" // 3번 콘텐츠
                 q[2].promptHtml!! shouldContain "class=\"blank\""
                 q[2].promptHtml!! shouldNotContain "木曜日"
@@ -72,7 +72,7 @@ class QuizSessionFactoryTest : BehaviorSpec({
         val session = QuizSessionFactory.create(pool.first(), pool).shouldNotBeNull()
 
         Then("id 가 큰 지난 콘텐츠로 빈칸 문제를 만든다") {
-            session.questions[2].hint!! shouldContain "지난 예문"
+            session.questions[2].source shouldBe "지난 예문"
             session.questions[2].options[session.questions[2].answerIndex!!].text shouldBe "秋曜日" // 10번
         }
     }
