@@ -52,6 +52,11 @@ body {
     white-space: nowrap;
 }
 
+.nav-text-link i {
+    margin-right: 5px;
+    font-size: 0.85em;
+}
+
 .nav-text-link:hover,
 .nav-text-link.active {
     color: var(--maeil-blue);

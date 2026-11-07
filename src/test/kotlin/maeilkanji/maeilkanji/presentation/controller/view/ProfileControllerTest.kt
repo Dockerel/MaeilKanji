@@ -75,7 +75,7 @@ class ProfileControllerTest(
                     content { string(containsString("theme-matcha")) }
                     content { string(containsString("grass l4 today")) }
                     content { string(containsString("일주일 개근")) }
-                    content { string(containsString("랭킹 3위")) }
+                    content { string(containsString(">3위<")) }
                     content { string(not(containsString("/me/edit"))) }
                 }
             }
@@ -161,9 +161,9 @@ class ProfileControllerTest(
         Then("잠긴 아바타·테마는 비활성으로, 얻은 배지만 대표 배지 후보로 보여준다") {
             result.andExpect {
                 status { isOk() }
-                content { string(containsString("value=\"PANDA\" data-emoji=\"🐼\" checked=\"checked\"")) }
-                content { string(containsString("value=\"OWL\" data-emoji=\"🦉\" disabled=\"disabled\"")) }
-                content { string(containsString("🔒 노을 · 14일")) }
+                content { string(containsString("value=\"PANDA\" data-glyph=\"熊\" data-css=\"panda\" checked=\"checked\"")) }
+                content { string(containsString("value=\"OWL\" data-glyph=\"梟\" data-css=\"owl\" disabled=\"disabled\"")) }
+                content { string(containsString("노을 · 14일")) }
                 content { string(containsString("value=\"STREAK_7\"")) }
                 content { string(not(containsString("value=\"STREAK_30\""))) }
             }
@@ -185,7 +185,7 @@ class ProfileControllerTest(
         Then("순위·공개 프로필 링크·내 순위를 보여준다") {
             result.andExpect {
                 status { isOk() }
-                content { string(containsString("🥇")) }
+                content { string(containsString("podium-slot p1")) }
                 content { string(containsString("/u/%EC%B9%B8%EC%A7%80%EC%99%95")) }
                 content { string(containsString("120일 연속")) }
                 content { string(containsString("내 순위")) }

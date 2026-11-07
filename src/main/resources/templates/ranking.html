@@ -11,59 +11,90 @@
         <div class="row justify-content-center">
             <div class="col-lg-7">
                 <p class="section-label">RANKING</p>
-                <h1 class="section-title h3 mb-1">🏆 스트릭 랭킹</h1>
-                <p class="text-muted-2 mb-3">매일 학습한 날이 쌓일수록 순위가 올라가요.</p>
+                <h1 class="section-title h3 mb-1">스트릭 랭킹</h1>
+                <p class="text-muted-2 mb-4">매일 학습한 날이 쌓일수록 순위가 올라가요.</p>
 
-                <nav class="rank-tabs mb-3" aria-label="랭킹 종류">
-                    <a th:each="t : ${rankingTypes}" th:href="@{/ranking(type=${t.path})}" th:text="${t.label}"
+                <nav class="rank-tabs" aria-label="랭킹 종류">
+                    <a th:each="t : ${rankingTypes}" th:href="@{/ranking(type=${t.path})}"
                        th:classappend="${t == ranking.type} ? 'active'"
-                       th:attr="aria-current=${t == ranking.type ? 'page' : null}">현재 스트릭</a>
+                       th:attr="aria-current=${t == ranking.type ? 'page' : null}">
+                        <i class="fa-solid" aria-hidden="true"
+                           th:classappend="${t.name() == 'CURRENT_STREAK' ? 'fa-fire' : t.name() == 'MAX_STREAK' ? 'fa-mountain' : 'fa-calendar-check'}"></i>
+                        <span th:text="${t.label}">현재 스트릭</span>
+                    </a>
                 </nav>
 
-                <p class="small text-muted-2 mb-3" th:switch="${ranking.type.name()}">
+                <p class="rank-desc" th:switch="${ranking.type.name()}">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                     <span th:case="'CURRENT_STREAK'">오늘 또는 어제까지 이어지고 있는 연속 학습 일수예요. 하루 쉬면 0일로 돌아가요.</span>
                     <span th:case="'MAX_STREAK'">지금까지 가장 길게 이어간 연속 학습 일수예요.</span>
                     <span th:case="*">학습 페이지를 방문한 날의 총합이에요.</span>
                 </p>
 
                 <!-- 내 순위 -->
-                <div class="page-card mb-3" th:if="${ranking.myEntry != null}" th:with="e=${ranking.myEntry}">
-                    <div class="rank-row me">
-                        <span class="rank-no" th:text="${e.rank}">12</span>
-                        <span class="rank-avatar" th:text="${e.avatar.emoji}" aria-hidden="true">🙂</span>
-                        <span class="rank-name">
-                            내 순위 <span class="text-muted-2 small fw-normal" th:text="'/ ' + ${ranking.totalRanked} + '명'">/ 40명</span>
-                        </span>
-                        <span class="rank-value" th:text="${e.value} + ${ranking.type.unit}">5일 연속</span>
+                <div class="my-rank mb-3" th:if="${ranking.myEntry != null}" th:with="e=${ranking.myEntry}">
+                    <span class="kavatar size-md" th:classappend="'av-' + ${e.avatar.cssName}"
+                          th:text="${e.avatar.glyph}" aria-hidden="true">笑</span>
+                    <div>
+                        <p class="my-rank-label">내 순위</p>
+                        <p class="my-rank-no"><span th:text="${e.rank} + '위'">12위</span><small
+                                th:text="'/ ' + ${ranking.totalRanked} + '명 · 상위 ' + ${(e.rank * 100 + ranking.totalRanked - 1) / ranking.totalRanked} + '%'">/ 40명 · 상위 30%</small></p>
+                    </div>
+                    <div class="my-rank-value">
+                        <strong th:text="${e.value}">5</strong>
+                        <span th:text="${ranking.type.unit}">일 연속</span>
                     </div>
                 </div>
 
                 <section class="page-card">
-                    <ol class="rank-list" th:unless="${#lists.isEmpty(ranking.entries)}">
-                        <li class="rank-row" th:each="e : ${ranking.entries}" th:classappend="${e.me} ? 'me'">
-                            <span class="rank-no" th:classappend="${e.rank <= 3} ? 'top'"
-                                  th:text="${e.rank == 1 ? '🥇' : e.rank == 2 ? '🥈' : e.rank == 3 ? '🥉' : e.rank}"
-                                  th:aria-label="${e.rank} + '위'">1</span>
-                            <span class="rank-avatar" th:text="${e.avatar.emoji}" aria-hidden="true">🙂</span>
+                    <!-- 시상대: 상위 3명 -->
+                    <div class="podium" th:unless="${#lists.isEmpty(ranking.entries)}">
+                        <div class="podium-slot" th:each="e, st : ${ranking.entries}" th:if="${st.index < 3}"
+                             th:classappend="'p' + ${st.count} + (${e.me} ? ' me' : '')">
+                            <span class="podium-crown" aria-hidden="true"><i class="fa-solid fa-crown" th:if="${st.index == 0}"></i></span>
+                            <span class="podium-avatar">
+                                <span class="kavatar" th:classappend="(${st.index == 0} ? 'size-lg' : 'size-md') + ' av-' + ${e.avatar.cssName}"
+                                      th:text="${e.avatar.glyph}" aria-hidden="true">笑</span>
+                            </span>
+                            <span class="podium-name">
+                                <a th:if="${e.nickname != null}" th:href="@{/u/{n}(n=${e.nickname})}" th:text="${e.nickname}">칸지왕</a>
+                                <span th:if="${e.nickname == null}" class="anon" th:text="${e.displayName}">익명의 학습자</span>
+                            </span>
+                            <span class="podium-value" th:text="${e.value} + ${ranking.type.unit}">30일 연속</span>
+                            <span class="podium-block" th:text="${e.rank}" th:aria-label="${e.rank} + '위'">1</span>
+                        </div>
+                    </div>
+
+                    <!-- 4위부터 -->
+                    <ol class="rank-list" th:if="${#lists.size(ranking.entries) > 3}">
+                        <li class="rank-row" th:each="e, st : ${ranking.entries}" th:if="${st.index >= 3}"
+                            th:classappend="${e.me} ? 'me'">
+                            <span class="rank-no" th:text="${e.rank}" th:aria-label="${e.rank} + '위'">4</span>
+                            <span class="kavatar" th:classappend="'av-' + ${e.avatar.cssName}"
+                                  th:text="${e.avatar.glyph}" aria-hidden="true">笑</span>
                             <span class="rank-name">
                                 <a th:if="${e.nickname != null}" th:href="@{/u/{n}(n=${e.nickname})}" th:text="${e.nickname}">칸지왕</a>
                                 <span th:if="${e.nickname == null}" class="anon" th:text="${e.displayName}">익명의 학습자</span>
-                                <span th:if="${e.featuredBadge != null}" th:text="${e.featuredBadge.emoji}"
-                                      th:title="${e.featuredBadge.title}">🌱</span>
+                                <span class="bchip icon-only" th:if="${e.featuredBadge != null}"
+                                      th:classappend="'cat-' + ${e.featuredBadge.category.cssName}"
+                                      th:title="${e.featuredBadge.title}">
+                                    <i th:class="'fa-solid fa-' + ${e.featuredBadge.icon}" aria-hidden="true"></i>
+                                </span>
                                 <span class="me-chip" th:if="${e.me}">나</span>
                             </span>
-                            <span class="rank-value" th:text="${e.value} + ${ranking.type.unit}">30일 연속</span>
+                            <span class="rank-value"><span th:text="${e.value}">30</span><small th:text="${ranking.type.unit}">일 연속</small></span>
                         </li>
                     </ol>
-                    <div class="page-card-body text-center" th:if="${#lists.isEmpty(ranking.entries)}">
-                        <p class="fs-1 mb-2">🌱</p>
+
+                    <div class="empty-state" th:if="${#lists.isEmpty(ranking.entries)}">
+                        <span class="ico"><i class="fa-solid fa-seedling"></i></span>
                         <p class="fw-bold mb-1">아직 순위에 오른 학습자가 없어요.</p>
                         <p class="text-muted-2 small mb-0">오늘 학습 메일의 링크로 들어오면 1등이 될 수 있어요!</p>
                     </div>
                 </section>
 
                 <p class="small text-muted-2 text-center mt-3 mb-0">
-                    닉네임은 <a th:href="@{/me/edit}">프로필 꾸미기</a>에서 정할 수 있어요. 상위 100명까지 보여줘요.
+                    닉네임은 <a th:href="@{/me/edit}" class="text-maeil fw-semibold text-decoration-none">프로필 꾸미기</a>에서 정할 수 있어요. 상위 100명까지 보여줘요.
                 </p>
             </div>
         </div>

@@ -18,13 +18,16 @@
 
                 <!-- 미리보기 -->
                 <section class="page-card mb-3" aria-label="미리보기">
-                    <div class="profile-banner" id="preview-banner" th:classappend="'theme-' + ${profile.theme.cssName}" style="height: 110px;"></div>
+                    <div class="profile-banner" id="preview-banner" th:classappend="'theme-' + ${profile.theme.cssName}" style="height: 120px;"></div>
                     <div class="profile-head">
-                        <div class="profile-avatar" id="preview-avatar" th:text="${profile.avatar.emoji}">🙂</div>
+                        <span class="kavatar size-xl" id="preview-avatar" th:classappend="'av-' + ${profile.avatar.cssName}"
+                              th:text="${profile.avatar.glyph}" aria-hidden="true">笑</span>
                         <p class="profile-name mb-0">
                             <span id="preview-name" th:text="${profile.displayName}">익명의 학습자</span>
-                            <span class="featured-badge" id="preview-badge" th:hidden="${profile.featuredBadge == null}"
-                                  th:text="${profile.featuredBadge != null ? profile.featuredBadge.emoji + ' ' + profile.featuredBadge.title : ''}"></span>
+                            <span class="bchip featured-badge" id="preview-badge" th:hidden="${profile.featuredBadge == null}"
+                                  th:classappend="${profile.featuredBadge != null ? 'cat-' + profile.featuredBadge.category.cssName : ''}"><i
+                                    th:class="${profile.featuredBadge != null ? 'fa-solid fa-' + profile.featuredBadge.icon : ''}"></i><span
+                                    th:text="${profile.featuredBadge != null ? profile.featuredBadge.title : ''}"></span></span>
                         </p>
                         <p class="profile-bio" id="preview-bio" th:text="${profile.bio}"></p>
                     </div>
@@ -55,10 +58,11 @@
                             <div class="pick-grid">
                                 <label class="pick" th:each="a : ${avatars}"
                                        th:title="${a.isUnlocked(profile.maxStreak) ? '' : '최장 스트릭 ' + a.requiredMaxStreak + '일 달성 시 열림'}">
-                                    <input type="radio" name="avatar" th:value="${a.name()}" th:data-emoji="${a.emoji}" th:checked="${a == profile.avatar}" th:disabled="${!a.isUnlocked(profile.maxStreak)}">
+                                    <input type="radio" name="avatar" th:value="${a.name()}" th:data-glyph="${a.glyph}" th:data-css="${a.cssName}" th:checked="${a == profile.avatar}" th:disabled="${!a.isUnlocked(profile.maxStreak)}">
                                     <span class="pick-face">
-                                        <span th:text="${a.emoji}">🙂</span>
-                                        <small th:unless="${a.isUnlocked(profile.maxStreak)}" th:text="'🔒 ' + ${a.requiredMaxStreak} + '일'">🔒 3일</small>
+                                        <span class="kavatar size-md" th:classappend="'av-' + ${a.cssName}" th:text="${a.glyph}">笑</span>
+                                        <small th:if="${a.isUnlocked(profile.maxStreak)}" th:text="${a.label}">웃음</small>
+                                        <small class="lock" th:unless="${a.isUnlocked(profile.maxStreak)}"><i class="fa-solid fa-lock"></i><span th:text="${a.requiredMaxStreak} + '일'">3일</span></small>
                                     </span>
                                 </label>
                             </div>
@@ -73,12 +77,13 @@
                                            th:checked="${t == profile.theme}" th:disabled="${!t.isUnlocked(profile.maxStreak)}">
                                     <span class="pick-face">
                                         <span class="pick-swatch" th:classappend="'theme-' + ${t.cssName}"></span>
-                                        <small th:text="${t.isUnlocked(profile.maxStreak) ? t.label : '🔒 ' + t.label + ' · ' + t.requiredMaxStreak + '일'}">기본 블루</small>
+                                        <small th:if="${t.isUnlocked(profile.maxStreak)}" th:text="${t.label}">기본 블루</small>
+                                        <small class="lock" th:unless="${t.isUnlocked(profile.maxStreak)}"><i class="fa-solid fa-lock"></i><span th:text="${t.label} + ' · ' + ${t.requiredMaxStreak} + '일'">벚꽃 · 3일</span></small>
                                     </span>
                                 </label>
                             </div>
                             <p class="form-hint mt-2 mb-0">
-                                🔥 최장 스트릭이 늘수록 새 아바타와 테마가 열려요. 지금 최장 스트릭: <strong th:text="${profile.maxStreak} + '일'">0일</strong>
+                                <i class="fa-solid fa-fire text-warning-emphasis"></i> 최장 스트릭이 늘수록 새 아바타와 테마가 열려요. 지금 최장 스트릭: <strong th:text="${profile.maxStreak} + '일'">0일</strong>
                             </p>
                         </fieldset>
 
@@ -87,13 +92,14 @@
                             <legend class="block-title">대표 배지</legend>
                             <div class="pick-grid wide">
                                 <label class="pick">
-                                    <input type="radio" name="featuredBadge" value="" data-label="" th:checked="${profile.featuredBadge == null}">
-                                    <span class="pick-face"><span>➖</span><small>표시 안 함</small></span>
+                                    <input type="radio" name="featuredBadge" value="" th:checked="${profile.featuredBadge == null}">
+                                    <span class="pick-face"><span class="medal size-sm locked" style="--cat-soft: #F1F5F9"><i class="fa-solid fa-ban"></i></span><small>표시 안 함</small></span>
                                 </label>
                                 <label class="pick" th:each="b : ${earnedBadges}" th:title="${b.description}">
-                                    <input type="radio" name="featuredBadge" th:value="${b.name()}" th:data-label="${b.emoji + ' ' + b.title}"
+                                    <input type="radio" name="featuredBadge" th:value="${b.name()}" th:data-title="${b.title}"
+                                           th:data-icon="${b.icon}" th:data-cat="${b.category.cssName}"
                                            th:checked="${b == profile.featuredBadge}">
-                                    <span class="pick-face"><span th:text="${b.emoji}">🌱</span><small th:text="${b.title}">새싹</small></span>
+                                    <span class="pick-face"><span class="medal size-sm" th:classappend="'cat-' + ${b.category.cssName}"><i th:class="'fa-solid fa-' + ${b.icon}"></i></span><small th:text="${b.title}">새싹</small></span>
                                 </label>
                             </div>
                             <p class="form-hint mt-2 mb-0" th:if="${#lists.isEmpty(earnedBadges)}">
@@ -137,13 +143,22 @@
             document.getElementById('preview-bio').textContent = bio.value.trim();
             bioCount.textContent = bio.value.length;
             var avatar = checked('avatar');
-            if (avatar) document.getElementById('preview-avatar').textContent = avatar.dataset.emoji;
+            if (avatar) {
+                var avatarEl = document.getElementById('preview-avatar');
+                avatarEl.textContent = avatar.dataset.glyph;
+                avatarEl.className = 'kavatar size-xl av-' + avatar.dataset.css;
+            }
             var theme = checked('theme');
             if (theme) document.getElementById('preview-banner').className = 'profile-banner theme-' + theme.dataset.css;
             var badge = checked('featuredBadge');
             var badgeEl = document.getElementById('preview-badge');
-            badgeEl.textContent = badge ? badge.dataset.label : '';
-            badgeEl.hidden = !badge || !badge.value;
+            var hasBadge = !!(badge && badge.value);
+            badgeEl.hidden = !hasBadge;
+            if (hasBadge) {
+                badgeEl.className = 'bchip featured-badge cat-' + badge.dataset.cat;
+                badgeEl.querySelector('i').className = 'fa-solid fa-' + badge.dataset.icon;
+                badgeEl.querySelector('span').textContent = badge.dataset.title;
+            }
         }
 
         function setHint(text, state) {
