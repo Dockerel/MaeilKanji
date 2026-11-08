@@ -4,6 +4,19 @@
  * 선택자에 html 을 붙여 페이지별 :root 와 인라인 <style> 보다 항상 우선한다.
  */
 
+/* 테마 전환 페이드. MaeilTheme 이 View Transitions 로 화면 전체를 교차 페이드한다 */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 700ms;
+    animation-timing-function: ease-in-out;
+}
+
+/* View Transitions 미지원 브라우저용 대체 */
+html.theme-fading,
+html.theme-fading * {
+    transition: background-color 700ms ease-in-out, color 700ms ease-in-out, border-color 700ms ease-in-out !important;
+}
+
 html[data-bs-theme="dark"] {
     --maeil-bg: #0B1220;
     --maeil-surface: #151E2E;

@@ -82,19 +82,40 @@
             try { pref = localStorage.getItem('mk-theme'); } catch (e) {}
             pref = pref || 'system';
 
+            var root = document.documentElement;
+            var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+            var fadeTimer;
+
+            function target() {
+                return pref === 'dark' || (pref === 'system' && media.matches) ? 'dark' : 'light';
+            }
+
             function apply() {
-                var dark = pref === 'dark' || (pref === 'system' && media.matches);
-                document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+                root.setAttribute('data-bs-theme', target());
+            }
+
+            // 첫 페인트는 apply 로 즉시, 이후 전환만 페이드한다. View Transitions 미지원 브라우저는 색상 transition 으로 대체.
+            function applySmoothly() {
+                if (root.getAttribute('data-bs-theme') === target() || reducedMotion.matches) {
+                    apply();
+                } else if (document.startViewTransition) {
+                    document.startViewTransition(apply);
+                } else {
+                    root.classList.add('theme-fading');
+                    apply();
+                    clearTimeout(fadeTimer);
+                    fadeTimer = setTimeout(function () { root.classList.remove('theme-fading'); }, 700);
+                }
             }
 
             apply();
-            media.addEventListener('change', apply);
+            media.addEventListener('change', applySmoothly);
             window.MaeilTheme = {
                 pref: function () { return pref; },
                 set: function (next) {
                     pref = next;
                     try { localStorage.setItem('mk-theme', next); } catch (e) {}
-                    apply();
+                    applySmoothly();
                 }
             };
         })();
