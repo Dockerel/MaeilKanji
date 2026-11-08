@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
-@WebMvcTest(SeoController::class, properties = ["service.base-url=https://example.com/", "adsense.client-id=ca-pub-1234567890"])
+@WebMvcTest(SeoController::class, properties = ["service.base-url=https://example.com/", "adsense.client-id=ca-pub-1234567890", "seo.daum-site-verification=#DaumWebMasterTool:abc:xyz=="])
 @Import(SeoControllerTest.MockConfig::class)
 class SeoControllerTest(
     mockMvc: MockMvc,
@@ -47,6 +47,24 @@ class SeoControllerTest(
         }
     }
 
+    Given("다음 웹마스터 인증값이 설정된 robots.txt 요청에서") {
+        val result = mockMvc.get("/robots.txt")
+
+        Then("첫 줄에 인증값을 그대로 넣는다") {
+            result.andExpect {
+                content { string(org.hamcrest.Matchers.startsWith("#DaumWebMasterTool:abc:xyz==\nUser-agent: *")) }
+            }
+        }
+    }
+
+    Given("다음 웹마스터 인증값이 없을 때") {
+        val controller = SeoController("https://example.com", "", kanjiLibraryService, "")
+
+        Then("robots.txt 는 User-agent 로 시작한다") {
+            controller.robots().startsWith("User-agent: *") shouldBe true
+        }
+    }
+
     Given("sitemap.xml 요청에서") {
         val result = mockMvc.get("/sitemap.xml")
 
@@ -73,7 +91,7 @@ class SeoControllerTest(
     }
 
     Given("애드센스 게시자 ID 가 없을 때") {
-        val controller = SeoController("https://example.com", "", kanjiLibraryService)
+        val controller = SeoController("https://example.com", "", kanjiLibraryService, "")
 
         Then("ads.txt 는 404 다") {
             controller.adsTxt().statusCode.value() shouldBe 404

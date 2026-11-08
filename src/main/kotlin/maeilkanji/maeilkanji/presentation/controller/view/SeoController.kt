@@ -19,12 +19,13 @@ class SeoController(
     @Value("\${service.base-url}") baseUrl: String,
     @Value("\${adsense.client-id:}") private val adsenseClientId: String,
     private val kanjiLibraryService: KanjiLibraryService,
+    @Value("\${seo.daum-site-verification:}") private val daumSiteVerification: String,
 ) {
 
     private val baseUrl = baseUrl.trimEnd('/')
 
     @GetMapping("/robots.txt", produces = [MediaType.TEXT_PLAIN_VALUE])
-    fun robots(): String = """
+    fun robots(): String = daumVerificationLine() + """
         User-agent: *
         Allow: /
         Disallow: /admin
@@ -71,6 +72,13 @@ class SeoController(
             }
             appendLine("</urlset>")
         }
+    }
+
+    /** 다음 웹마스터도구 소유 확인. 값은 "#DaumWebMasterTool:..." 형태 그대로 넣는다. */
+    private fun daumVerificationLine(): String {
+        val value = daumSiteVerification.trim()
+        if (value.isEmpty()) return ""
+        return (if (value.startsWith("#")) value else "#$value") + "\n"
     }
 
     /**
