@@ -33,6 +33,7 @@ class MemberService(
 
     private val mailService: MailService,
     private val emailTemplateService: EmailTemplateService,
+    private val mailSendLimiter: MailSendLimiter,
 
     private val memberRepository: MemberRepository,
     private val feedbackRepository: FeedbackRepository,
@@ -50,16 +51,19 @@ class MemberService(
             throw MaeilKanjiException("Email already exists", HttpStatus.BAD_REQUEST)
         }
 
-        // 2. 랜덤 4자리 숫자 코드 생성
+        // 2. 발송량 제한 (연타·도배 방지, Resend 일일 한도 보호)
+        mailSendLimiter.acquire(MailPurpose.EMAIL_VERIFICATION, email)
+
+        // 3. 랜덤 4자리 숫자 코드 생성
         val randomCode: String = (1000..9999).random().toString()
 
-        // 3. Redis key 생성
+        // 4. Redis key 생성
         val key = createEmailVerificationCodeKey(email)
 
-        // 4. Redis에 확인 코드 저장 및 TTL 설정
+        // 5. Redis에 확인 코드 저장 및 TTL 설정
         redisTemplate.opsForValue().set(key, randomCode, VALID_MINUTE, TimeUnit.MINUTES)
 
-        // 5. 확인 코드 메일 발송
+        // 6. 확인 코드 메일 발송
         val content = emailTemplateService.generateEmailVerificationTemplate(randomCode)
         mailService.send(email, emailVerificationCodeTitle, content)
 

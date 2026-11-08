@@ -45,6 +45,7 @@ class AdminServiceTest : BehaviorSpec({
     val feedbackRepository = mockk<FeedbackRepository>()
     val mailService = mockk<MailService>(relaxUnitFun = true)
     val emailTemplateService = mockk<EmailTemplateService>()
+    val mailSendLimiter = mockk<MailSendLimiter>(relaxUnitFun = true)
 
     every { redisTemplate.opsForValue() } returns valueOps
     every { redisTemplate.delete(any<String>()) } returns true
@@ -56,6 +57,7 @@ class AdminServiceTest : BehaviorSpec({
         redisTemplate,
         mailService,
         emailTemplateService,
+        mailSendLimiter,
         dailyContentRepository,
         memberRepository,
         feedbackRepository,
@@ -134,6 +136,10 @@ class AdminServiceTest : BehaviorSpec({
                     redisTemplate.delete(codeKey)
                     redisTemplate.delete(attemptKey)
                 }
+            }
+
+            Then("관리자 주소의 메일 발송 제한(쿨다운·일일 횟수)을 초기화한다") {
+                verify(exactly = 1) { mailSendLimiter.reset(MailPurpose.ADMIN_LOGIN, adminEmail) }
             }
         }
 

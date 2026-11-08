@@ -39,6 +39,7 @@ class AdminService(
 
     private val mailService: MailService,
     private val emailTemplateService: EmailTemplateService,
+    private val mailSendLimiter: MailSendLimiter,
 
     private val dailyContentRepository: DailyContentRepository,
     private val memberRepository: MemberRepository,
@@ -51,6 +52,8 @@ class AdminService(
         if (request.email != adminEmail) {
             throw MaeilKanjiException("Unauthorized", HttpStatus.UNAUTHORIZED)
         }
+
+        mailSendLimiter.acquire(MailPurpose.ADMIN_LOGIN, request.email)
 
         val randomCode = generateRandomAlphaNumericCode(ADMIN_CODE_LENGTH)
 
@@ -95,6 +98,7 @@ class AdminService(
 
         redisTemplate.delete(key)
         redisTemplate.delete(attemptKey)
+        mailSendLimiter.reset(MailPurpose.ADMIN_LOGIN, request.email)
         return createAdminSession()
     }
 

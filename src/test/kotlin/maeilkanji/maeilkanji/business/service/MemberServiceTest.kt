@@ -44,6 +44,7 @@ class MemberServiceTest : BehaviorSpec({
     val valueOps = mockk<ValueOperations<String, String>>(relaxUnitFun = true)
     val mailService = mockk<MailService>(relaxUnitFun = true)
     val emailTemplateService = mockk<EmailTemplateService>()
+    val mailSendLimiter = mockk<MailSendLimiter>(relaxUnitFun = true)
     val memberRepository = mockk<MemberRepository>(relaxUnitFun = true)
     val feedbackRepository = mockk<FeedbackRepository>(relaxUnitFun = true)
     val studyDayRepository = mockk<StudyDayRepository>(relaxUnitFun = true)
@@ -55,6 +56,7 @@ class MemberServiceTest : BehaviorSpec({
         redisTemplate,
         mailService,
         emailTemplateService,
+        mailSendLimiter,
         memberRepository,
         feedbackRepository,
         studyDayRepository,
@@ -105,6 +107,26 @@ class MemberServiceTest : BehaviorSpec({
             Then("400 예외가 발생하고 코드 저장과 메일 발송을 하지 않는다") {
                 exception.status shouldBe HttpStatus.BAD_REQUEST
                 exception.message shouldBe "Email already exists"
+                verify(exactly = 0) {
+                    valueOps.set(any(), any(), any<Long>(), any())
+                    mailService.send(any(), any(), any())
+                }
+            }
+        }
+    }
+
+    Given("발송 제한에 걸린 이메일로 확인 코드 전송을 요청하면") {
+        every { memberRepository.existByEmailAndMemberStatus(email, MemberStatus.ACTIVE) } returns false
+        every { mailSendLimiter.acquire(MailPurpose.EMAIL_VERIFICATION, email) } throws
+            MaeilKanjiException("60초 후에 다시 요청해 주세요.", HttpStatus.TOO_MANY_REQUESTS)
+
+        When("sendVerificationCode 를 호출하면") {
+            val exception = shouldThrow<MaeilKanjiException> {
+                memberService.sendVerificationCode(SendVerificationCodeServiceRequest(email))
+            }
+
+            Then("429 예외가 발생하고 코드 저장과 메일 발송을 하지 않는다") {
+                exception.status shouldBe HttpStatus.TOO_MANY_REQUESTS
                 verify(exactly = 0) {
                     valueOps.set(any(), any(), any<Long>(), any())
                     mailService.send(any(), any(), any())
@@ -247,7 +269,7 @@ class MemberServiceTest : BehaviorSpec({
     Given("어제 학습 페이지에 접속한 회원이") {
         // 2026-11-07 08:00 KST
         val fixedClock = Clock.fixed(Instant.parse("2026-11-06T23:00:00Z"), ZoneId.of("Asia/Seoul"))
-        val service = MemberService(redisTemplate, mailService, emailTemplateService, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
+        val service = MemberService(redisTemplate, mailService, emailTemplateService, mailSendLimiter, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
         val memberId = UUID.randomUUID()
         val yesterday = LocalDateTime.of(2026, 11, 6, 21, 0)
         every { memberRepository.findById(memberId) } returns memberDto(id = memberId, streak = 3, lastAccessedAt = yesterday, maxStreak = 3)
@@ -279,7 +301,7 @@ class MemberServiceTest : BehaviorSpec({
 
     Given("6일 연속 학습한 회원이") {
         val fixedClock = Clock.fixed(Instant.parse("2026-11-06T23:00:00Z"), ZoneId.of("Asia/Seoul"))
-        val service = MemberService(redisTemplate, mailService, emailTemplateService, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
+        val service = MemberService(redisTemplate, mailService, emailTemplateService, mailSendLimiter, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
         val memberId = UUID.randomUUID()
         every { memberRepository.findById(memberId) } returns
             memberDto(id = memberId, streak = 6, lastAccessedAt = LocalDateTime.of(2026, 11, 6, 7, 0), maxStreak = 6)
@@ -296,7 +318,7 @@ class MemberServiceTest : BehaviorSpec({
 
     Given("학습일 기록이 없던 기존 스트릭 회원이") {
         val fixedClock = Clock.fixed(Instant.parse("2026-11-06T23:00:00Z"), ZoneId.of("Asia/Seoul"))
-        val service = MemberService(redisTemplate, mailService, emailTemplateService, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
+        val service = MemberService(redisTemplate, mailService, emailTemplateService, mailSendLimiter, memberRepository, feedbackRepository, studyDayRepository, fixedClock)
         val memberId = UUID.randomUUID()
         every { memberRepository.findById(memberId) } returns
             memberDto(id = memberId, streak = 3, lastAccessedAt = LocalDateTime.of(2026, 11, 6, 7, 0))

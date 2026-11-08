@@ -2278,12 +2278,45 @@
         helpText.style.display = 'block';
     }
 
+    // 같은 주소로 다시 보내려면 서버 쿨다운(60초)만큼 기다려야 한다. 메일 한도(Resend 무료 100건/일) 보호용.
+    const RESEND_COOLDOWN_SECONDS = 60;
+    let resendTimer = null;
+
+    function startResendCooldown(btn, seconds) {
+        clearInterval(resendTimer);
+        let remaining = seconds;
+        btn.disabled = true;
+        btn.textContent = `재발송 (${remaining}s)`;
+        resendTimer = setInterval(() => {
+            remaining -= 1;
+            if (remaining <= 0) {
+                clearInterval(resendTimer);
+                btn.disabled = false;
+                btn.textContent = '코드 재발송';
+                return;
+            }
+            btn.textContent = `재발송 (${remaining}s)`;
+        }, 1000);
+    }
+
+    // 에러 응답 본문은 plain text, 성공 응답은 JSON 이다.
+    async function readMessage(response) {
+        const text = await response.text();
+        try {
+            return JSON.parse(text).message || text;
+        } catch (e) {
+            return text;
+        }
+    }
+
     // 1. 인증 코드 발송 요청 (Controller의 /api/v1/members/send-verification-code 호출)
     async function sendVerificationCode() {
         const emailInput = document.getElementById('email');
         const email = emailInput.value;
         const btn = document.getElementById('sendCodeBtn');
         const helpTextId = 'emailHelp';
+
+        if (btn.disabled) return;
 
         const validationError = validateEmail(email);
         if (validationError) {
@@ -2301,16 +2334,27 @@
                 body: JSON.stringify({email: email})
             });
 
-            const data = await response.json();
+            const message = await readMessage(response);
 
             if (response.ok) {
-                updateHelpText(helpTextId, `✅ ${data.message} (유효시간 3분)`, true);
+                updateHelpText(helpTextId, `✅ ${message} (유효시간 3분)`, true);
                 document.getElementById('verificationSection').style.display = 'block';
-                btn.textContent = '코드 재발송';
-                btn.disabled = false;
+                startResendCooldown(btn, RESEND_COOLDOWN_SECONDS);
+
+            } else if (response.status === 429) {
+                updateHelpText(helpTextId, `❌ ${message}`, false);
+                const seconds = parseInt(message, 10);
+                if (seconds > 0) {
+                    startResendCooldown(btn, seconds);
+                } else {
+                    btn.textContent = '인증 코드 발송';
+                    btn.disabled = false;
+                }
 
             } else {
-                const errorMessage = data.message || "메일 발송에 실패했습니다.";
+                const errorMessage = response.status === 400 && message === 'Email already exists'
+                    ? '이미 구독 중인 이메일입니다.'
+                    : '메일 발송에 실패했습니다.';
                 updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
                 btn.textContent = '인증 코드 발송';
                 btn.disabled = false;

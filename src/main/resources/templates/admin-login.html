@@ -126,10 +126,12 @@
                 btn.disabled = false;
 
             } else {
-                // 실패 응답 (HTTP 4xx: 관리자 이메일이 아님, 5xx: 서버 오류)
+                // 실패 응답 (HTTP 401: 관리자 이메일이 아님, 429: 발송 제한, 5xx: 서버 오류)
                 const errorMessage = response.status === 401
                     ? "관리자 이메일이 아닙니다."
-                    : "인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+                    : response.status === 429
+                        ? await response.text()
+                        : "인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.";
                 updateHelpText(helpTextId, `❌ ${errorMessage}`, false);
                 btn.textContent = '코드 발송';
                 btn.disabled = false;
