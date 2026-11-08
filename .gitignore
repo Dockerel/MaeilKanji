@@ -51,3 +51,4 @@ k8s/api-key.txt
 
 # Claude Code personal settings
 .claude/settings.local.json
+k8s/inquiry-email.txt
