@@ -33,6 +33,7 @@
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" href="/css/page.css">
+    <th:block th:replace="~{fragments/page :: theme-assets}"></th:block>
 </head>
 
 <!-- 검색 노출용 공개 페이지(학습 목록, 한자, 소개, 개인정보처리방침) head. canonical 은 siteUrl + path -->
@@ -64,9 +65,42 @@
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" href="/css/page.css">
+    <th:block th:replace="~{fragments/page :: theme-assets}"></th:block>
 </head>
 
 <body>
+
+<!--
+  다크 모드 초기화. 첫 페인트 전에 <html data-bs-theme> 을 정해야 깜빡이지 않으므로 인라인 스크립트로 둔다.
+  선택값(light/dark/system)은 localStorage 'mk-theme', 기본은 system(기기 설정을 따라가고 바뀌면 즉시 반영).
+-->
+<th:block th:fragment="theme-assets">
+    <script>
+        (function () {
+            var media = window.matchMedia('(prefers-color-scheme: dark)');
+            var pref = null;
+            try { pref = localStorage.getItem('mk-theme'); } catch (e) {}
+            pref = pref || 'system';
+
+            function apply() {
+                var dark = pref === 'dark' || (pref === 'system' && media.matches);
+                document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+            }
+
+            apply();
+            media.addEventListener('change', apply);
+            window.MaeilTheme = {
+                pref: function () { return pref; },
+                set: function (next) {
+                    pref = next;
+                    try { localStorage.setItem('mk-theme', next); } catch (e) {}
+                    apply();
+                }
+            };
+        })();
+    </script>
+    <link rel="stylesheet" href="/css/dark.css">
+</th:block>
 
 <nav th:fragment="nav" class="site-nav">
     <div class="container px-4 py-2 d-flex align-items-center justify-content-between">
@@ -86,7 +120,7 @@
             display: inline-flex; align-items: center; justify-content: center;
             width: 40px; height: 40px; padding: 0;
             border: 1px solid var(--maeil-line, #E2E8F0); border-radius: 12px;
-            background: #fff; color: var(--maeil-ink, #0F172A);
+            background: var(--maeil-surface, #fff); color: var(--maeil-ink, #0F172A);
             font-size: 1.05rem; cursor: pointer;
             transition: border-color .15s ease, color .15s ease, background-color .15s ease;
         }
@@ -103,7 +137,7 @@
             position: fixed; top: 0; right: 0; bottom: 0; z-index: 1100;
             width: min(300px, 82vw);
             display: flex; flex-direction: column;
-            background: #fff;
+            background: var(--maeil-surface, #fff);
             box-shadow: -12px 0 32px rgba(15, 23, 42, .12);
             transform: translateX(100%); visibility: hidden;
             transition: transform .3s cubic-bezier(.22, .61, .36, 1), visibility .3s;
@@ -122,7 +156,7 @@
             width: 36px; height: 36px; border: 0; border-radius: 10px;
             background: transparent; color: var(--maeil-muted, #64748B); font-size: 1.1rem; cursor: pointer;
         }
-        .nav-drawer-close:hover { background: #F1F5F9; color: var(--maeil-ink, #0F172A); }
+        .nav-drawer-close:hover { background: var(--maeil-surface-2, #F1F5F9); color: var(--maeil-ink, #0F172A); }
 
         .nav-drawer-links { display: flex; flex-direction: column; gap: 4px; padding: 12px; }
         .nav-drawer-link {
@@ -132,11 +166,27 @@
             transition: background-color .15s ease, color .15s ease;
         }
         .nav-drawer-link i { width: 20px; text-align: center; color: var(--maeil-muted, #64748B); }
-        .nav-drawer-link:hover { background: #F1F5F9; color: var(--maeil-ink, #0F172A); }
-        .nav-drawer-link.active { background: #F0F5FF; color: var(--maeil-blue, #2563EB); }
+        .nav-drawer-link:hover { background: var(--maeil-surface-2, #F1F5F9); color: var(--maeil-ink, #0F172A); }
+        .nav-drawer-link.active { background: var(--maeil-light-blue, #F0F5FF); color: var(--maeil-blue, #2563EB); }
         .nav-drawer-link.active i { color: var(--maeil-blue, #2563EB); }
 
         .nav-drawer-foot { margin-top: auto; padding: 16px 24px 24px; }
+
+        .theme-switch {
+            display: flex; gap: 2px; margin-top: 8px; padding: 3px;
+            border-radius: 12px; background: var(--maeil-surface-2, #F1F5F9);
+        }
+        .theme-switch button {
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 8px 0; border: 0; border-radius: 9px;
+            background: transparent; color: var(--maeil-muted, #64748B);
+            font-size: .8rem; font-weight: 600; cursor: pointer;
+        }
+        .theme-switch button[aria-pressed="true"] {
+            background: var(--maeil-surface, #fff); color: var(--maeil-blue, #2563EB);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, .15);
+        }
+        .theme-switch button:focus-visible { outline: 2px solid var(--maeil-blue, #2563EB); outline-offset: 1px; }
 
         @media (prefers-reduced-motion: reduce) {
             .nav-drawer, .nav-drawer-backdrop { transition: none; }
@@ -163,6 +213,11 @@
         </nav>
         <div class="nav-drawer-foot">
             <a th:href="@{/feedback}" class="nav-drawer-link" style="padding-left:0"><i class="fa-regular fa-comment-dots" aria-hidden="true"></i>의견 보내기</a>
+            <div class="theme-switch" role="group" aria-label="화면 테마">
+                <button type="button" data-theme-choice="light"><i class="fa-regular fa-sun" aria-hidden="true"></i>라이트</button>
+                <button type="button" data-theme-choice="system"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>시스템</button>
+                <button type="button" data-theme-choice="dark"><i class="fa-regular fa-moon" aria-hidden="true"></i>다크</button>
+            </div>
         </div>
     </aside>
 
@@ -178,6 +233,15 @@
             drawer.querySelectorAll('[data-nav-match]').forEach(a => {
                 if (a.dataset.navMatch.split(',').some(p => path.startsWith(p))) a.classList.add('active');
             });
+
+            const themeChoices = drawer.querySelectorAll('[data-theme-choice]');
+            const paintThemeChoice = () => themeChoices.forEach(b =>
+                b.setAttribute('aria-pressed', String(b.dataset.themeChoice === MaeilTheme.pref())));
+            themeChoices.forEach(b => b.addEventListener('click', () => {
+                MaeilTheme.set(b.dataset.themeChoice);
+                paintThemeChoice();
+            }));
+            paintThemeChoice();
 
             const setOpen = open => {
                 document.documentElement.classList.toggle('nav-menu-open', open);

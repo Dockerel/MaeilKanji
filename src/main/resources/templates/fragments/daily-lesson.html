@@ -26,6 +26,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/typography.css">
+    <th:block th:replace="~{fragments/page :: theme-assets}"></th:block>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +48,7 @@
         body {
             font-family: 'Noto Sans KR', sans-serif !important;
             color: var(--maeil-ink);
-            background-color: #F8FAFC;
+            background-color: var(--maeil-bg, #F8FAFC);
         }
 
         .jp {
@@ -66,7 +67,7 @@
             position: sticky;
             top: 0;
             z-index: 1020;
-            background-color: rgba(255, 255, 255, 0.92);
+            background-color: var(--maeil-nav-bg, rgba(255, 255, 255, 0.92));
             backdrop-filter: saturate(180%) blur(8px);
             border-bottom: 1px solid var(--maeil-line);
         }
@@ -95,7 +96,7 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 24px 48px -28px rgba(37, 99, 235, 0.4);
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             text-align: left;
         }
 
@@ -159,7 +160,7 @@
         }
 
         .sentence-box {
-            background-color: #F8FAFC;
+            background-color: var(--maeil-bg, #F8FAFC);
             border-left: 4px solid var(--maeil-blue);
             border-radius: 8px;
             padding: 16px 18px;
@@ -181,7 +182,7 @@
         }
 
         .quiz-section {
-            background-color: #FAFAFA;
+            background-color: var(--maeil-surface-2, #FAFAFA);
             border-top: 1px solid var(--maeil-line);
             padding: 20px 24px 24px;
         }
@@ -280,7 +281,7 @@
         }
 
         .nav-text-link:hover {
-            color: #2563EB;
+            color: var(--maeil-blue, #2563EB);
         }
 
         .streak-badge {
@@ -289,8 +290,8 @@
             gap: 6px;
             padding: 8px 16px;
             border-radius: 999px;
-            background-color: #FFF7ED;
-            color: #C2410C;
+            background-color: var(--maeil-soft-orange, #FFF7ED);
+            color: var(--maeil-text-orange, #C2410C);
             font-weight: 700;
             animation: answer-fade-up 0.4s ease-out both;
         }
@@ -317,7 +318,7 @@
             padding: 12px 14px;
             border: 1px solid var(--maeil-line);
             border-radius: 10px;
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             color: var(--maeil-ink);
             text-decoration: none;
             transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
@@ -358,7 +359,7 @@
             gap: 12px 16px;
             border: 1px dashed var(--maeil-line);
             border-radius: 12px;
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             padding: 18px 20px;
         }
 
@@ -367,7 +368,7 @@
             gap: 12px;
             border: 1px solid var(--maeil-line);
             border-radius: 16px;
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             padding: 24px;
             box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
         }
@@ -394,7 +395,7 @@
             padding: 14px 16px;
             border: 1px solid var(--maeil-line);
             border-radius: 12px;
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             color: var(--maeil-ink);
             text-decoration: none;
             transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
@@ -458,7 +459,7 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background-color: #F1F5F9;
+            background-color: var(--maeil-surface-2, #F1F5F9);
             font-size: 1.3rem;
             display: inline-flex;
             align-items: center;
@@ -495,7 +496,7 @@
             margin-top: 4px;
             padding: 18px 20px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--maeil-blue), var(--maeil-blue-dark));
+            background: linear-gradient(135deg, var(--maeil-blue-solid, var(--maeil-blue)), var(--maeil-blue-dark));
             color: white;
         }
 

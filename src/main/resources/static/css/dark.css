@@ -1,0 +1,87 @@
+/*
+ * 다크 모드. fragments/page :: theme-assets 가 모든 사용자 페이지에 로드한다.
+ * 페이지 CSS 는 색을 var(--토큰, 라이트값) 으로 쓰고, 토큰은 여기(다크)에서만 정의한다.
+ * 선택자에 html 을 붙여 페이지별 :root 와 인라인 <style> 보다 항상 우선한다.
+ */
+
+html[data-bs-theme="dark"] {
+    --maeil-bg: #0B1220;
+    --maeil-surface: #151E2E;
+    --maeil-surface-2: #1F2A3D;
+    --maeil-ink: #E2E8F0;
+    --maeil-ink-2: #CBD5E1;
+    --maeil-muted: #94A3B8;
+    --maeil-line: #2A3648;
+    --maeil-line-soft: #1F2A3D;
+    --maeil-line-blue: #2C4270;
+    --maeil-line-red: #7F1D1D;
+    --maeil-nav-bg: rgba(11, 18, 32, 0.92);
+    --maeil-glow: #17305F;
+    --maeil-disabled: #334155;
+
+    /* 글자·테두리용 파랑은 밝게, 흰 글자가 올라가는 면(solid)은 진하게 */
+    --maeil-blue: #60A5FA;
+    --maeil-blue-solid: #2563EB;
+    --maeil-blue-dark: #1D4ED8;
+    --maeil-light-blue: #172A4D;
+    --maeil-danger: #F87171;
+    --maeil-green: #4ADE80;
+
+    --maeil-soft-green: #10301F;
+    --maeil-soft-red: #3B1A1E;
+    --maeil-soft-orange: #3A2413;
+    --maeil-soft-gold: #352A0F;
+    --maeil-soft-violet: #2A2150;
+    --maeil-text-green: #86EFAC;
+    --maeil-text-red: #FCA5A5;
+    --maeil-text-orange: #FDBA74;
+    --maeil-text-violet: #C4B5FD;
+
+    --grass-0: #263246;
+    --grass-1: #0E4429;
+    --grass-2: #006D32;
+    --grass-3: #26A641;
+    --grass-4: #39D353;
+    --streak-orange-dark: #FDBA74;
+    --streak-orange-bg: #3A2413;
+
+    /* Bootstrap 컴포넌트(모달, 폼, 아코디언)도 같은 면 색을 쓰게 한다 */
+    --bs-body-bg: #151E2E;
+    --bs-body-color: #E2E8F0;
+    --bs-border-color: #2A3648;
+}
+
+html[data-bs-theme="dark"] .cat-streak { --cat-soft: #3A2413; --cat-ink: #FDBA74; --cat-line: #7C2D12; }
+html[data-bs-theme="dark"] .cat-study_days { --cat-soft: #10301F; --cat-ink: #86EFAC; --cat-line: #14532D; }
+html[data-bs-theme="dark"] .cat-quiz { --cat-soft: #172A4D; --cat-ink: #93C5FD; --cat-line: #1E3A8A; }
+
+/* 그라데이션 면 */
+html[data-bs-theme="dark"] .new-badge {
+    background: linear-gradient(120deg, #3A2E0F, #3A2413);
+    border-color: #854D0E;
+    color: #FDE68A;
+}
+
+html[data-bs-theme="dark"] .stat-tile.hot {
+    background: linear-gradient(160deg, #3A2413, #2E1C10);
+    border-color: #7C2D12;
+}
+
+html[data-bs-theme="dark"] .podium {
+    background: radial-gradient(420px 180px at 50% 0%, #17305F 0%, transparent 70%), var(--maeil-surface);
+}
+
+/* 라이트 고정인 Bootstrap 유틸리티 */
+html[data-bs-theme="dark"] .bg-white {
+    background-color: var(--maeil-surface) !important;
+}
+
+html[data-bs-theme="dark"] .text-dark {
+    color: var(--maeil-ink) !important;
+}
+
+/* .btn-light 는 다크에서도 밝은 면이라 글자는 진한 파랑을 유지한다 */
+html[data-bs-theme="dark"] .btn-light,
+html[data-bs-theme="dark"] .btn-light.text-maeil {
+    color: var(--maeil-blue-solid) !important;
+}

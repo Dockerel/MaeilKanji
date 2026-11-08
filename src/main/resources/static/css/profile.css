@@ -66,7 +66,7 @@
     width: 104px;
     height: 104px;
     font-size: 3.1rem;
-    border: 4px solid white;
+    border: 4px solid var(--maeil-surface, white);
     box-shadow: 0 12px 28px -12px rgba(15, 23, 42, 0.45);
 }
 
@@ -112,9 +112,9 @@
 }
 
 .medal.locked {
-    background: #F1F5F9;
+    background: var(--maeil-surface-2, #F1F5F9);
     color: #CBD5E1;
-    box-shadow: inset 0 0 0 1.5px #E2E8F0;
+    box-shadow: inset 0 0 0 1.5px var(--maeil-line, #E2E8F0);
 }
 
 .medal.locked::after {
@@ -127,13 +127,13 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: white;
+    background: var(--maeil-surface, white);
     color: #94A3B8;
     font-size: 0.6rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 1.5px #E2E8F0;
+    box-shadow: 0 0 0 1.5px var(--maeil-line, #E2E8F0);
 }
 
 .bchip {
@@ -239,7 +239,7 @@
 }
 
 .profile-bio {
-    color: #475569;
+    color: var(--maeil-ink-2, #475569);
     margin: 6px 0 0;
     white-space: pre-line;
     word-break: break-word;
@@ -302,9 +302,9 @@
     color: var(--maeil-blue);
 }
 
-.card-title .ico.green { background-color: #F0FDF4; color: #16A34A; }
+.card-title .ico.green { background-color: var(--maeil-soft-green, #F0FDF4); color: #16A34A; }
 .card-title .ico.orange { background-color: var(--streak-orange-bg); color: var(--streak-orange); }
-.card-title .ico.gold { background-color: #FEFCE8; color: #CA8A04; }
+.card-title .ico.gold { background-color: var(--maeil-soft-gold, #FEFCE8); color: #CA8A04; }
 
 .card-aside {
     font-size: 0.85rem;
@@ -325,7 +325,7 @@
 }
 
 .stat-tile {
-    background-color: white;
+    background-color: var(--maeil-surface, white);
     border: 1px solid var(--maeil-line);
     border-radius: 16px;
     padding: 18px;
@@ -353,8 +353,8 @@
 }
 
 .stat-tile.hot .stat-icon { background-color: var(--streak-orange); color: white; }
-.stat-icon.violet { background-color: #F5F3FF; color: #7C3AED; }
-.stat-icon.green { background-color: #F0FDF4; color: #16A34A; }
+.stat-icon.violet { background-color: var(--maeil-soft-violet, #F5F3FF); color: var(--maeil-text-violet, #7C3AED); }
+.stat-icon.green { background-color: var(--maeil-soft-green, #F0FDF4); color: #16A34A; }
 
 .stat-label {
     font-size: 0.8rem;
@@ -404,12 +404,12 @@
 }
 
 .rank-pill:hover {
-    background-color: var(--maeil-blue);
+    background-color: var(--maeil-blue-solid, var(--maeil-blue));
     color: white;
 }
 
 .stat-tile.hot .rank-pill {
-    background-color: white;
+    background-color: var(--maeil-surface, white);
     color: var(--streak-orange-dark);
 }
 
@@ -507,7 +507,7 @@
     gap: 16px;
     padding: 16px 18px;
     border-radius: 16px;
-    background-color: white;
+    background-color: var(--maeil-surface, white);
     border: 1px solid var(--maeil-line);
 }
 
@@ -550,7 +550,7 @@
 .unlock-bar {
     height: 8px;
     border-radius: 999px;
-    background-color: #F1F5F9;
+    background-color: var(--maeil-surface-2, #F1F5F9);
     overflow: hidden;
     margin-top: 10px;
 }
@@ -575,7 +575,7 @@
 .badge-section + .badge-section {
     margin-top: 22px;
     padding-top: 20px;
-    border-top: 1px solid #F1F5F9;
+    border-top: 1px solid var(--maeil-line-soft, #F1F5F9);
 }
 
 .badge-section-head {
@@ -585,7 +585,7 @@
     margin-bottom: 14px;
     font-size: 0.85rem;
     font-weight: 700;
-    color: #334155;
+    color: var(--maeil-ink-2, #334155);
 }
 
 .badge-section-head .dot {
@@ -668,7 +668,7 @@
     min-height: 84px;
     border: 2px solid var(--maeil-line);
     border-radius: 14px;
-    background-color: white;
+    background-color: var(--maeil-surface, white);
     transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
     padding: 10px 6px;
     text-align: center;
@@ -726,13 +726,13 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: var(--maeil-blue);
+    background: var(--maeil-blue-solid, var(--maeil-blue));
     color: white;
     font-size: 0.65rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 2px white;
+    box-shadow: 0 0 0 2px var(--maeil-surface, white);
 }
 
 .pick input:focus-visible + .pick-face {
@@ -769,7 +769,7 @@
 .rank-tabs {
     display: flex;
     gap: 4px;
-    background-color: #EEF2F7;
+    background-color: var(--maeil-surface-2, #EEF2F7);
     border-radius: 14px;
     padding: 4px;
 }
@@ -799,7 +799,7 @@
 }
 
 .rank-tabs a.active {
-    background-color: white;
+    background-color: var(--maeil-surface, white);
     color: var(--maeil-blue);
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 4px 12px -6px rgba(15, 23, 42, 0.2);
 }
@@ -855,7 +855,7 @@
 }
 
 .podium-avatar .kavatar {
-    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--medal), 0 12px 24px -12px rgba(15, 23, 42, 0.45);
+    box-shadow: 0 0 0 3px var(--maeil-surface, white), 0 0 0 5px var(--medal), 0 12px 24px -12px rgba(15, 23, 42, 0.45);
 }
 
 .podium-slot.p1 { --medal: var(--gold); }
@@ -914,7 +914,7 @@
     content: '나';
     margin-left: 4px;
     font-size: 0.65rem;
-    background-color: var(--maeil-blue);
+    background-color: var(--maeil-blue-solid, var(--maeil-blue));
     color: white;
     border-radius: 999px;
     padding: 1px 6px;
@@ -936,7 +936,7 @@
 }
 
 .rank-row + .rank-row {
-    border-top: 1px solid #F1F5F9;
+    border-top: 1px solid var(--maeil-line-soft, #F1F5F9);
 }
 
 .rank-row.me {
@@ -999,7 +999,7 @@
 .me-chip {
     flex-shrink: 0;
     font-size: 0.68rem;
-    background-color: var(--maeil-blue);
+    background-color: var(--maeil-blue-solid, var(--maeil-blue));
     color: white;
     border-radius: 999px;
     padding: 1px 7px;
@@ -1076,7 +1076,7 @@
     justify-content: center;
     font-size: 1.5rem;
     color: #16A34A;
-    background-color: #F0FDF4;
+    background-color: var(--maeil-soft-green, #F0FDF4);
     margin-bottom: 14px;
 }
 

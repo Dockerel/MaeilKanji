@@ -44,6 +44,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/typography.css">
+    <th:block th:replace="~{fragments/page :: theme-assets}"></th:block>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,7 +71,7 @@
         body {
             font-family: 'Noto Sans KR', sans-serif !important;
             color: var(--maeil-ink);
-            background-color: #fff;
+            background-color: var(--maeil-surface, #fff);
         }
 
         .jp {
@@ -86,8 +87,8 @@
         }
 
         .btn-maeil {
-            background-color: var(--maeil-blue);
-            border-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
+            border-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
             transition: all 0.2s;
         }
@@ -112,7 +113,7 @@
             position: sticky;
             top: 0;
             z-index: 1020;
-            background-color: rgba(255, 255, 255, 0.92);
+            background-color: var(--maeil-nav-bg, rgba(255, 255, 255, 0.92));
             backdrop-filter: saturate(180%) blur(8px);
             border-bottom: 1px solid var(--maeil-line);
             transition: box-shadow 0.25s ease;
@@ -142,8 +143,8 @@
         /* ---------- Hero ---------- */
         .hero {
             position: relative;
-            background: radial-gradient(900px 420px at 85% -10%, #DCE7FF 0%, transparent 60%),
-            radial-gradient(600px 300px at -10% 110%, #E0F2FE 0%, transparent 60%), var(--maeil-light-blue);
+            background: radial-gradient(900px 420px at 85% -10%, var(--maeil-glow, #DCE7FF) 0%, transparent 60%),
+            radial-gradient(600px 300px at -10% 110%, var(--maeil-glow, #E0F2FE) 0%, transparent 60%), var(--maeil-light-blue);
             padding: 80px 0 96px;
             overflow: hidden;
         }
@@ -168,9 +169,9 @@
             gap: 8px;
             padding: 6px 14px 6px 6px;
             border-radius: 999px;
-            background-color: white;
-            border: 1px solid #D6E2FF;
-            color: #334155;
+            background-color: var(--maeil-surface, white);
+            border: 1px solid var(--maeil-line-blue, #D6E2FF);
+            color: var(--maeil-ink-2, #334155);
             font-size: 0.85rem;
             font-weight: 500;
         }
@@ -178,7 +179,7 @@
         .eyebrow .tag {
             padding: 2px 8px;
             border-radius: 999px;
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
             font-size: 0.75rem;
             font-weight: 700;
@@ -236,7 +237,7 @@
         }
 
         .lesson-card {
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             border-radius: 22px;
             box-shadow: 0 30px 60px -30px rgba(37, 99, 235, 0.45);
@@ -271,7 +272,7 @@
         }
 
         .lesson-glyph {
-            background: white;
+            background: var(--maeil-surface, white);
             text-align: center;
             padding: 20px 8px 16px;
         }
@@ -313,7 +314,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 14px;
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             border-radius: 14px;
             box-shadow: 0 18px 36px -18px rgba(15, 23, 42, 0.35);
@@ -374,13 +375,13 @@
 
         .mini-grass span {
             border-radius: 2px;
-            background-color: #EBEDF0;
+            background-color: var(--grass-0, #EBEDF0);
         }
 
-        .mini-grass .l1 { background-color: #9BE9A8; }
-        .mini-grass .l2 { background-color: #40C463; }
-        .mini-grass .l3 { background-color: #30A14E; }
-        .mini-grass .l4 { background-color: #216E39; }
+        .mini-grass .l1 { background-color: var(--grass-1, #9BE9A8); }
+        .mini-grass .l2 { background-color: var(--grass-2, #40C463); }
+        .mini-grass .l3 { background-color: var(--grass-3, #30A14E); }
+        .mini-grass .l4 { background-color: var(--grass-4, #216E39); }
 
         /* ---------- Sections ---------- */
         section {
@@ -412,7 +413,7 @@
 
         .routine-card {
             height: 100%;
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             border-radius: 20px;
             padding: 24px;
@@ -485,7 +486,7 @@
             width: 32px;
             height: 32px;
             border-radius: 8px;
-            background: white;
+            background: var(--maeil-surface, white);
             padding: 3px;
             border: 1px solid var(--maeil-line);
         }
@@ -506,7 +507,7 @@
         .mock-chip {
             padding: 4px 10px;
             border-radius: 8px;
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             font-weight: 600;
         }
@@ -550,7 +551,7 @@
             padding: 16px 18px;
             border: 1.5px solid var(--maeil-line);
             border-radius: 16px;
-            background: white;
+            background: var(--maeil-surface, white);
             color: inherit;
             transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
         }
@@ -574,14 +575,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #EEF2F7;
-            color: #475569;
+            background-color: var(--maeil-surface-2, #EEF2F7);
+            color: var(--maeil-ink-2, #475569);
             font-weight: 800;
             font-size: 0.8rem;
         }
 
         .qtype[aria-selected="true"] .qtype-no {
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
         }
 
@@ -598,7 +599,7 @@
         }
 
         .demo-card {
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             border-radius: 20px;
             padding: 24px;
@@ -618,13 +619,13 @@
             height: 8px;
             margin-left: 14px;
             border-radius: 999px;
-            background-color: #EEF2F7;
+            background-color: var(--maeil-surface-2, #EEF2F7);
             overflow: hidden;
         }
 
         .demo-progress div {
             height: 100%;
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             border-radius: 999px;
             transition: width 0.4s ease-out;
         }
@@ -672,7 +673,7 @@
             padding: 1px 9px;
             margin-right: 6px;
             border-radius: 6px;
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
             font-size: 0.78rem;
             font-weight: 700;
@@ -698,7 +699,7 @@
             border: 2px solid var(--maeil-line);
             border-bottom-width: 4px;
             border-radius: 12px;
-            background: white;
+            background: var(--maeil-surface, white);
             text-align: left;
             font-weight: 600;
             color: var(--maeil-ink);
@@ -719,12 +720,12 @@
 
         .demo-option.correct {
             border-color: #16A34A;
-            background-color: #F0FDF4;
+            background-color: var(--maeil-soft-green, #F0FDF4);
         }
 
         .demo-option.wrong {
             border-color: #DC2626;
-            background-color: #FEF2F2;
+            background-color: var(--maeil-soft-red, #FEF2F2);
         }
 
         .demo-option:disabled {
@@ -756,7 +757,7 @@
             border: 2px solid var(--maeil-line);
             border-bottom-width: 4px;
             border-radius: 12px;
-            background-color: white;
+            background-color: var(--maeil-surface, white);
             font-family: 'Noto Serif JP', serif;
             font-size: 1.05rem;
             line-height: 2.3;
@@ -782,13 +783,13 @@
         }
 
         .demo-feedback.correct {
-            background-color: #F0FDF4;
-            color: #15803D;
+            background-color: var(--maeil-soft-green, #F0FDF4);
+            color: var(--maeil-text-green, #15803D);
         }
 
         .demo-feedback.wrong {
-            background-color: #FEF2F2;
-            color: #B91C1C;
+            background-color: var(--maeil-soft-red, #FEF2F2);
+            color: var(--maeil-text-red, #B91C1C);
         }
 
         .demo-feedback .reset {
@@ -816,7 +817,7 @@
         }
 
         .bento-card {
-            background: white;
+            background: var(--maeil-surface, white);
             border: 1px solid var(--maeil-line);
             border-radius: 20px;
             padding: 24px;
@@ -854,7 +855,7 @@
         .bento-tag.orange { color: #EA580C; }
         .bento-tag.blue { color: var(--maeil-blue); }
         .bento-tag.gold { color: #CA8A04; }
-        .bento-tag.violet { color: #7C3AED; }
+        .bento-tag.violet { color: var(--maeil-text-violet, #7C3AED); }
 
         .demo-heatmap {
             display: grid;
@@ -868,13 +869,13 @@
 
         .demo-heatmap span {
             border-radius: 3px;
-            background-color: #EBEDF0;
+            background-color: var(--grass-0, #EBEDF0);
         }
 
-        .demo-heatmap .l1 { background-color: #9BE9A8; }
-        .demo-heatmap .l2 { background-color: #40C463; }
-        .demo-heatmap .l3 { background-color: #30A14E; }
-        .demo-heatmap .l4 { background-color: #216E39; }
+        .demo-heatmap .l1 { background-color: var(--grass-1, #9BE9A8); }
+        .demo-heatmap .l2 { background-color: var(--grass-2, #40C463); }
+        .demo-heatmap .l3 { background-color: var(--grass-3, #30A14E); }
+        .demo-heatmap .l4 { background-color: var(--grass-4, #216E39); }
 
         .grass-legend {
             display: flex;
@@ -925,13 +926,13 @@
             aspect-ratio: 1;
             border-radius: 50%;
             margin-bottom: 4px;
-            background-color: #FFEDD5;
+            background-color: var(--maeil-soft-orange, #FFEDD5);
             color: #EA580C;
             font-size: 0.75rem;
         }
 
         .streak-week i.off {
-            background-color: #F1F5F9;
+            background-color: var(--maeil-surface-2, #F1F5F9);
             color: #CBD5E1;
         }
 
@@ -958,7 +959,7 @@
         }
 
         .mini-rank li + li {
-            border-top: 1px solid #F1F5F9;
+            border-top: 1px solid var(--maeil-line-soft, #F1F5F9);
         }
 
         .mini-rank .no {
@@ -975,7 +976,7 @@
 
         .mini-rank .val {
             margin-left: auto;
-            color: #C2410C;
+            color: var(--maeil-text-orange, #C2410C);
             font-variant-numeric: tabular-nums;
         }
 
@@ -1026,7 +1027,7 @@
             border: 1px solid var(--maeil-line);
             border-radius: 20px;
             padding: 26px 24px;
-            background: white;
+            background: var(--maeil-surface, white);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -1101,7 +1102,7 @@
         .cta {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(135deg, var(--maeil-blue) 0%, #1D3FA8 100%);
+            background: linear-gradient(135deg, var(--maeil-blue-solid, var(--maeil-blue)) 0%, #1D3FA8 100%);
             color: white;
         }
 
@@ -1134,8 +1135,8 @@
             position: relative;
             display: block;
             padding: 28px 28px 20px;
-            background: radial-gradient(500px 160px at 90% -20%, #DCE7FF 0%, transparent 70%), var(--maeil-light-blue);
-            border-bottom: 1px solid #DCE7FF;
+            background: radial-gradient(500px 160px at 90% -20%, var(--maeil-glow, #DCE7FF) 0%, transparent 70%), var(--maeil-light-blue);
+            border-bottom: 1px solid var(--maeil-line-blue, #DCE7FF);
         }
 
         .subscribe-modal .modal-header .btn-close {
@@ -1152,8 +1153,8 @@
             margin-bottom: 10px;
             padding: 4px 10px;
             border-radius: 999px;
-            background-color: white;
-            border: 1px solid #D6E2FF;
+            background-color: var(--maeil-surface, white);
+            border: 1px solid var(--maeil-line-blue, #D6E2FF);
             color: var(--maeil-blue);
             font-size: 0.75rem;
             font-weight: 700;
@@ -1197,7 +1198,7 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
             font-size: 0.75rem;
             font-weight: 700;
@@ -1227,7 +1228,7 @@
         }
 
         .subscribe-modal .form-control:disabled {
-            background-color: #F8FAFC;
+            background-color: var(--maeil-bg, #F8FAFC);
             color: var(--maeil-muted);
         }
 
@@ -1237,7 +1238,7 @@
         }
 
         .btn-modal-action {
-            background-color: var(--maeil-blue);
+            background-color: var(--maeil-blue-solid, var(--maeil-blue));
             color: white;
             border: none;
             border-radius: 0 10px 10px 0;
@@ -1254,7 +1255,7 @@
         }
 
         .btn-modal-action:disabled {
-            background-color: #CBD5E1;
+            background-color: var(--maeil-disabled, #CBD5E1);
             color: white;
         }
 
@@ -1286,7 +1287,7 @@
             padding: 12px 14px;
             border: 1.5px solid var(--maeil-line);
             border-radius: 12px;
-            background-color: #fff;
+            background-color: var(--maeil-surface, #fff);
             cursor: pointer;
             transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
         }
@@ -1357,8 +1358,8 @@
         }
 
         #finalSignupBtn:disabled {
-            background-color: #CBD5E1;
-            border-color: #CBD5E1;
+            background-color: var(--maeil-disabled, #CBD5E1);
+            border-color: var(--maeil-disabled, #CBD5E1);
             opacity: 1;
         }
 
@@ -1705,9 +1706,9 @@
                 <div class="demo-heatmap" id="records-grass" aria-hidden="true"></div>
                 <div class="grass-legend" aria-hidden="true">
                     <span class="me-1">적게</span>
-                    <span class="c" style="background:#EBEDF0"></span><span class="c" style="background:#9BE9A8"></span>
-                    <span class="c" style="background:#40C463"></span><span class="c" style="background:#30A14E"></span>
-                    <span class="c" style="background:#216E39"></span>
+                    <span class="c" style="background:var(--grass-0, #EBEDF0)"></span><span class="c" style="background:var(--grass-1, #9BE9A8)"></span>
+                    <span class="c" style="background:var(--grass-2, #40C463)"></span><span class="c" style="background:var(--grass-3, #30A14E)"></span>
+                    <span class="c" style="background:var(--grass-4, #216E39)"></span>
                     <span class="ms-1">많이</span>
                 </div>
             </div>
