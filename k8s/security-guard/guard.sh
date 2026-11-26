@@ -226,22 +226,39 @@ send_mail() {
     --mail-from "$from" --mail-rcpt "$rcpt" -T "$WORK/mail.txt"
 }
 
+# Starts .github/workflows/security-patch.yml: Claude fixes what the guard cannot
+# (tag upgrades, app libraries) and opens a PR for a human to merge.
+# Needs GH_TOKEN with "Contents: write" (repository_dispatch).
+dispatch_patch_pr() {
+  [[ -n "$GH_TOKEN" && "$AUTO_PATCH" == "true" ]] || return 1
+  # Only when something is left that the guard could not fix by itself.
+  grep -qE 'manual tag upgrade|Dependabot PRs|not better' <<< "$REPORT" || return 1
+  local body
+  body="$(jq -n --arg r "${REPORT:0:30000}" '{event_type: "security-findings", client_payload: {report: $r}}')"
+  if curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+      "https://api.github.com/repos/$GH_REPO/dispatches" -d "$body"; then
+    log "security-patch workflow dispatched"
+  else
+    log "security-patch dispatch failed"; return 1
+  fi
+}
+
 main() {
   log "trivy $(trivy --version | head -1), namespace $NS, AUTO_PATCH=$AUTO_PATCH"
   for w in $PATCH_TARGETS; do patch_workload "$w"; done
   for w in $REPORT_TARGETS; do report_workload "$w"; done
   audit_mysql
 
-  # Mail only when something needs attention and the report changed since the last mail.
-  local hash last
+  # Notify only when something needs attention and the report changed since the last time.
+  local hash last notified=0
   hash="$(grep -v '^  backup:' <<< "$REPORT" | sed 's/(running [0-9a-f]*)//' | sha256sum | cut -d' ' -f1)"
   last="$(cat "$DATA_DIR/last-report-hash" 2>/dev/null)"
-  if [[ "$ATTENTION" -eq 1 && "$hash" != "$last" && "$MAIL_ENABLED" == "true" ]]; then
-    if send_mail "[매일한자] 보안 점검 $(date +%F)"; then
-      echo "$hash" > "$DATA_DIR/last-report-hash"; log "report mailed"
-    else
-      log "mail failed"
+  if [[ "$ATTENTION" -eq 1 && "$hash" != "$last" ]]; then
+    if [[ "$MAIL_ENABLED" == "true" ]]; then
+      if send_mail "[매일한자] 보안 점검 $(date +%F)"; then notified=1; log "report mailed"; else log "mail failed"; fi
     fi
+    if dispatch_patch_pr; then notified=1; fi
+    [[ "$notified" -eq 1 ]] && echo "$hash" > "$DATA_DIR/last-report-hash"
   fi
   printf '\n===== report =====\n%s' "$REPORT"
 }

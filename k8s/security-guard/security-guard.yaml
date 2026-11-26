@@ -113,7 +113,8 @@ spec:
                 - { name: SMTP_USERNAME, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_USERNAME } } }
                 - { name: SMTP_PASSWORD, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_PASSWORD } } }
                 # Optional (secret security-guard, key GH_TOKEN): fine-grained token with
-                # "Actions: write" on the repo. Lets the guard re-run CD for OS-package fixes.
+                # "Actions: write" + "Contents: write" on the repo. Lets the guard re-run CD for
+                # OS-package fixes and start security-patch.yml (Claude patch PR).
                 - { name: GH_TOKEN, valueFrom: { secretKeyRef: { name: security-guard, key: GH_TOKEN, optional: true } } }
               securityContext:
                 allowPrivilegeEscalation: false

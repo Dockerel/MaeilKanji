@@ -1,4 +1,6 @@
-# App-side patching: Dependabot opens PRs, CI tests them, CD deploys after merge.
+# App-side patching: Dependabot opens PRs, CI tests them, dependabot-auto-merge.yml merges
+# green ones, CD deploys. Majors are ignored everywhere so auto-merge only sees patch/minor;
+# majors (and Kotlin 2 / Kotest 6 / Boot 4) come through security-patch.yml for a human to merge.
 version: 2
 updates:
   - package-ecosystem: gradle
@@ -6,12 +8,7 @@ updates:
     schedule: { interval: weekly, day: monday, time: "09:00", timezone: Asia/Seoul }
     open-pull-requests-limit: 5
     ignore:
-      # Kotest 6 needs Kotlin 2.x (see CLAUDE.md); Kotlin/Boot majors need a manual migration.
-      - dependency-name: "io.kotest*"
-        update-types: [version-update:semver-major]
-      - dependency-name: "org.jetbrains.kotlin*"
-        update-types: [version-update:semver-major]
-      - dependency-name: "org.springframework.boot"
+      - dependency-name: "*"
         update-types: [version-update:semver-major]
     groups:
       patches:
@@ -19,6 +16,12 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: monthly }
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
