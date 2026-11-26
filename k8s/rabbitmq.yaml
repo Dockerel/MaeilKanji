@@ -34,7 +34,7 @@ spec:
       containers:
         - name: rabbitmq
           # Always: re-applying this tag must not fall back to an older cached build (see security-guard).
-          image: rabbitmq:3-management
+          image: rabbitmq:4.4-management
           imagePullPolicy: Always
           ports:
             - name: amqp
