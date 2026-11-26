@@ -104,7 +104,7 @@ spec:
                 - { name: HOME, value: /tmp }
                 - { name: TZ, value: Asia/Seoul }
                 # false = scan and report only, change nothing.
-                - { name: AUTO_PATCH, value: "false" }
+                - { name: AUTO_PATCH, value: "true" }
                 - { name: SEVERITY, value: "HIGH,CRITICAL" }
                 - { name: ADMIN_EMAIL, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: ADMIN_EMAIL } } }
                 - { name: MAIL_FROM, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: MAIL_FROM } } }
