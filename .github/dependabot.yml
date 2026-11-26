@@ -1,0 +1,24 @@
+# App-side patching: Dependabot opens PRs, CI tests them, CD deploys after merge.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule: { interval: weekly, day: monday, time: "09:00", timezone: Asia/Seoul }
+    open-pull-requests-limit: 5
+    ignore:
+      # Kotest 6 needs Kotlin 2.x (see CLAUDE.md); Kotlin/Boot majors need a manual migration.
+      - dependency-name: "io.kotest*"
+        update-types: [version-update:semver-major]
+      - dependency-name: "org.jetbrains.kotlin*"
+        update-types: [version-update:semver-major]
+      - dependency-name: "org.springframework.boot"
+        update-types: [version-update:semver-major]
+    groups:
+      patches:
+        update-types: [patch]
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }

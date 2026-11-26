@@ -31,7 +31,9 @@ spec:
     spec:
       containers:
         - name: mysql
+          # Always: re-applying this tag must not fall back to an older cached build (see security-guard).
           image: mysql:8.0
+          imagePullPolicy: Always
           args:
             - --character-set-server=utf8mb4
             - --collation-server=utf8mb4_unicode_ci
