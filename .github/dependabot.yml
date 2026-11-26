@@ -14,7 +14,7 @@ updates:
       patches:
         update-types: [patch]
   - package-ecosystem: docker
-    directory: /
+    directories: [/, /docker/mysql]
     schedule: { interval: weekly }
     ignore:
       - dependency-name: "*"
