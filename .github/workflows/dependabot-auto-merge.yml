@@ -1,0 +1,37 @@
+name: dependabot auto merge
+
+# Merges a Dependabot PR after "ci pipeline" passed on its exact head commit.
+# Dependabot only proposes patch/minor updates (majors are ignored in dependabot.yml),
+# so a green CI run is the gate. Majors go through the security-patch workflow (human merge).
+#
+# Merges with AUTOMATION_PAT, not GITHUB_TOKEN: a push made with GITHUB_TOKEN does not
+# start other workflows, so CI/CD on main would never run after the merge.
+on:
+  workflow_run:
+    workflows: ["ci pipeline"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  merge:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: merge tested pr
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr="$(gh pr list -R "$REPO" --state open --head "$BRANCH" --json number,baseRefName,author \
+            -q '.[] | select(.baseRefName == "main" and (.author.login | test("dependabot"))) | .number')"
+          if [ -z "$pr" ]; then echo "no open dependabot PR into main for $BRANCH"; exit 0; fi
+          # --match-head-commit: refuse if the PR moved after this CI run.
+          gh pr merge "$pr" -R "$REPO" --squash --delete-branch --match-head-commit "$SHA"

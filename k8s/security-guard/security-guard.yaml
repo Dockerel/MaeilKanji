@@ -1,0 +1,139 @@
+# Daily CVE scan + auto patch of the infra StatefulSets. See guard.sh for the rules.
+# Apply: kubectl apply -k k8s/security-guard
+# Run now: kubectl -n maeilkanji create job --from=cronjob/security-guard security-guard-manual
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: security-guard
+  namespace: maeilkanji
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: security-guard
+  namespace: maeilkanji
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, list]
+  # Delete is only needed to unstick a StatefulSet pod during rollback.
+  - apiGroups: [""]
+    resources: [pods]
+    resourceNames: [mysql-0, redis-0, rabbitmq-0]
+    verbs: [delete]
+  # mysqldump backup and the account audit run inside the MySQL pod.
+  - apiGroups: [""]
+    resources: [pods/exec]
+    resourceNames: [mysql-0]
+    verbs: [create, get]
+  - apiGroups: [apps]
+    resources: [statefulsets, deployments, controllerrevisions]
+    verbs: [get, list, watch]
+  # Only the infra StatefulSets can be changed. The app Deployment is read-only.
+  - apiGroups: [apps]
+    resources: [statefulsets]
+    resourceNames: [mysql, redis, rabbitmq]
+    verbs: [patch, update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: security-guard
+  namespace: maeilkanji
+subjects:
+  - kind: ServiceAccount
+    name: security-guard
+    namespace: maeilkanji
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: security-guard
+---
+# Trivy DB cache + MySQL backups (last BACKUP_KEEP dumps) + report state.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: security-guard-data
+  namespace: maeilkanji
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: security-guard
+  namespace: maeilkanji
+spec:
+  # Quiet hour, after the 00:00 content jobs.
+  schedule: "30 4 * * *"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      # Never retry: a retry could patch twice.
+      backoffLimit: 0
+      activeDeadlineSeconds: 5400
+      template:
+        spec:
+          serviceAccountName: security-guard
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          initContainers:
+            # Copy the trivy binary into the toolbox container.
+            - name: trivy
+              image: aquasec/trivy:0.76.2
+              command: ["cp", "/usr/local/bin/trivy", "/tools/trivy"]
+              volumeMounts:
+                - { name: tools, mountPath: /tools }
+          containers:
+            - name: guard
+              image: alpine/k8s:1.33.13
+              command: ["bash", "/scripts/guard.sh"]
+              env:
+                - { name: PATH, value: "/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" }
+                - { name: HOME, value: /tmp }
+                - { name: TZ, value: Asia/Seoul }
+                # false = scan and report only, change nothing.
+                - { name: AUTO_PATCH, value: "true" }
+                - { name: SEVERITY, value: "HIGH,CRITICAL" }
+                - { name: ADMIN_EMAIL, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: ADMIN_EMAIL } } }
+                - { name: MAIL_FROM, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: MAIL_FROM } } }
+                - { name: SMTP_HOST, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_HOST } } }
+                - { name: SMTP_PORT, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_PORT } } }
+                - { name: SMTP_USERNAME, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_USERNAME } } }
+                - { name: SMTP_PASSWORD, valueFrom: { secretKeyRef: { name: maeilkanji-app, key: SMTP_PASSWORD } } }
+                # Optional (secret security-guard, key GH_TOKEN): fine-grained token with
+                # "Actions: write" + "Contents: write" on the repo. Lets the guard re-run CD for
+                # OS-package fixes and start security-patch.yml (Claude patch PR).
+                - { name: GH_TOKEN, valueFrom: { secretKeyRef: { name: security-guard, key: GH_TOKEN, optional: true } } }
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities: { drop: [ALL] }
+              resources:
+                requests: { cpu: 100m, memory: 256Mi }
+                limits: { memory: 1Gi }
+              volumeMounts:
+                - { name: scripts, mountPath: /scripts, readOnly: true }
+                - { name: tools, mountPath: /tools, readOnly: true }
+                - { name: data, mountPath: /data }
+                - { name: tmp, mountPath: /tmp }
+          volumes:
+            - name: scripts
+              configMap: { name: security-guard-script }
+            - name: tools
+              emptyDir: {}
+            - name: tmp
+              emptyDir: {}
+            - name: data
+              persistentVolumeClaim: { claimName: security-guard-data }
