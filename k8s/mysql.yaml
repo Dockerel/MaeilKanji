@@ -32,8 +32,9 @@ spec:
       containers:
         - name: mysql
           # Always: re-applying this tag must not fall back to an older cached build (see security-guard).
-          # 8.4 LTS. In-place upgraded from 8.0.46 on 2026-11-27; 8.4 data cannot be opened by 8.0.
-          image: mysql:8.4
+          # mysql:8.4 LTS rebuilt without mysql-shell and with a current-Go gosu (docker/mysql, mysql-image.yml).
+          # In-place upgraded from 8.0.46 on 2026-11-27; 8.4 data cannot be opened by 8.0.
+          image: ghcr.io/dockerel/maeilkanji:mysql-8.4
           imagePullPolicy: Always
           args:
             - --character-set-server=utf8mb4

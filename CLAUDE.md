@@ -36,7 +36,7 @@ infra/            → JPA entities, JpaRepository interfaces, repository impleme
 
 ## Infrastructure
 
-- **MySQL** (JPA, `hibernate.dialect=MySQL8Dialect`, `ddl-auto=update`)
+- **MySQL** 8.4 LTS (JPA, `hibernate.dialect=MySQL8Dialect`, `ddl-auto=update`). Image `ghcr.io/dockerel/maeilkanji:mysql-8.4` = `docker/mysql/Dockerfile` (mysql:8.4 without mysql-shell, gosu rebuilt with current Go), rebuilt weekly by `mysql-image.yml`.
 - **Redis** (Spring Data Redis)
 - **RabbitMQ** (Spring AMQP, retry config in `application.properties` + `RetryConfig.kt`)
 - **Resend SMTP** (Spring Mail, `smtp.resend.com:587`, STARTTLS; username `resend`, password = API key)
