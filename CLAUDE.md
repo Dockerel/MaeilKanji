@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-Spring Boot 3 + Kotlin + JPA. Layered package structure under `maeilkanji.maeilkanji`:
+Spring Boot 4 + Kotlin 2 + JPA (Hibernate 7, Jackson 3 `tools.jackson.*`; Jackson annotations stay `com.fasterxml.jackson.annotation`). Layered package structure under `maeilkanji.maeilkanji`:
 
 ```
 presentation/     → controllers (REST @RestController, Thymeleaf view @Controller), ApiControllerAdvice
@@ -36,7 +36,7 @@ infra/            → JPA entities, JpaRepository interfaces, repository impleme
 
 ## Infrastructure
 
-- **MySQL** 8.4 LTS (JPA, `hibernate.dialect=MySQL8Dialect`, `ddl-auto=update`). Image `ghcr.io/dockerel/maeilkanji:mysql-8.4` = `docker/mysql/Dockerfile` (mysql:8.4 without mysql-shell, gosu rebuilt with current Go), rebuilt weekly by `mysql-image.yml`.
+- **MySQL** 8.4 LTS (JPA, dialect auto-detected, `ddl-auto=update`). Image `ghcr.io/dockerel/maeilkanji:mysql-8.4` = `docker/mysql/Dockerfile` (mysql:8.4 without mysql-shell, gosu rebuilt with current Go), rebuilt weekly by `mysql-image.yml`.
 - **Redis** (Spring Data Redis)
 - **RabbitMQ** (Spring AMQP, retry config in `application.properties` + `RetryConfig.kt`)
 - **Resend SMTP** (Spring Mail, `smtp.resend.com:587`, STARTTLS; username `resend`, password = API key)
@@ -50,7 +50,7 @@ All connection params are environment variables (see `application.properties`). 
 - `MaeilKanjiApplicationTests` — context load test.
 - Service unit tests (`business/service/*Test.kt`): Kotest `BehaviorSpec` + MockK, `IsolationMode.InstancePerLeaf` so each leaf gets fresh mocks.
 - REST controller slice tests (`presentation/controller/api/*Test.kt`): `@WebMvcTest` + Kotest Spring extension. Service mock beans come from a nested `@TestConfiguration` (no springmockk). Constructor injection is enabled by `io.kotest.provided.ProjectConfig`.
-- Kotest is pinned to 5.9.x because Kotest 6 requires Kotlin 2.x.
+- Kotest 6: `extensions(SpringExtension())` (a class, not an object). Retries use Spring Framework 7 `@Retryable` (`org.springframework.resilience`, enabled by `@EnableResilientMethods` in `RetryConfig`), not spring-retry.
 - Shared test data lives in `src/test/kotlin/maeilkanji/maeilkanji/fixture/Fixtures.kt`.
 
 ## Env vars required to run

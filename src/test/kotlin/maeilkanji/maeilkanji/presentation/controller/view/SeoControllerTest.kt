@@ -10,7 +10,7 @@ import maeilkanji.maeilkanji.business.service.KanjiLibraryService
 import maeilkanji.maeilkanji.fixture.dailyContentDto
 import maeilkanji.maeilkanji.business.service.AdminService
 import org.hamcrest.Matchers.containsString
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -23,7 +23,7 @@ class SeoControllerTest(
     mockMvc: MockMvc,
     kanjiLibraryService: KanjiLibraryService,
 ) : BehaviorSpec({
-    extensions(SpringExtension)
+    extensions(SpringExtension())
 
     every { kanjiLibraryService.allLessons() } returns mapOf(
         KanjiLevel.BEGINNER to listOf(dailyContentDto(KanjiLevel.BEGINNER, id = 1L), dailyContentDto(KanjiLevel.BEGINNER, id = 2L)),

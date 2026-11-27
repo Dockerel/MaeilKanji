@@ -1,6 +1,6 @@
 package maeilkanji.maeilkanji.presentation.controller.api
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -27,7 +27,7 @@ import maeilkanji.maeilkanji.presentation.auth.AdminSessionCookie
 import maeilkanji.maeilkanji.presentation.controller.api.request.BulkContentRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.SendAdminLoginCodeRequest
 import maeilkanji.maeilkanji.presentation.controller.api.request.VerifyAdminLoginCodeRequest
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -50,7 +50,7 @@ class AdminRestControllerTest(
     adminService: AdminService,
     dailyContentService: DailyContentService,
 ) : BehaviorSpec({
-    extensions(SpringExtension)
+    extensions(SpringExtension())
     isolationMode = IsolationMode.InstancePerLeaf
 
     // 컨텍스트 캐시로 mock 빈이 공유되므로 leaf 마다 초기화
