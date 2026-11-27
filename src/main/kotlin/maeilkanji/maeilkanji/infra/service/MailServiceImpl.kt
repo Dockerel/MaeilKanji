@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
+import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Component
 
 @Slf4j
@@ -19,10 +18,11 @@ class MailServiceImpl(
     @Value("\${mail.from}") private val from: String
 ) : MailService {
 
+    // 최초 1회 + 재시도 2회 = 최대 3회 (spring-retry maxAttempts = 3 과 동일)
     @Retryable(
-        maxAttempts = 3,
-        backoff = Backoff(delay = 1000),
-        include = [MaeilKanjiException::class]
+        maxRetries = 2,
+        delay = 1000,
+        includes = [MaeilKanjiException::class]
     )
     override fun send(email: String, title: String, content: String) {
         try {

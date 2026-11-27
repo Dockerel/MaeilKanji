@@ -16,7 +16,7 @@ import maeilkanji.maeilkanji.business.service.dto.*
 import maeilkanji.maeilkanji.presentation.auth.MemberSessionCookie
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
@@ -33,7 +33,7 @@ class ProfileControllerTest(
     profileService: ProfileService,
     rankingService: RankingService,
 ) : BehaviorSpec({
-    extensions(SpringExtension)
+    extensions(SpringExtension())
     isolationMode = IsolationMode.InstancePerLeaf
 
     // 컨텍스트 캐시로 mock 빈이 공유되므로 leaf 마다 초기화

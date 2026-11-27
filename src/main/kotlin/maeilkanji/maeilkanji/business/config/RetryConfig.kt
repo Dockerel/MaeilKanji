@@ -1,9 +1,10 @@
 package maeilkanji.maeilkanji.business.config
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.retry.annotation.EnableRetry
+import org.springframework.resilience.annotation.EnableResilientMethods
 
-@EnableRetry
+// Spring Framework 7 내장 재시도 (@Retryable). spring-retry 대체
+@EnableResilientMethods
 @Configuration
 class RetryConfig {
 }

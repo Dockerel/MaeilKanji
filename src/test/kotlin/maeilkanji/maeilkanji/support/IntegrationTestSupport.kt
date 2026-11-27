@@ -8,8 +8,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
 import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.MySQLContainer
-import org.testcontainers.containers.RabbitMQContainer
+import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.rabbitmq.RabbitMQContainer
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -17,9 +17,9 @@ import org.testcontainers.containers.RabbitMQContainer
 abstract class IntegrationTestSupport() {
     companion object {
         // 싱글톤 컨테이너: 모든 테스트 클래스가 공유하고 JVM 종료 시 Ryuk 이 정리한다.
-        val mySQLContainer = MySQLContainer<Nothing>("mysql:8.0").also { it.start() }
+        val mySQLContainer = MySQLContainer("mysql:8.4").also { it.start() }
         val redisContainer = GenericContainer<Nothing>("redis:7-alpine").apply { withExposedPorts(6379) }.also { it.start() }
-        val rabbitMQContainer = RabbitMQContainer("rabbitmq:3-management").also { it.start() }
+        val rabbitMQContainer = RabbitMQContainer("rabbitmq:4.4-management").also { it.start() }
 
         @JvmStatic
         @DynamicPropertySource
