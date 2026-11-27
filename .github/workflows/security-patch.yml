@@ -64,7 +64,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Claude Pro/Max subscription token (`claude setup-token`), not an API key: no per-call API billing.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # PAT so the PR starts CI (GITHUB_TOKEN events do not trigger workflows).
           github_token: ${{ secrets.AUTOMATION_PAT }}
           claude_args: >-
